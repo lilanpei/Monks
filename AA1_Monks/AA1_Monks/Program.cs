@@ -10,6 +10,7 @@ namespace AA1_Monks
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Hello Ahamad");
         }
     }
 }
