@@ -24,6 +24,32 @@ namespace AA1_Monks
             var trainingSet = LoadData(trainSetLocation);
             var testingSet = LoadData(testSetLocation);
             Console.WriteLine("Hello Ahmad");
+            BasicNetwork network = new BasicNetwork();
+            network.AddLayer(new BasicLayer(17));
+            network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 34));
+
+            network.AddLayer(new BasicLayer(new ActivationSigmoid(), true, 1));
+            network.Structure.FinalizeStructure();
+            network.Reset();
+
+
+            ITrain train = new ResilientPropagation(network, trainingSet);
+
+            int epoch = 0;
+            do
+            {
+                train.Iteration();
+                Console.WriteLine("Epoch #" + epoch + " Error:" + train.Error);
+                epoch++;
+            } while ((epoch < 5000) && (train.Error > 0.000001));
+
+            Console.WriteLine("Neural Network Results:");
+
+            foreach (var pair in testingSet)
+            {
+                var o = network.Compute(pair.Input);
+                Console.WriteLine("Actual=" + o[0] + ", Ideal=" + pair.Ideal[0]);
+            }
         }
 
         private static BasicNeuralDataSet LoadData(string datasetLocation)
