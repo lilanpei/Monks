@@ -1,0 +1,12 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AA1_Monks.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="trainingDataLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-4\AA1 - PROJ\MONKS-DATASETS\dataset3train</Value>
+    </Setting>
+    <Setting Name="testDataLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-4\AA1 - PROJ\MONKS-DATASETS\dataset3test</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>
