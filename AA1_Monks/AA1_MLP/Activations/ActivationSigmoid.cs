@@ -11,7 +11,7 @@ namespace AA1_MLP.Activations
     {
         public Vector<double> CalculateActivation(Vector<double> x)
         {
-            return 1 / x.Multiply(-1).PointwiseExp()+1;
+            return 1 / (x.Multiply(-1).PointwiseExp()+1);
             //return 1 / (1 + Math.Exp(-x));
         }
 

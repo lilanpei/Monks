@@ -30,7 +30,7 @@ namespace AA1_MLP.DataManager
             // string[] lines = File.ReadAllLines(datasetLocation);
             //  lines = lines.Select(s => !string.IsNullOrWhiteSpace(s));
             Matrix<double> input = CreateMatrix.Dense<double>(lines.Count, featureVectorLength, 0);
-            Matrix<double> output = CreateMatrix.Dense<double>(lines.Count, featureVectorLength, 0);
+            Matrix<double> output = CreateMatrix.Dense<double>(lines.Count, 1, 0);
             for (int i = 0; i < lines.Count; i++)
             {
                 var line = lines[i].Trim().Split(' ');
@@ -62,28 +62,8 @@ namespace AA1_MLP.DataManager
                line[6] == "2" ? 1 : 0
               });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                output.SetRow(i, new double[] { double.Parse((line[0])) });
+                double[] opt =  new double[] { double.Parse(line[0]) };
+                output.SetRow(i,opt);
             }
 
             DataSet trainingSet = new DataSet() { Input = input, Output = output };
