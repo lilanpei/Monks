@@ -1,0 +1,9 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="AA1_MLP.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="TrainingSetLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-4\AA1 - PROJ\MONKS-DATASETS\dataset1train</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

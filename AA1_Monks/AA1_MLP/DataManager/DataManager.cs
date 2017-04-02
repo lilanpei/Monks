@@ -1,0 +1,96 @@
+﻿using AA1_MLP.Entities;
+using MathNet.Numerics.LinearAlgebra;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AA1_MLP.DataManager
+{
+    public class DataManager
+    {
+
+        public static DataSet LoadMonksData(string datasetLocation, int featureVectorLength = 17)
+        {
+            string l;
+            List<string> lines = new List<string>();
+            System.IO.StreamReader file =
+   new System.IO.StreamReader(datasetLocation);
+            while ((l = file.ReadLine()) != null)
+            {
+                if (!string.IsNullOrWhiteSpace(l))
+                {
+                    lines.Add(l);
+                }
+
+            }
+
+            file.Close();
+            // string[] lines = File.ReadAllLines(datasetLocation);
+            //  lines = lines.Select(s => !string.IsNullOrWhiteSpace(s));
+            Matrix<double> input = CreateMatrix.Dense<double>(lines.Count, featureVectorLength, 0);
+            Matrix<double> output = CreateMatrix.Dense<double>(lines.Count, featureVectorLength, 0);
+            for (int i = 0; i < lines.Count; i++)
+            {
+                var line = lines[i].Trim().Split(' ');
+
+
+                input.SetRow(i, new double[]{
+              line[1] == "1" ? 1 :  0,
+              line[1] == "2" ? 1 :  0,
+              line[1] == "3" ? 1 :  0,
+                                     
+              line[2] == "1" ? 1 :  0,
+              line[2] == "2" ? 1 :  0,
+              line[2] == "3" ? 1 :  0,
+                                     
+              line[3] == "1" ? 1 :  0,
+              line[3] == "2" ? 1 :  0,
+                                    
+              
+              line[4] == "1" ? 1 :  0,
+              line[4] == "2" ? 1 :  0,
+              line[4] == "3" ? 1 : 0,
+                                     
+               line[5] == "1" ? 1 : 0,
+               line[5] == "2" ? 1 : 0,
+               line[5] == "3" ? 1 : 0,
+               line[5] == "4" ? 1 : 0,
+                                     
+               line[6] == "1" ? 1 : 0,
+               line[6] == "2" ? 1 : 0
+              });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                output.SetRow(i, new double[] { double.Parse((line[0])) });
+            }
+
+            DataSet trainingSet = new DataSet() { Input = input, Output = output };
+            return trainingSet;
+        }
+
+
+    }
+
+}
