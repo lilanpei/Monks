@@ -9,8 +9,8 @@ namespace AA1_MLP.Entities
 {
    public class DataSet
     {
-        public Matrix<double> Input { get; set; }
-        public Matrix<double> Output { get; set; }
+        public Matrix<double> Inputs { get; set; }
+        public Matrix<double> Labels { get; set; }
 
     }
 }

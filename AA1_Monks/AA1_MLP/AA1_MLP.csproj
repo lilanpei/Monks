@@ -50,7 +50,9 @@
     <Compile Include="Activations\IActivation.cs" />
     <Compile Include="Activations\IdentityActivation.cs" />
     <Compile Include="DataManager\DataManager.cs" />
+    <Compile Include="Entities\BackPropagation.cs" />
     <Compile Include="Entities\DataSet.cs" />
+    <Compile Include="Entities\IOptimizer.cs" />
     <Compile Include="Entities\Layer.cs" />
     <Compile Include="Entities\Network.cs" />
     <Compile Include="Program.cs" />
@@ -60,6 +62,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Utilities\ExtensionMethods.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -69,6 +72,7 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

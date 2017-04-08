@@ -10,8 +10,7 @@ namespace AA1_MLP.DataManager
 {
     public class DataManager
     {
-
-        public static DataSet LoadMonksData(string datasetLocation, int featureVectorLength = 17)
+        public static DataSet LoadMonksData(string datasetLocation, int featureVectorLength)
         {
             string l;
             List<string> lines = new List<string>();
@@ -62,14 +61,13 @@ namespace AA1_MLP.DataManager
                line[6] == "2" ? 1 : 0
               });
 
-                double[] opt =  new double[] { double.Parse(line[0]) };
-                output.SetRow(i,opt);
+                double[] opt = new double[] { double.Parse(line[0]) };
+                output.SetRow(i, opt);
             }
 
-            DataSet trainingSet = new DataSet() { Input = input, Output = output };
+            DataSet trainingSet = new DataSet() { Inputs = input, Labels = output };
             return trainingSet;
         }
-
 
     }
 

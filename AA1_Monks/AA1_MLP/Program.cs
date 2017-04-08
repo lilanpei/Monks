@@ -17,18 +17,13 @@ namespace AA1_MLP
             new Layer(){Activation=new ActivationIdentity(),Bias=true,NumberOfNeurons=17},
             new Layer(){Activation=new ActivationTanh(),Bias=true,NumberOfNeurons=17*2},
             new Layer(){Activation=new ActivationSigmoid(),Bias=true,NumberOfNeurons=1},
-            
             });
 
-            DataSet ds = DataManager.DataManager.LoadMonksData(Properties.Settings.Default.TrainingSetLocation);
+            DataSet ds = DataManager.DataManager.LoadMonksData(Properties.Settings.Default.TrainingSetLocation, 17);
 
-            for (int i = 0; i < ds.Input.RowCount; i++)
+            for (int i = 0; i < ds.Inputs.RowCount; i++)
             {
-               
-
-            var result =     n.ForwardPropagation(ds.Input.Row(i));
-            
-            
+                var result = n.ForwardPropagation(ds.Inputs.Row(i));
             }
 
 
