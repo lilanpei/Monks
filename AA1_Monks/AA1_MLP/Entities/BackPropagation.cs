@@ -4,11 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CustomExtensionMethods;
+using MathNet.Numerics.LinearAlgebra;
 namespace AA1_MLP.Entities
 {
     class BackPropagation : IOptimizer
     {
-        public override void Iterate(Network network, DataSet wholeData, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null)
+        public override void Train(Network network, DataSet wholeData, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null)
         {
             List<int> indices = Enumerable.Range(0, wholeData.Labels.RowCount - 1).ToList();
             if (shuffle)
@@ -25,7 +26,7 @@ namespace AA1_MLP.Entities
                     validation.Labels.Append(wholeData.Labels.SubMatrix(indices[i], 1, 0, wholeData.Labels.ColumnCount - 1));
 
                 }
-                for (int i = (int)( indices.Count * validationSplit); i < indices.Count; i++)
+                for (int i = (int)(indices.Count * validationSplit); i < indices.Count; i++)
                 {
                     wholeData.Inputs.Append(wholeData.Inputs.SubMatrix(indices[i], 1, 0, wholeData.Inputs.ColumnCount - 1));
                     wholeData.Labels.Append(wholeData.Labels.SubMatrix(indices[i], 1, 0, wholeData.Labels.ColumnCount - 1));
@@ -34,11 +35,47 @@ namespace AA1_MLP.Entities
 
             }
 
-            for (int i = 0; i < numberOfEpochs; i++)
+            Matrix<double> batchesIndices = null;
+
+            for (int epoch = 0; epoch < numberOfEpochs; epoch++)
             {
                 if (batchSize != null)
                 {
+                    var numberOfBatches = (int)(Math.Ceiling(wholeData.Labels.RowCount / (double)(batchSize)));
 
+                    batchesIndices = CreateMatrix.Dense(numberOfBatches, 2, 0.0);
+
+                    for (int j = 0; j < numberOfBatches; j++)
+                    {
+                        batchesIndices.SetRow(j, new double[] { j * (double)batchSize, Math.Min(indices.Count, (j + 1) * (double)batchSize) });
+                    }
+
+
+                }
+                else
+                {
+                    batchesIndices = CreateMatrix.Dense(1, 2, 0.0);
+                    batchesIndices.SetRow(0, new double[] { 0, indices.Count - 1 });
+                }
+
+
+                for (int i = 0; i < batchesIndices.RowCount; i++)//for each batch
+                {
+                    double iterationLoss = 0;
+
+
+                    for (int k = (int)batchesIndices.Row(i).At(0); k < (int)batchesIndices.Row(i).At(1); k++)//for each elemtn in th batch
+                    {
+                        double batchLoss = 0;
+                        var nwOutput = network.ForwardPropagation(wholeData.Inputs.Row(k));
+                        var label = wholeData.Labels.Row(k);
+                        //comute the loss 
+                        batchLoss = -1 * label * (nwOutput.Map(f => Math.Log(f))) - (1 - label) * (1 - nwOutput.Map(f => Math.Log(f)));
+
+
+                        iterationLoss += batchLoss;
+                        //compute the error and backpropagate it 
+                    }
                 }
 
             }

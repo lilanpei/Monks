@@ -19,7 +19,7 @@ namespace AA1_MLP.Entities
         /// this function runs a forward propagation iteration,calculates the errors and backpropagate it to update the network weights
         /// </summary>
         /// <param name="network">Is a network architecture</param>
-        public abstract void Iterate(Network network, DataSet wholeData, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, Historian historian = null, CheckPointer checkPointer = null);
+        public abstract void Train(Network network, DataSet wholeData, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, Historian historian = null, CheckPointer checkPointer = null);
 
 
     }
