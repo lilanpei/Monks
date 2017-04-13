@@ -13,8 +13,11 @@ namespace AA1_MLP.Entities
         public int NumberOfNeurons { get; set; }
         public IActivation Activation { get; set; }
         public bool Bias { get; set; }
+        public Vector<double> LayerActivations { get; set; }
 
-     public   Vector<double> ForwardPropagation(Vector<double> inputOfPrevLayer, Matrix<double> weights)
+        public Vector<double> Delta { get; set; }//layer local error
+
+        public Vector<double> ForwardPropagation(Vector<double> inputOfPrevLayer, Matrix<double> weights)
         {
             if (Bias)
             {
@@ -23,7 +26,7 @@ namespace AA1_MLP.Entities
                 inputOfPrevLayer = CreateVector.Dense(d.ToArray());
             }
 
-            return Activation.CalculateActivation(inputOfPrevLayer * weights);
+            return LayerActivations = Activation.CalculateActivation(inputOfPrevLayer * weights);
 
 
         }

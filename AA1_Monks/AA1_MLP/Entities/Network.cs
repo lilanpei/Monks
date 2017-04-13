@@ -10,10 +10,12 @@ namespace AA1_MLP.Entities
 {
     class Network
     {
-        List<Layer> Layers = new List<Layer>();
-        List<Matrix<double>> Weights = new List<Matrix<double>>();
+        public List<Layer> Layers { get; set; }
+        public List<Matrix<double>> Weights { get; set; }
+
         public Network(List<Layer> _Layers)
         {
+            Weights = new List<Matrix<double>>();
             Layers = _Layers;
 
             for (int i = 0; i < Layers.Count - 1; i++)
@@ -35,7 +37,7 @@ namespace AA1_MLP.Entities
 
             for (int i = 1; i < Layers.Count; i++)
             {
-                input = Layers[i].ForwardPropagation(input, Weights[i-1]);
+                input = Layers[i].ForwardPropagation(input, Weights[i - 1]);
 
             }
             return input;

@@ -58,25 +58,43 @@ namespace AA1_MLP.Entities
                     batchesIndices.SetRow(0, new double[] { 0, indices.Count - 1 });
                 }
 
+                    double iterationLoss = 0;
 
                 for (int i = 0; i < batchesIndices.RowCount; i++)//for each batch
                 {
-                    double iterationLoss = 0;
 
-
-                    for (int k = (int)batchesIndices.Row(i).At(0); k < (int)batchesIndices.Row(i).At(1); k++)//for each elemtn in th batch
-                    {
                         double batchLoss = 0;
+
+                    for (int k = (int)batchesIndices.Row(i).At(0); k < (int)batchesIndices.Row(i).At(1); k++)//for each elemnt in th batch
+                    {
                         var nwOutput = network.ForwardPropagation(wholeData.Inputs.Row(k));
                         var label = wholeData.Labels.Row(k);
                         //comute the loss 
-                        batchLoss = -1 * label * (nwOutput.Map(f => Math.Log(f))) - (1 - label) * (1 - nwOutput.Map(f => Math.Log(f)));
+                        batchLoss += -1 * label * (nwOutput.Map(f => Math.Log(f))) - (1 - label) * (1 - nwOutput.Map(f => Math.Log(f)));
 
 
-                        iterationLoss += batchLoss;
                         //compute the error and backpropagate it 
+
+                        var residual =   nwOutput -label;
+
+                        //compute the delta of previous layer
+                        for (int layerIndex = network.Layers.Count - 1; layerIndex >= 0; layerIndex--)
+                        {
+                            network.Layers[layerIndex - 1].Delta = (
+                            residual * network.Layers[layerIndex].Activation.CalculateDerivative(
+                                network.Layers.[layerIndex].LayerActivations
+                                 )*network.Weights[layerIndex-1].Transpose()
+    );
+                            residual = network.Layers[layerIndex - 1].Delta;
+
+                            network.Weights[layerIndex-1]  -= LearningRate* network.Layers[layerIndex ].Delta*network.Layers[layerIndex - 1].Activation;
+                        }
+
                     }
+                        iterationLoss += batchLoss;///((int)batchesIndices.Row(i).At(1)-(int)batchesIndices.Row(i).At(0));
+
                 }
+                iterationLoss/= batchesIndices.RowCount;
 
             }
         }
