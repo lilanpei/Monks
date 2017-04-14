@@ -80,14 +80,10 @@ namespace AA1_MLP.Entities
                         //compute the delta of previous layer
                         for (int layerIndex = network.Layers.Count - 1; layerIndex >= 0; layerIndex--)
                         {
-                            network.Layers[layerIndex - 1].Delta = (
-                            residual * network.Layers[layerIndex].Activation.CalculateDerivative(
-                                network.Layers.[layerIndex].LayerActivations
-                                 )*network.Weights[layerIndex-1].Transpose()
-    );
+                            network.Layers[layerIndex - 1].Delta = (residual * network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivations)*network.Weights[layerIndex-1].Transpose());
                             residual = network.Layers[layerIndex - 1].Delta;
 
-                            network.Weights[layerIndex-1]  -= LearningRate* network.Layers[layerIndex ].Delta*network.Layers[layerIndex - 1].Activation;
+                            network.Weights[layerIndex-1]  -= LearningRate* network.Layers[layerIndex ].Delta*network.Layers[layerIndex - 1].LayerActivations;
                         }
 
                     }

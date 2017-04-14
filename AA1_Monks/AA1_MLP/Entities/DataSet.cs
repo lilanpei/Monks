@@ -12,5 +12,9 @@ namespace AA1_MLP.Entities
         public Matrix<double> Inputs { get; set; }
         public Matrix<double> Labels { get; set; }
 
+        public DataSet()
+        {
+            Inputs = CreateMatrix
+        }
     }
 }

@@ -26,7 +26,8 @@ namespace AA1_MLP
                 var result = n.ForwardPropagation(ds.Inputs.Row(i));
             }
 
-
+            BackPropagation br = new BackPropagation();
+            br.Train(n, ds, 10, true, 3, 0.2f);
         }
     }
 }
