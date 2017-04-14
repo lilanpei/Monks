@@ -34,6 +34,7 @@ namespace AA1_MLP.Entities
 
         public Vector<double> ForwardPropagation(Vector<double> input)
         {
+            Layers[0].LayerActivations = input;
 
             for (int i = 1; i < Layers.Count; i++)
             {

@@ -1,5 +1,6 @@
 ﻿using AA1_MLP.Activations;
 using AA1_MLP.Entities;
+using AA1_MLP.Entities.Trainers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +15,9 @@ namespace AA1_MLP
         {
             Network n = new Network(new List<Layer>() { 
             
-            new Layer(){Activation=new ActivationIdentity(),Bias=true,NumberOfNeurons=17},
-            new Layer(){Activation=new ActivationTanh(),Bias=true,NumberOfNeurons=17*2},
-            new Layer(){Activation=new ActivationSigmoid(),Bias=true,NumberOfNeurons=1},
+            new Layer(){Activation=new ActivationIdentity(),Bias=false,NumberOfNeurons=17},
+            new Layer(){Activation=new ActivationTanh(),Bias=false,NumberOfNeurons=17*2},
+            new Layer(){Activation=new ActivationSigmoid(),Bias=false,NumberOfNeurons=1},
             });
 
             DataSet ds = DataManager.DataManager.LoadMonksData(Properties.Settings.Default.TrainingSetLocation, 17);
@@ -27,7 +28,7 @@ namespace AA1_MLP
             }
 
             BackPropagation br = new BackPropagation();
-            br.Train(n, ds, 10, true, 3, 0.2f);
+            br.Train(n, ds, 0.01,100,true, 3, 0.2f);
         }
     }
 }

@@ -65,7 +65,7 @@ namespace AA1_MLP.DataManager
                 output.SetRow(i, opt);
             }
 
-            DataSet trainingSet = new DataSet() { Inputs = input, Labels = output };
+            DataSet trainingSet = new DataSet(input, output) ;
             return trainingSet;
         }
 

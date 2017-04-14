@@ -50,9 +50,9 @@
     <Compile Include="Activations\IActivation.cs" />
     <Compile Include="Activations\IdentityActivation.cs" />
     <Compile Include="DataManager\DataManager.cs" />
-    <Compile Include="Entities\BackPropagation.cs" />
+    <Compile Include="Entities\Trainers\BackPropagation.cs" />
     <Compile Include="Entities\DataSet.cs" />
-    <Compile Include="Entities\IOptimizer.cs" />
+    <Compile Include="Entities\Trainers\IOptimizer.cs" />
     <Compile Include="Entities\Layer.cs" />
     <Compile Include="Entities\Network.cs" />
     <Compile Include="Program.cs" />
