@@ -94,14 +94,16 @@ namespace AA1_MLP.Entities.Trainers
                         var label = training.Labels.Row(k);
                         //comute the loss 
                         //batchLoss += -1 * label * (nwOutput.Map(f => Math.Log(f))) - (1 - label) * (1 - nwOutput.Map(f => Math.Log(f)));
-                       var residual = (-1 * label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f))) - (1 - label)).PointwiseMultiply(  (1 - nwOutput.Map(f => Math.Log(f))));
+                        var residual = -((label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f)))) + (1 - label).PointwiseMultiply((nwOutput.Map(f => Math.Log(1-f)))));
+                        residual = residual.Map(r => double.IsNaN(r) ? 0 : r);
                         //compute the error and backpropagate it 
-                       // var residual = nwOutput - label;
-                        batchLoss += residual * residual;
+                        // var residual = nwOutput - label;
+                        batchLoss += residual.Sum();
                         network.Layers.Last().Delta = residual;
                         //compute the delta of previous layer
                         for (int layerIndex = network.Layers.Count - 1; layerIndex >= 1; layerIndex--)
                         {
+
                             network.Layers[layerIndex - 1].Delta = (residual * network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivations) * network.Weights[layerIndex - 1].Transpose());
                             residual = network.Layers[layerIndex - 1].Delta;
 
@@ -118,7 +120,7 @@ namespace AA1_MLP.Entities.Trainers
 
                     }
 
-                    batchLoss /=( (int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0));
+                    batchLoss /= ((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0));
 
                     for (int y = 0; y < weightsUpdates.Keys.Count; y++)
                     {
