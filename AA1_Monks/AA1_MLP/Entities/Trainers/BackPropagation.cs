@@ -19,9 +19,9 @@ namespace AA1_MLP.Entities.Trainers
 
             DataSet validation = new DataSet(null, null);
             DataSet training = new DataSet(null, null);
-            int valSplitSize = (int)(indices.Count * validationSplit);
             if (validationSplit != null)
             {
+                int valSplitSize = (int)(indices.Count * validationSplit);
 
                 validation.Inputs = CreateMatrix.Dense(valSplitSize, wholeData.Inputs.ColumnCount, 0.0);
                 validation.Labels = CreateMatrix.Dense(valSplitSize, wholeData.Labels.ColumnCount, 0.0);
@@ -52,6 +52,12 @@ namespace AA1_MLP.Entities.Trainers
 
 
 
+
+            }
+            else
+            {
+                training.Inputs = wholeData.Inputs;
+                training.Labels = wholeData.Labels;
 
             }
 
@@ -94,10 +100,11 @@ namespace AA1_MLP.Entities.Trainers
                         var label = training.Labels.Row(k);
                         //comute the loss 
                         //batchLoss += -1 * label * (nwOutput.Map(f => Math.Log(f))) - (1 - label) * (1 - nwOutput.Map(f => Math.Log(f)));
-                        var residual = -((label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f)))) + (1 - label).PointwiseMultiply((nwOutput.Map(f => Math.Log(1-f)))));
+                        // var residual = nwOutput - label;
+
+                        var residual = -((label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f)))) + (1 - label).PointwiseMultiply((nwOutput.Map(f => Math.Log(1 - f)))));
                         residual = residual.Map(r => double.IsNaN(r) ? 0 : r);
                         //compute the error and backpropagate it 
-                        // var residual = nwOutput - label;
                         batchLoss += residual.Sum();
                         network.Layers.Last().Delta = residual;
                         //compute the delta of previous layer
@@ -120,11 +127,11 @@ namespace AA1_MLP.Entities.Trainers
 
                     }
 
-                    batchLoss /= ((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0));
+                    batchLoss /= ((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1;
 
                     for (int y = 0; y < weightsUpdates.Keys.Count; y++)
                     {
-                        network.Weights[y] -= weightsUpdates[y];
+                        network.Weights[y] += weightsUpdates[y];
                     }
                     iterationLoss += batchLoss;///((int)batchesIndices.Row(i).At(1)-(int)batchesIndices.Row(i).At(0));
                     Console.WriteLine("Batch: {0} Error: {1}", i, batchLoss);
