@@ -15,7 +15,7 @@ namespace AA1_MLP
             new Layer(){Activation=new ActivationIdentity(),Bias=false,NumberOfNeurons=2},
             new Layer(){Activation=new ActivationSigmoid(),Bias=false,NumberOfNeurons=3},
             new Layer(){Activation=new ActivationSigmoid(),Bias=false,NumberOfNeurons=1},
-            }, true);
+            }, false);
 
 
 

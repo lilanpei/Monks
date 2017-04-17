@@ -93,7 +93,7 @@ namespace AA1_MLP.Entities.Trainers
                     double batchLoss = 0;
                     Dictionary<int, Matrix<double>> weightsUpdates = new Dictionary<int, Matrix<double>>();
 
-                    for (int k = (int)batchesIndices.Row(i).At(0); k < (int)batchesIndices.Row(i).At(1); k++)//for each elemnt in th batch
+                    for (int k = (int)batchesIndices.Row(i).At(0); k <= (int)batchesIndices.Row(i).At(1); k++)//for each elemnt in th batch
                     {
                         var nwOutput = network.ForwardPropagation(training.Inputs.Row(k));
                         // network.Layers[0].LayerActivationsSumInputs = training.Inputs.Row(k);
