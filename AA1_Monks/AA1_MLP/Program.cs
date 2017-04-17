@@ -2,11 +2,7 @@
 using AA1_MLP.Entities;
 using AA1_MLP.Entities.Trainers;
 using MathNet.Numerics.LinearAlgebra;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace AA1_MLP
 {
@@ -17,25 +13,49 @@ namespace AA1_MLP
             Network n = new Network(new List<Layer>() {
 
             new Layer(){Activation=new ActivationIdentity(),Bias=false,NumberOfNeurons=2},
-            new Layer(){Activation=new ActivationTanh(),Bias=false,NumberOfNeurons=3},
+            new Layer(){Activation=new ActivationSigmoid(),Bias=false,NumberOfNeurons=3},
             new Layer(){Activation=new ActivationSigmoid(),Bias=false,NumberOfNeurons=1},
-            });
+            }, true);
 
 
 
 
             //DataSet ds = DataManager.DataManager.LoadMonksData(Properties.Settings.Default.TrainingSetLocation, 17);
             DataSet ds = new DataSet(
-                CreateMatrix.Dense(4, 2, new double[] { 1, 1, 0, 1, 1, 0, 0, 0 }),
-
-                CreateMatrix.Dense(4, 1, new double[] { 1, 0, 1, 1 }));
+                CreateMatrix.Dense(4, 2, new double[] { 1, 0, 1, 0, 1, 1, 0, 0 }),
+                CreateMatrix.Dense(4, 1, new double[] { 0, 1, 1, 0 }));
             for (int i = 0; i < ds.Inputs.RowCount; i++)
             {
+                System.Console.WriteLine("Input");
+                System.Console.WriteLine(ds.Inputs.Row(i));
+
+
                 var result = n.ForwardPropagation(ds.Inputs.Row(i));
+                System.Console.WriteLine("Final output");
+                System.Console.WriteLine(result);
             }
 
             BackPropagation br = new BackPropagation();
-            br.Train(n, ds, 0.1,100);
+            br.Train(n, ds, learningRate: 1, numberOfEpochs: 1000, debug: n.Debug);
+
+
+            System.Console.WriteLine("~~~~~~~~~~Printing Results:~~~~~~~~~~");
+
+            for (int i = 0; i < ds.Inputs.RowCount; i++)
+            {
+                System.Console.WriteLine("Input");
+                System.Console.WriteLine(ds.Inputs.Row(i));
+                System.Console.WriteLine("Target");
+                System.Console.WriteLine(ds.Labels.Row(i));
+
+                var result = n.ForwardPropagation(ds.Inputs.Row(i));
+                System.Console.WriteLine("Final output");
+                System.Console.WriteLine(result);
+                System.Console.WriteLine("Target");
+                System.Console.WriteLine(ds.Labels.Row(i));
+            }
+
+
         }
     }
 }

@@ -9,9 +9,9 @@ namespace AA1_MLP.Entities.Trainers
 {
     class BackPropagation : IOptimizer
     {
-        public override void Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null)
+        public override void Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null, bool debug = false)
         {
-            List<int> indices = Enumerable.Range(0, wholeData.Labels.RowCount).ToList();
+            List<int> indices = Enumerable.Range(0, wholeData.Labels.RowCount-1).ToList();
             if (shuffle)
             {
                 indices.Shuffle();
@@ -61,7 +61,7 @@ namespace AA1_MLP.Entities.Trainers
 
             }
 
-            Matrix<double> batchesIndices = null;
+            Matrix<double> batchesIndices = null;//a 2d matrix of shape(nmberOfBatches,2), rows are batches, row[0] =barchstart, row[1] = batchEnd 
 
             for (int epoch = 0; epoch < numberOfEpochs; epoch++)
             {
@@ -82,7 +82,7 @@ namespace AA1_MLP.Entities.Trainers
                 else
                 {
                     batchesIndices = CreateMatrix.Dense(1, 2, 0.0);
-                    batchesIndices.SetRow(0, new double[] { 0, indices.Count - 1 });
+                    batchesIndices.SetRow(0, new double[] { 0, indices.Count });
                 }
 
                 double iterationLoss = 0;
@@ -96,36 +96,87 @@ namespace AA1_MLP.Entities.Trainers
                     for (int k = (int)batchesIndices.Row(i).At(0); k < (int)batchesIndices.Row(i).At(1); k++)//for each elemnt in th batch
                     {
                         var nwOutput = network.ForwardPropagation(training.Inputs.Row(k));
-                        // network.Layers[0].LayerActivations = training.Inputs.Row(k);
+                        // network.Layers[0].LayerActivationsSumInputs = training.Inputs.Row(k);
                         var label = training.Labels.Row(k);
                         //comute the loss 
                         //batchLoss += -1 * label * (nwOutput.Map(f => Math.Log(f))) - (1 - label) * (1 - nwOutput.Map(f => Math.Log(f)));
-                        // var residual = nwOutput - label;
+                        var residual = label - nwOutput;
+                        if (debug)
+                        {
+                            Console.WriteLine("Target:{0}", label);
+                            Console.WriteLine("Calculated:{0}", nwOutput);
+                            Console.WriteLine("Target-calculated (residual):{0}", residual);
+                        }
 
-                        var residual = -((label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f)))) + (1 - label).PointwiseMultiply((nwOutput.Map(f => Math.Log(1 - f)))));
+                        //var residual = -((label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f)))) + (1 - label).PointwiseMultiply((nwOutput.Map(f => Math.Log(1 - f)))));
                         residual = residual.Map(r => double.IsNaN(r) ? 0 : r);
                         //compute the error and backpropagate it 
                         batchLoss += residual.Sum();
-                        network.Layers.Last().Delta = residual;
+                        // network.Layers.Last().Delta = residual;
                         //compute the delta of previous layer
                         for (int layerIndex = network.Layers.Count - 1; layerIndex >= 1; layerIndex--)
                         {
+                            if (debug)
+                                Console.WriteLine("##### enting backpropagation layer index: {0} ######", layerIndex);
 
-                            network.Layers[layerIndex - 1].Delta = (residual * network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivations) * network.Weights[layerIndex - 1].Transpose());
+                            var derivative = network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs);
+                            var residualTimesDerivative = residual.PointwiseMultiply(derivative);
+                            if (debug)
+                            {
+                                Console.WriteLine("output sum(the sum inputted to the activation(LayerActivationsSumInputs)): {0}", network.Layers[layerIndex].LayerActivationsSumInputs);
+                                Console.WriteLine("derivative: {0}", derivative);
+                                Console.WriteLine("output sum margin of error(residual): {0}", residual);
+                                Console.WriteLine("Delta output sum of Layer(residual*derivative): {0}", layerIndex);
+                                Console.WriteLine(residualTimesDerivative);
+
+                            }
+                            network.Layers[layerIndex].Delta = residualTimesDerivative;
+                            if (layerIndex!=1)
+                            {
+                                network.Layers[layerIndex - 1].Delta = residualTimesDerivative * (network.Weights[layerIndex - 1] * (network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs))).ToRowMatrix();
+
+                            }
                             residual = network.Layers[layerIndex - 1].Delta;
 
-                            // network.Weights[layerIndex - 1] -= LearningRate * network.Layers[layerIndex].Delta.OuterProduct( network.Layers[layerIndex - 1].LayerActivations);
+                            // network.Weights[layerIndex - 1] -= LearningRate * network.Layers[layerIndex].Delta.OuterProduct( network.Layers[layerIndex - 1].LayerActivationsSumInputs);
                             if (!weightsUpdates.ContainsKey(layerIndex - 1))
                             {
                                 weightsUpdates.Add(layerIndex - 1, CreateMatrix.Dense(network.Weights[layerIndex - 1].RowCount, network.Weights[layerIndex - 1].ColumnCount, 0.0));
                             }
-                            var outrprod = network.Layers[layerIndex].Delta.OuterProduct(network.Layers[layerIndex - 1].LayerActivations);
-                            weightsUpdates[layerIndex - 1] = weightsUpdates[layerIndex - 1].Add(learningRate * outrprod.Transpose());
+
+                            Matrix<double> outrprod = null;
+                          //  if (layerIndex == network.Layers.Count - 1)
+                            {
+                                //delta output sum * hidden layer results
+                                outrprod = network.Layers[layerIndex].Delta.Vec2Vecmultiply(network.Layers[layerIndex - 1].LayerActivations);
+                            }
+                            // else if (layerIndex == 1) { break; }
+                          /*  else
+                            {
+                                //delta output sum * hidden-to-outer weights * S'(hidden sum)
+                                outrprod = network.Layers[layerIndex].Delta.Vec2Mtrxmultiply(network.Weights[layerIndex ].Mtrx2Vecmultiply((network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs)))).Mtrx2Vecmultiply( network.Layers[layerIndex-1].LayerActivations);
+                            }
+                            */
+                            var weightsupdatematrix = learningRate * outrprod;
+                            weightsUpdates[layerIndex - 1] = weightsUpdates[layerIndex - 1].Add(weightsupdatematrix);
+                            // weightsUpdates[layerIndex - 1] = weightsupdatematrix;
+                            if (debug)
+                            {
+                                Console.WriteLine("weights updates of weightsMatrix(learning rate* outerproduct(Layer{1} delta,layer{2} output from activations) ): {0} ", layerIndex - 1, layerIndex, layerIndex - 1);
+                                Console.WriteLine("learning rate:{0}", learningRate);
+                                Console.WriteLine("Layer:{0} delta: {1}", layerIndex, network.Layers[layerIndex].Delta);
+                                Console.WriteLine("layer{0} output from activations:{1}", layerIndex - 1, network.Layers[layerIndex - 1].LayerActivations);
+                                Console.WriteLine(weightsupdatematrix);
+                            }
+                            if (debug)
+                                Console.WriteLine("----------- BackPropagation LayerIndex{0} ------------", layerIndex);
                         }
 
-
-
+                        if (debug)
+                            Console.WriteLine("-------- Batch:{0} element:{1} end-----", i, k);
                     }
+                    if (debug)
+                        Console.WriteLine("batch end");
 
                     batchLoss /= ((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1;
 

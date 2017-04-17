@@ -15,10 +15,10 @@ namespace AA1_MLP.Activations
             return x.PointwiseTanh();
         }
 
-        public double CalculateDerivative(Vector<double> x)
+        public Vector<double> CalculateDerivative(Vector<double> x)
         {
             x = CalculateActivation(x);
-            return 1-x.DotProduct(x);
+            return 1 - x.PointwiseMultiply(x);
             //return 1 - x * x;
         }
     }

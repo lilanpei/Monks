@@ -15,11 +15,11 @@ namespace AA1_MLP.Activations
             //return 1 / (1 + Math.Exp(-x));
         }
 
-        public double CalculateDerivative(Vector<double> x)
+        public Vector<double> CalculateDerivative(Vector<double> x)
         {
             x = CalculateActivation(x);
 
-            return x.DotProduct(1-x);
+            return x.PointwiseMultiply(1-x);
             //  return x * (1 - x);
         }
     }

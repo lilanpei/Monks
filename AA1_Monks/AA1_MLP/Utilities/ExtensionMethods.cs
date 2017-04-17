@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MathNet.Numerics.LinearAlgebra;
+using System;
 using System.Collections.Generic;
 
 namespace CustomExtensionMethods
@@ -19,5 +20,28 @@ namespace CustomExtensionMethods
                 list[n] = value;
             }
         }
+
+        public static Matrix<double> Vec2Vecmultiply(this Vector<double> lhs, Vector<double> rhs)
+        {
+            var mul = lhs.ToColumnMatrix() * rhs.ToRowMatrix();
+            return mul.Transpose();//CreateMatrix.Dense(1, rhs.Count, mul.ToArray()).Transpose();
+        }
+
+        public static Matrix<double> Mtrx2Vecmultiply(this Matrix<double> lhs, Vector<double> rhs)
+        {
+            var mul = lhs * rhs;
+            return mul.ToColumnMatrix();
+        }
+
+
+        public static Matrix<double> Vec2Mtrxmultiply(this Vector<double> lhs, Matrix<double> rhs)
+        {
+            var mul = rhs * lhs.ToRowMatrix();
+            return mul;
+        }
+
+
+
+
     }
 }

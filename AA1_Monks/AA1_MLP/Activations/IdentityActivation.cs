@@ -13,7 +13,7 @@ namespace AA1_MLP.Activations
             return x;
         }
 
-        public double CalculateDerivative(MathNet.Numerics.LinearAlgebra.Vector<double> x)
+        public MathNet.Numerics.LinearAlgebra.Vector<double> CalculateDerivative(MathNet.Numerics.LinearAlgebra.Vector<double> x)
         {
             throw new NotImplementedException();
         }
