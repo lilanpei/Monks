@@ -17,8 +17,29 @@ namespace AA1_MLP.Entities
         public Vector<double> LayerActivations { get; set; }
         public Vector<double> Delta { get; set; }//layer local error
 
+
+
+        public Layer(IActivation _activation, bool _bias, int _numberOfNeurons)
+        {
+            Activation = _activation;
+            Bias = _bias;
+            NumberOfNeurons = _numberOfNeurons;
+            int addBias = 0;
+            if (Bias)
+            {
+                addBias = 1;
+            }
+            NumberOfNeurons += addBias;
+        }
+
         public Vector<double> ForwardPropagation(Vector<double> inputOfPrevLayer, Matrix<double> weights, bool debug = false)
         {
+
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Weights layer forward prop:{0} ", weights);
+            Console.ResetColor();
+
+
             if (Bias)
             {
                 var d = inputOfPrevLayer.ToList<double>();

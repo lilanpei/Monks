@@ -21,11 +21,7 @@ namespace AA1_MLP.Entities
 
             for (int i = 0; i < Layers.Count - 1; i++)
             {
-                int addBias = 0;
-                if (Layers[i + 1].Bias)
-                {
-                    addBias = 1;
-                }
+               
                 if (debug)
                 {
                     if (i == 0)
@@ -42,8 +38,12 @@ namespace AA1_MLP.Entities
                 }
                 else
                 {
-                   // var d = 1 / Math.Sqrt(Layers[i].NumberOfNeurons + 1);
-                    Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + addBias, Layers[i + 1].NumberOfNeurons, new ContinuousUniform(0, 1)));
+
+                    var d = 1 / Math.Sqrt(Layers[i].NumberOfNeurons + 1);
+                    Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons , Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0, 1 / d)));
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Initial Weights layer:{0} {1}", i, Weights[i ]);
+                    Console.ResetColor();
                 }
             }
 
@@ -51,9 +51,19 @@ namespace AA1_MLP.Entities
 
         public Vector<double> ForwardPropagation(Vector<double> input)
         {
-
             Layers[0].LayerActivationsSumInputs = input;
             Layers[0].LayerActivations = input;
+
+            if (Layers[0].Bias)
+            {
+                var d = Layers[0].LayerActivationsSumInputs.ToList<double>();
+                d.Insert(0, 1);
+                Layers[0].LayerActivationsSumInputs = CreateVector.Dense(d.ToArray());
+                Layers[0].LayerActivations = Layers[0].LayerActivationsSumInputs;
+
+            }
+
+
 
 
             for (int i = 1; i < Layers.Count; i++)

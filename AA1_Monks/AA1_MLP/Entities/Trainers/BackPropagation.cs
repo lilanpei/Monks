@@ -5,13 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 using CustomExtensionMethods;
 using MathNet.Numerics.LinearAlgebra;
+using AA1_MLP.Enums;
+
 namespace AA1_MLP.Entities.Trainers
 {
     class BackPropagation : IOptimizer
     {
-        public override void Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null, bool debug = false)
+        public override void Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None)
         {
-            List<int> indices = Enumerable.Range(0, wholeData.Labels.RowCount-1).ToList();
+            List<int> indices = Enumerable.Range(0, wholeData.Labels.RowCount - 1).ToList();
             if (shuffle)
             {
                 indices.Shuffle();
@@ -101,6 +103,8 @@ namespace AA1_MLP.Entities.Trainers
                         //comute the loss 
                         //batchLoss += -1 * label * (nwOutput.Map(f => Math.Log(f))) - (1 - label) * (1 - nwOutput.Map(f => Math.Log(f)));
                         var residual = label - nwOutput;
+                        //var residual = -((label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f)))) + (1 - label).PointwiseMultiply((nwOutput.Map(f => Math.Log(1 - f)))));
+
                         if (debug)
                         {
                             Console.WriteLine("Target:{0}", label);
@@ -108,7 +112,6 @@ namespace AA1_MLP.Entities.Trainers
                             Console.WriteLine("Target-calculated (residual):{0}", residual);
                         }
 
-                        //var residual = -((label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f)))) + (1 - label).PointwiseMultiply((nwOutput.Map(f => Math.Log(1 - f)))));
                         residual = residual.Map(r => double.IsNaN(r) ? 0 : r);
                         //compute the error and backpropagate it 
                         batchLoss += residual.Sum();
@@ -131,7 +134,7 @@ namespace AA1_MLP.Entities.Trainers
 
                             }
                             network.Layers[layerIndex].Delta = residualTimesDerivative;
-                            if (layerIndex!=1)
+                            if (layerIndex != 1)
                             {
                                 network.Layers[layerIndex - 1].Delta = residualTimesDerivative * (network.Weights[layerIndex - 1] * (network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs))).ToRowMatrix();
 
@@ -143,20 +146,22 @@ namespace AA1_MLP.Entities.Trainers
                             {
                                 weightsUpdates.Add(layerIndex - 1, CreateMatrix.Dense(network.Weights[layerIndex - 1].RowCount, network.Weights[layerIndex - 1].ColumnCount, 0.0));
                             }
-
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.WriteLine("Weights layer:{0} {1}", layerIndex - 1, network.Weights[layerIndex - 1]);
+                            Console.ResetColor();
                             Matrix<double> outrprod = null;
-                          //  if (layerIndex == network.Layers.Count - 1)
+                            //  if (layerIndex == network.Layers.Count - 1)
                             {
                                 //delta output sum * hidden layer results
                                 outrprod = network.Layers[layerIndex].Delta.Vec2Vecmultiply(network.Layers[layerIndex - 1].LayerActivations);
                             }
                             // else if (layerIndex == 1) { break; }
-                          /*  else
-                            {
-                                //delta output sum * hidden-to-outer weights * S'(hidden sum)
-                                outrprod = network.Layers[layerIndex].Delta.Vec2Mtrxmultiply(network.Weights[layerIndex ].Mtrx2Vecmultiply((network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs)))).Mtrx2Vecmultiply( network.Layers[layerIndex-1].LayerActivations);
-                            }
-                            */
+                            /*  else
+                              {
+                                  //delta output sum * hidden-to-outer weights * S'(hidden sum)
+                                  outrprod = network.Layers[layerIndex].Delta.Vec2Mtrxmultiply(network.Weights[layerIndex ].Mtrx2Vecmultiply((network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs)))).Mtrx2Vecmultiply( network.Layers[layerIndex-1].LayerActivations);
+                              }
+                              */
                             var weightsupdatematrix = learningRate * outrprod;
                             weightsUpdates[layerIndex - 1] = weightsUpdates[layerIndex - 1].Add(weightsupdatematrix);
                             // weightsUpdates[layerIndex - 1] = weightsupdatematrix;
@@ -182,7 +187,13 @@ namespace AA1_MLP.Entities.Trainers
 
                     for (int y = 0; y < weightsUpdates.Keys.Count; y++)
                     {
-                        network.Weights[y] += weightsUpdates[y];
+                        if (regularization != Regularizations.None)
+                        {
+                            network.Weights[y] = (-1 + learningRate * regularizationRate) * network.Weights[y] + learningRate * weightsUpdates[y];
+
+                        }
+                        else
+                            network.Weights[y] += weightsUpdates[y];
                     }
                     iterationLoss += batchLoss;///((int)batchesIndices.Row(i).At(1)-(int)batchesIndices.Row(i).At(0));
                     Console.WriteLine("Batch: {0} Error: {1}", i, batchLoss);

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AA1_MLP.Enums;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,7 +20,7 @@ namespace AA1_MLP.Entities.Trainers
         /// this function runs a forward propagation iteration,calculates the errors and backpropagate it to update the network weights
         /// </summary>
         /// <param name="network">Is a network architecture</param>
-        public abstract void Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, Historian historian = null, CheckPointer checkPointer = null, bool debug = false);
+        public abstract void Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, Historian historian = null, CheckPointer checkPointer = null, bool debug = false, double regularizationRate=0, Regularizations regularization= Regularizations.None);
 
 
     }
