@@ -24,12 +24,12 @@ namespace AA1_MLP.Entities
             Activation = _activation;
             Bias = _bias;
             NumberOfNeurons = _numberOfNeurons;
-            int addBias = 0;
+          /*  int addBias = 0;
             if (Bias)
             {
                 addBias = 1;
             }
-            NumberOfNeurons += addBias;
+            NumberOfNeurons += addBias;*/
         }
 
         public Vector<double> ForwardPropagation(Vector<double> inputOfPrevLayer, Matrix<double> weights, bool debug = false)
@@ -40,12 +40,12 @@ namespace AA1_MLP.Entities
             Console.ResetColor();
 
 
-            if (Bias)
+           /* if (Bias)
             {
                 var d = inputOfPrevLayer.ToList<double>();
                 d.Insert(0, 1);
                 inputOfPrevLayer = CreateVector.Dense(d.ToArray());
-            }
+            }*/
             var activationInput = inputOfPrevLayer * weights;
             if (debug)
             {
@@ -53,7 +53,14 @@ namespace AA1_MLP.Entities
                 Console.WriteLine(activationInput);
             }
             LayerActivationsSumInputs = activationInput;
-            return LayerActivations = Activation.CalculateActivation(activationInput);
+             LayerActivations = Activation.CalculateActivation(activationInput);
+            if (Bias)
+            {
+                var d = LayerActivations.ToList<double>();
+                d.Insert(0, 1);
+                LayerActivations = CreateVector.Dense(d.ToArray());
+            }
+            return LayerActivations;
 
 
         }
