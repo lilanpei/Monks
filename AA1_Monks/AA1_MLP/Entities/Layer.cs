@@ -40,12 +40,13 @@ namespace AA1_MLP.Entities
             Console.ResetColor();
 
 
-           /* if (Bias)
-            {
-                var d = inputOfPrevLayer.ToList<double>();
-                d.Insert(0, 1);
-                inputOfPrevLayer = CreateVector.Dense(d.ToArray());
-            }*/
+            /* if (Bias)
+             {
+                 var d = inputOfPrevLayer.ToList<double>();
+                 d.Insert(0, 1);
+                 inputOfPrevLayer = CreateVector.Dense(d.ToArray());
+             }*/
+        
             var activationInput = inputOfPrevLayer * weights;
             if (debug)
             {
@@ -57,7 +58,7 @@ namespace AA1_MLP.Entities
             if (Bias)
             {
                 var d = LayerActivations.ToList<double>();
-                d.Insert(0, 1);
+                d.Add( 1);
                 LayerActivations = CreateVector.Dense(d.ToArray());
             }
             return LayerActivations;
