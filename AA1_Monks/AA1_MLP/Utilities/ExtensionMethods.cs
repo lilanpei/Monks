@@ -20,13 +20,13 @@ namespace CustomExtensionMethods
                 list[n] = value;
             }
         }
-
-        public static Matrix<double> Vec2Vecmultiply(this Vector<double> lhs, Vector<double> rhs)
-        {
-            var mul = lhs.ToColumnMatrix() * rhs.ToRowMatrix();
-            return mul.Transpose();//CreateMatrix.Dense(1, rhs.Count, mul.ToArray()).Transpose();
-        }
-
+        /*
+                public static Matrix<double> Vec2Vecmultiply(this Vector<double> lhs, Vector<double> rhs)
+                {
+                    var mul = lhs.ToColumnMatrix() * rhs.ToRowMatrix();
+                    return mul.Transpose();//CreateMatrix.Dense(1, rhs.Count, mul.ToArray()).Transpose();
+                }
+                */
         public static Matrix<double> Mtrx2Vecmultiply(this Matrix<double> lhs, Vector<double> rhs)
         {
             var mul = lhs * rhs;
