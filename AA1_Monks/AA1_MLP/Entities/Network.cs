@@ -51,18 +51,18 @@ namespace AA1_MLP.Entities
 
         public Vector<double> ForwardPropagation(Vector<double> input)
         {
-            //   Layers[0].LayerActivationsSumInputs = CreateVector.DenseOfVector(input);
+            //Layers[0].LayerActivationsSumInputs = CreateVector.DenseOfVector(input);
 
             Layers[0].LayerActivations = CreateVector.DenseOfVector(input);// Layers[0].LayerActivationsSumInputs;
 
-            if (Layers[0].Bias)
+         /*   if (Layers[0].Bias)
             {
                 var d = Layers[0].LayerActivations.ToList<double>();
                 d.Add(1);
                 Layers[0].LayerActivations = CreateVector.Dense(d.ToArray());
-                Layers[0].LayerActivations = Layers[0].LayerActivationsSumInputs;
+                //Layers[0].LayerActivations = Layers[0].LayerActivationsSumInputs;
 
-            }
+            }*/
 
 
 

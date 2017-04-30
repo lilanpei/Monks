@@ -122,8 +122,17 @@ namespace AA1_MLP.Entities.Trainers
                         {
                             if (debug)
                                 Console.WriteLine("##### enting backpropagation layer index: {0} ######", layerIndex);
+                            Vector<double> derivative = network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs);
+                            /* if (network.Layers[layerIndex].Bias)
+                             {
+                                  derivative = network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs);
 
-                            var derivative = network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs);
+                             }
+                             else
+                             {
+                                  derivative = network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs);
+
+                             }*/
                             //  var residualTimesDerivative = residual.PointwiseMultiply(derivative);
                             if (debug)
                             {
@@ -141,7 +150,13 @@ namespace AA1_MLP.Entities.Trainers
                             }
                             else
                             {
-                                network.Layers[layerIndex].Delta = (network.Weights[layerIndex] * network.Layers[layerIndex + 1].Delta).PointwiseMultiply(derivative);
+                                Matrix<double> wei = network.Weights[layerIndex];
+                                if (wei.RowCount > derivative.Count)
+                                {
+                                    wei = wei.SubMatrix(0, wei.RowCount-1, 0, wei.ColumnCount);
+                                }
+
+                                network.Layers[layerIndex].Delta = (wei * network.Layers[layerIndex + 1].Delta).PointwiseMultiply(derivative);
                             }
                             //if (layerIndex != 1)
                             //{
@@ -172,7 +187,15 @@ namespace AA1_MLP.Entities.Trainers
                             Console.WriteLine("Weights layer:{0} {1}", layerIndex - 1, network.Weights[layerIndex - 1]);
                             Console.ResetColor();
                             Matrix<double> weightsUpdate = null;
-                            weightsUpdate = network.Layers[layerIndex - 1].LayerActivations.OuterProduct(network.Layers[layerIndex].Delta);
+                            var acti = network.Layers[layerIndex - 1].LayerActivations;
+                            if (network.Layers[layerIndex - 1].Bias && acti.Count - network.Layers[layerIndex - 1].NumberOfNeurons < 1)
+                            {
+                                var l = acti.ToList();
+                                l.Add(1);
+
+                                acti = CreateVector.Dense(l.ToArray());
+                            }
+                            weightsUpdate = acti.OuterProduct(network.Layers[layerIndex].Delta);
                             //  if (layerIndex == network.Layers.Count - 1)
                             {
                                 //delta output sum * hidden layer results

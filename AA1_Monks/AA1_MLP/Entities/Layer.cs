@@ -55,12 +55,12 @@ namespace AA1_MLP.Entities
             }
             LayerActivationsSumInputs = activationInput;
              LayerActivations = Activation.CalculateActivation(activationInput);
-            if (Bias)
+           /* if (Bias)
             {
                 var d = LayerActivations.ToList<double>();
                 d.Add( 1);
                 LayerActivations = CreateVector.Dense(d.ToArray());
-            }
+            }*/
             return LayerActivations;
 
 
