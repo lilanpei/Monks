@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Configuration;
 using AA1_Monks.ModelManager;
-
+using System.Linq;
 namespace AA1_Monks
 {
     class Program
