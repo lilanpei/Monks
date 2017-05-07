@@ -11,7 +11,7 @@ namespace AA1_MLP.Entities.Trainers
 {
     class BackPropagation : IOptimizer
     {
-        public override List<double[]> Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0)
+        public override List<double[]> Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1)
         {
             List<double[]> learningCurve = new List<double[]>();
             List<int> indices = Enumerable.Range(0, wholeData.Labels.RowCount).ToList();
@@ -66,6 +66,8 @@ namespace AA1_MLP.Entities.Trainers
 
             Matrix<double> batchesIndices = null;//a 2d matrix of shape(nmberOfBatches,2), rows are batches, row[0] =barchstart, row[1] = batchEnd 
             Dictionary<int, Matrix<double>> previousWeightsUpdate = null;
+            Dictionary<int, Matrix<double>> PreviousUpdateSigns = new Dictionary<int, Matrix<double>>();
+
             for (int epoch = 0; epoch < numberOfEpochs; epoch++)
             {
 
@@ -254,6 +256,15 @@ namespace AA1_MLP.Entities.Trainers
 
                     for (int y = 0; y < weightsUpdates.Keys.Count; y++)
                     {
+                        var resilientLearningRates = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, learningRate);
+
+                        if (resilient && PreviousUpdateSigns.ContainsKey(y))
+                        {
+                            var currentUpdateSigns = weightsUpdates[y].PointwiseSign();
+                            resilientLearningRates = PreviousUpdateSigns[y].PointwiseMultiply(currentUpdateSigns).Map(s => s > 0 ? learningRate * resilientUpdateAccelerationRate : learningRate * resilientUpdateSlowDownRate);
+                        }
+
+
                         var momentumUpdate = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, 0.0);
                         if (previousWeightsUpdate != null)
                         {
@@ -265,10 +276,16 @@ namespace AA1_MLP.Entities.Trainers
 
                         }
                         else
-                            network.Weights[y] += momentumUpdate + learningRate * weightsUpdates[y] / numberOfBatchExamples;
+                            network.Weights[y] += momentumUpdate + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) / numberOfBatchExamples;
 
+                        if (!PreviousUpdateSigns.ContainsKey(y))
+                        {
+                            PreviousUpdateSigns.Add(y, null);
+                        }
+                        PreviousUpdateSigns[y] = weightsUpdates[y].PointwiseSign();
                     }
                     previousWeightsUpdate = weightsUpdates;
+
                     iterationLoss += batchLoss;///((int)batchesIndices.Row(i).At(1)-(int)batchesIndices.Row(i).At(0));
                     Console.WriteLine("Batch: {0} Error: {1}", i, batchLoss);
                 }

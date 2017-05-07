@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Activations
 {
-    class ActivationIdentity:IActivation
+    [Serializable]
+     public class ActivationIdentity:IActivation
     {
         public MathNet.Numerics.LinearAlgebra.Vector<double> CalculateActivation(MathNet.Numerics.LinearAlgebra.Vector<double> x)
         {

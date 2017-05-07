@@ -10,8 +10,9 @@ namespace AA1_MLP.DataManager
 {
     public class DataManager
     {
-        public static DataSet LoadMonksData(string datasetLocation, int featureVectorLength)
+        public static DataSet LoadMonksData(string datasetLocation, int featureVectorLength, int? numberOfExamples = null)
         {
+
             string l;
             List<string> lines = new List<string>();
             System.IO.StreamReader file =
@@ -21,6 +22,16 @@ namespace AA1_MLP.DataManager
                 if (!string.IsNullOrWhiteSpace(l))
                 {
                     lines.Add(l);
+                    if (numberOfExamples != null)
+                    {
+                        numberOfExamples--;
+                        if (numberOfExamples == 0)
+                        {
+                            break;
+                        }
+
+                    }
+
                 }
 
             }
@@ -65,7 +76,7 @@ namespace AA1_MLP.DataManager
                 output.SetRow(i, opt);
             }
 
-            DataSet trainingSet = new DataSet(input, output) ;
+            DataSet trainingSet = new DataSet(input, output);
             return trainingSet;
         }
 

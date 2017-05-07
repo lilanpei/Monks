@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Entities
 {
-    class Layer
+    [Serializable]
+   public class Layer
     {
         public int NumberOfNeurons { get; set; }
         public IActivation Activation { get; set; }

@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Activations
 {
-    class ActivationTanh : IActivation
+    [Serializable]
+    public class ActivationTanh : IActivation
     {
 
         public Vector<double> CalculateActivation(Vector<double> x)

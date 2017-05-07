@@ -7,7 +7,8 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Activations
 {
-    interface IActivation
+    
+    public interface IActivation
     {
         Vector<double> CalculateActivation(Vector<double> x);
         Vector<double>  CalculateDerivative(Vector<double> x);

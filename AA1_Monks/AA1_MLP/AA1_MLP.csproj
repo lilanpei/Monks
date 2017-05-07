@@ -64,6 +64,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="Utilities\ExtensionMethods.cs" />
+    <Compile Include="Utilities\ModelManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Entities
 {
-    class Network
+    [Serializable]
+    public class Network
     {
         public List<Layer> Layers { get; set; }
         public List<Matrix<double>> Weights { get; set; }
@@ -19,7 +20,7 @@ namespace AA1_MLP.Entities
             Weights = new List<Matrix<double>>();
             Layers = _Layers;
 
-            for (int i = 0; i < Layers.Count - 1; i++)
+            for (int i = 0; i < Layers.Count - 2; i++)
             {
 
                 if (debug)
@@ -40,12 +41,22 @@ namespace AA1_MLP.Entities
                 {
 
                     var d = 1 / Math.Sqrt(Layers[i].NumberOfNeurons + 1);
-                    Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0, 1 / d)));
+                    Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0, 1.0 / d)));
+
+                   /* var d = 2f / (Layers[i].NumberOfNeurons);
+                    Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(-0.7 * d, 0.7 * d)));
+                    */
+
+
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Initial Weights layer:{0} {1}", i, Weights[i]);
                     Console.ResetColor();
                 }
+
             }
+
+            //last weight layer
+            Weights.Add(CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0, 1.0)));
 
         }
 
@@ -55,14 +66,14 @@ namespace AA1_MLP.Entities
 
             Layers[0].LayerActivations = CreateVector.DenseOfVector(input);// Layers[0].LayerActivationsSumInputs;
 
-         /*   if (Layers[0].Bias)
-            {
-                var d = Layers[0].LayerActivations.ToList<double>();
-                d.Add(1);
-                Layers[0].LayerActivations = CreateVector.Dense(d.ToArray());
-                //Layers[0].LayerActivations = Layers[0].LayerActivationsSumInputs;
+            /*   if (Layers[0].Bias)
+               {
+                   var d = Layers[0].LayerActivations.ToList<double>();
+                   d.Add(1);
+                   Layers[0].LayerActivations = CreateVector.Dense(d.ToArray());
+                   //Layers[0].LayerActivations = Layers[0].LayerActivationsSumInputs;
 
-            }*/
+               }*/
 
 
 

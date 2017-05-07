@@ -5,6 +5,7 @@ using MathNet.Numerics.LinearAlgebra;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 namespace AA1_MLP
 {
     class Program
@@ -14,7 +15,9 @@ namespace AA1_MLP
             Network n = new Network(new List<Layer>() {
 
             new Layer(new ActivationIdentity(),true,17),
-            new Layer(new ActivationSigmoid(),true,2*17),
+            new Layer(new ActivationTanh(),true,2*17),
+            //new Layer(new ActivationTanh(),true,2*17),
+
             new Layer(new ActivationSigmoid(),false,1),
             }, false);
 
@@ -35,17 +38,21 @@ namespace AA1_MLP
             {
                 System.Console.WriteLine("Input");
                 System.Console.WriteLine(ds.Inputs.Row(i));
-
-
                 var result = n.ForwardPropagation(ds.Inputs.Row(i));
                 System.Console.WriteLine("Final output");
                 System.Console.WriteLine(result);
             }
+            string path2SaveModel = @"nw.AA1";
+            // n = Utilities.ModelManager.LoadNetwork(path2SaveModel);
 
             BackPropagation br = new BackPropagation();
-            var learningCurve = br.Train(n, ds, learningRate: 0.5, numberOfEpochs: 10000, debug: n.Debug, momentum: 0.9);
+            var learningCurve = br.Train(n, ds, learningRate: 1.0, numberOfEpochs: 200, debug: n.Debug, momentum: 0.9,resilient:true,resilientUpdateAccelerationRate:1.2,resilientUpdateSlowDownRate:0.5);
 
             File.WriteAllText("learningcurve.txt", string.Join("\n", learningCurve.Select(s => (s.Length == 2) ? (s[0] + "," + s[1]) : s[0] + "")));
+
+
+
+            Utilities.ModelManager.SaveNetowrk(n, path2SaveModel);
 
 
             System.Console.WriteLine("~~~~~~~~~~Printing Results:~~~~~~~~~~");
@@ -59,7 +66,7 @@ namespace AA1_MLP
                 checked
                 {
                     var result = n.ForwardPropagation(ds.Inputs.Row(i));
-                    
+
                     System.Console.WriteLine("Final output");
                     System.Console.WriteLine(result);
                 }
@@ -67,90 +74,12 @@ namespace AA1_MLP
                 System.Console.WriteLine(ds.Labels.Row(i));
 
             }
-            Tester(ds, n);
+           Utilities.ModelManager.Tester(ds, n);
 
 
         }
 
-        static void Tester(DataSet testingSet, Network n)
-        {
-            {
-                double TP = 0, FP = 0, TN = 0, FN = 0;
-                double actualyes = 0;
-                double actualNo = 0;
-                double predictedYes = 0;
-                double predictedNo = 0;
-                double threshold = 0.5;
-                using (System.IO.StreamWriter file =
-                    new System.IO.StreamWriter("error.txt"))
-                {
 
-                    for (int i = 0; i < testingSet.Inputs.RowCount; i++)
-                    {
-                        var o = n.ForwardPropagation(testingSet.Inputs.Row(i));//network.Compute(pair.Input);
-
-
-                        if ((int)testingSet.Labels.Row(i)[0] == 1)
-                        {
-                            actualyes++;
-                        }
-                        else
-                        {
-                            actualNo++;
-                        }
-
-                        if ((o[0] >= threshold ? 1 : 0) == 1)
-                        {
-                            predictedYes++;
-                        }
-                        else predictedNo--;
-
-                        if ((o[0] >= threshold ? 1 : 0) == 1 && (int)testingSet.Labels.Row(i)[0] == 1)
-                        {
-                            TP++;
-                        }
-                        else if ((o[0] >= threshold ? 1 : 0) == 0 && (int)testingSet.Labels.Row(i)[0] == 0)
-                        {
-                            TN++;
-                        }
-
-                        else if ((o[0] >= threshold ? 1 : 0) == 1 && (int)testingSet.Labels.Row(i)[0] == 0)
-                        {
-                            FP++;
-                        }
-                        else if ((o[0] >= threshold ? 1 : 0) == 0 && (int)testingSet.Labels.Row(i)[0] == 1)
-                        {
-                            FN++;
-                        }
-                        file.WriteLine("Actual=" + (o[0] >= threshold ? 1 : 0) + ", Ideal=" + (int)testingSet.Labels.Row(i)[0]);
-
-                    }
-                    file.WriteLine("Accuracy:" + (TP + TN) / testingSet.Inputs.RowCount);
-                    file.WriteLine("Misclassification Rate:" + (FP + FN) / testingSet.Inputs.RowCount);
-                    file.WriteLine("True Positive Rate(Recall):" + TP / actualyes);
-                    file.WriteLine("False Positive Rate:" + FP / actualNo);
-                    file.WriteLine("Specificity:" + TN / actualNo);
-                    file.WriteLine("Precision:" + TP / predictedYes);
-                    file.WriteLine("Prevalence:" + actualyes / testingSet.Inputs.RowCount);
-
-                    file.WriteLine("predicted yes:" + predictedYes);
-                    file.WriteLine("predicted np:" + predictedNo);
-
-                    file.WriteLine("Consusion Matrix:");
-
-                    file.WriteLine("True Positive:" + TP);
-                    file.WriteLine("True Negative:" + TN);
-                    file.WriteLine("False Positive:" + FP);
-                    file.WriteLine("False Negative:" + FN);
-
-
-
-
-
-
-
-                }
-            }
-        }
+       
     }
 }
