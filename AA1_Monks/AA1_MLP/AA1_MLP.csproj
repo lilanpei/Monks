@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Activations\ActivationRelu.cs" />
     <Compile Include="Activations\Activations.cs" />
     <Compile Include="Activations\ActivationSigmoid.cs" />
     <Compile Include="Activations\ActivationTanh.cs" />

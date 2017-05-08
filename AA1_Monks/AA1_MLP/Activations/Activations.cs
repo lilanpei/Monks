@@ -9,6 +9,7 @@ namespace AA1_MLP.Activations
     enum Activations
     {
         Sigmoid,
-        Tanh
+        Tanh,
+        LeakyRelu
     }
 }
