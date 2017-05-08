@@ -277,7 +277,7 @@ namespace AA1_MLP.Entities.Trainers
                         }
                         if (regularization != Regularizations.None)
                         {
-                            network.Weights[y] = momentumUpdate + ((1 - learningRate * regularizationRate / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1)) * network.Weights[y] + learningRate * weightsUpdates[y] / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1));
+                            network.Weights[y] = momentumUpdate + (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1));
 
                         }
                         else

@@ -46,7 +46,7 @@ namespace AA1_MLP
             // n = Utilities.ModelManager.LoadNetwork(path2SaveModel);
 
             BackPropagation br = new BackPropagation();
-            var learningCurve = br.Train(n, ds, learningRate: 0.7, numberOfEpochs: 200,shuffle:true, debug: n.Debug, momentum: 0.8,resilient:true,resilientUpdateAccelerationRate:1.2,resilientUpdateSlowDownRate:0.5);
+            var learningCurve = br.Train(n, ds, learningRate: 0.7, numberOfEpochs: 250,shuffle:true, debug: n.Debug, momentum: 0.8,resilient:true,resilientUpdateAccelerationRate:1.2,resilientUpdateSlowDownRate:0.5,regularization:Enums.Regularizations.L2,regularizationRate:0.9);
 
             File.WriteAllText("learningcurve.txt", string.Join("\n", learningCurve.Select(s => (s.Length == 2) ? (s[0] + "," + s[1]) : s[0] + "")));
 
