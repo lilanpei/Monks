@@ -99,7 +99,7 @@ namespace AA1_MLP.Entities.Trainers
                     double batchLoss = 0;
                     Dictionary<int, Matrix<double>> weightsUpdates = new Dictionary<int, Matrix<double>>();
                     int numberOfBatchExamples = (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1);
-                    var batchIndices = Enumerable.Range((int)batchesIndices.Row(i).At(0), (int)batchesIndices.Row(i).At(1)).ToList();
+                    var batchIndices = Enumerable.Range((int)batchesIndices.Row(i).At(0), (int)batchesIndices.Row(i).At(1) + 1).ToList();
                     if (shuffle)
                     {
                         batchIndices.Shuffle();
@@ -110,6 +110,7 @@ namespace AA1_MLP.Entities.Trainers
                         // network.Layers[0].LayerActivationsSumInputs = training.Inputs.Row(k);
                         var label = training.Labels.Row(k);
                         //comute the loss 
+                        //batchLoss += ((label - nwOutput.Map(s => s >= 0.5 ? 1.0 : 0.0)).PointwiseMultiply(label - nwOutput.Map(s => s > 0.5 ? 1.0 : 0.0))).Sum();
                         batchLoss += ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
                         //batchLoss += -1 * label * (nwOutput.Map(f => Math.Log(f))) - (1 - label) * (1 - nwOutput.Map(f => Math.Log(f)));
                         var residual = label - nwOutput;
@@ -281,7 +282,7 @@ namespace AA1_MLP.Entities.Trainers
 
                         }
                         else
-                            network.Weights[y] += momentumUpdate + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) / numberOfBatchExamples;
+                            network.Weights[y] += resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]) / numberOfBatchExamples;
 
                         if (!PreviousUpdateSigns.ContainsKey(y))
                         {
@@ -291,7 +292,7 @@ namespace AA1_MLP.Entities.Trainers
                     }
                     previousWeightsUpdate = weightsUpdates;
 
-                    iterationLoss += batchLoss;///((int)batchesIndices.Row(i).At(1)-(int)batchesIndices.Row(i).At(0));
+                    iterationLoss += batchLoss/((int)batchesIndices.Row(i).At(1)-(int)batchesIndices.Row(i).At(0)+1);
                     Console.WriteLine("Batch: {0} Error: {1}", i, batchLoss);
                 }
 
