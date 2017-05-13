@@ -43,8 +43,8 @@ namespace AA1_MLP.Entities
                     //var d = 1 / Math.Sqrt(Layers[i].NumberOfNeurons + 1);
                     //Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0,1))/d);
 
-                    var d = 0.5*(2f / (Layers[i].NumberOfNeurons));
-                    Weights.Add(d * CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0, 1)));
+                    var d = 2f / (Layers[i].NumberOfNeurons);
+                    Weights.Add(d * CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.ContinuousUniform(-0.7, 0.7)));
                     
 
 
@@ -56,7 +56,7 @@ namespace AA1_MLP.Entities
             }
 
             //last weight layer
-            Weights.Add(0.7*CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0, 1)));
+            Weights.Add(CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, new MathNet.Numerics.Distributions.ContinuousUniform(-0.7, 0.7)));
 
         }
 

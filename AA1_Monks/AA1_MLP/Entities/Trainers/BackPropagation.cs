@@ -262,8 +262,8 @@ namespace AA1_MLP.Entities.Trainers
 
                     for (int y = 0; y < weightsUpdates.Keys.Count; y++)
                     {
+                        //weightsUpdates[y] /= numberOfBatchExamples;
                         var resilientLearningRates = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, learningRate);
-
                         if (resilient && PreviousUpdateSigns.ContainsKey(y))
                         {
                             var currentUpdateSigns = weightsUpdates[y].PointwiseSign();
@@ -278,11 +278,11 @@ namespace AA1_MLP.Entities.Trainers
                         }
                         if (regularization != Regularizations.None)
                         {
-                            network.Weights[y] = momentumUpdate + (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1));
+                            network.Weights[y] = (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]));
 
                         }
                         else
-                            network.Weights[y] += resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]) / numberOfBatchExamples;
+                            network.Weights[y] += resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]);
 
                         if (!PreviousUpdateSigns.ContainsKey(y))
                         {
@@ -298,6 +298,12 @@ namespace AA1_MLP.Entities.Trainers
 
 
                 iterationLoss /= batchesIndices.RowCount;
+                //if (regularization != Regularizations.None)
+                //    for (int k = 0; k < network.Weights.Count; k++)
+                //    {
+                //        iterationLoss += network.Weights[k].PointwiseMultiply(network.Weights[k]).ColumnSums().Sum();
+                //    }
+                        
                 learningCurve.Add(new double[] { iterationLoss });
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Epoch:{0} loss:{1}", epoch, iterationLoss);
