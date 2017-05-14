@@ -13,6 +13,7 @@ namespace AA1_MLP.Entities.Trainers
     {
         public override List<double[]> Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1)
         {
+            int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
             List<int> indices = Enumerable.Range(0, wholeData.Labels.RowCount).ToList();
             if (shuffle)
@@ -24,7 +25,7 @@ namespace AA1_MLP.Entities.Trainers
             DataSet training = new DataSet(null, null);
             if (validationSplit != null)
             {
-                int valSplitSize = (int)(indices.Count * validationSplit);
+                valSplitSize = (int)(indices.Count * validationSplit);
 
                 validation.Inputs = CreateMatrix.Dense(valSplitSize, wholeData.Inputs.ColumnCount, 0.0);
                 validation.Labels = CreateMatrix.Dense(valSplitSize, wholeData.Labels.ColumnCount, 0.0);
@@ -80,7 +81,7 @@ namespace AA1_MLP.Entities.Trainers
 
                     for (int j = 0; j < numberOfBatches; j++)
                     {
-                        batchesIndices.SetRow(j, new double[] { j * (double)batchSize, Math.Min(indices.Count, (j + 1) * (double)batchSize) });
+                        batchesIndices.SetRow(j, new double[] { j * (double)batchSize, Math.Min(training.Inputs.RowCount, (j + 1) * (double)batchSize) });
                     }
 
 
@@ -88,7 +89,7 @@ namespace AA1_MLP.Entities.Trainers
                 else
                 {
                     batchesIndices = CreateMatrix.Dense(1, 2, 0.0);
-                    batchesIndices.SetRow(0, new double[] { 0, indices.Count - 1 });
+                    batchesIndices.SetRow(0, new double[] { 0, training.Inputs.RowCount - 1 });
                 }
 
                 double iterationLoss = 0;
@@ -112,6 +113,17 @@ namespace AA1_MLP.Entities.Trainers
                         //comute the loss 
                         //batchLoss += ((label - nwOutput.Map(s => s >= 0.5 ? 1.0 : 0.0)).PointwiseMultiply(label - nwOutput.Map(s => s > 0.5 ? 1.0 : 0.0))).Sum();
                         batchLoss += ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
+
+                        /*
+
+                                                if (regularization != Regularizations.None)
+                                                    for (int s = 0; s < network.Weights.Count; s++)
+                                                    {
+                                                        batchLoss += regularizationRate * network.Weights[s].PointwiseMultiply(network.Weights[s]).ColumnSums().Sum();
+                                                    }
+                                                */
+
+
                         //batchLoss += -1 * label * (nwOutput.Map(f => Math.Log(f))) - (1 - label) * (1 - nwOutput.Map(f => Math.Log(f)));
                         var residual = label - nwOutput;
                         //var residual = -((label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f)))) + (1 - label).PointwiseMultiply((nwOutput.Map(f => Math.Log(1 - f)))));
@@ -279,7 +291,7 @@ namespace AA1_MLP.Entities.Trainers
                         if (regularization != Regularizations.None)
                         {
                             network.Weights[y] = (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]));
-
+                            //network.Weights[y] = 2 * regularizationRate * network.Weights[y] + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]);
                         }
                         else
                             network.Weights[y] += resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]);
@@ -292,19 +304,45 @@ namespace AA1_MLP.Entities.Trainers
                     }
                     previousWeightsUpdate = weightsUpdates;
 
-                    iterationLoss += batchLoss/((int)batchesIndices.Row(i).At(1)-(int)batchesIndices.Row(i).At(0)+1);
+                    iterationLoss += batchLoss / ((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1);
                     Console.WriteLine("Batch: {0} Error: {1}", i, batchLoss);
                 }
 
 
                 iterationLoss /= batchesIndices.RowCount;
-                //if (regularization != Regularizations.None)
-                //    for (int k = 0; k < network.Weights.Count; k++)
-                //    {
-                //        iterationLoss += network.Weights[k].PointwiseMultiply(network.Weights[k]).ColumnSums().Sum();
-                //    }
-                        
-                learningCurve.Add(new double[] { iterationLoss });
+
+                if (regularization != Regularizations.None)
+                    for (int s = 0; s < network.Weights.Count; s++)
+                    {
+                        if (network.Layers[s].Bias)
+                        {
+                            iterationLoss += regularizationRate * network.Weights[s].SubMatrix(0, network.Weights[s].RowCount - 1, 0, network.Weights[s].ColumnCount).PointwiseMultiply(network.Weights[s].SubMatrix(0, network.Weights[s].RowCount - 1, 0, network.Weights[s].ColumnCount)).ColumnSums().Sum();
+
+                        }
+                        else
+                        {
+                            iterationLoss += regularizationRate * network.Weights[s].PointwiseMultiply(network.Weights[s]).ColumnSums().Sum();
+
+                        }
+                    }
+
+                // computing the validation loss:
+                double validationLoss = 0;
+
+                if (validationSplit != null)
+                {
+                    for (int i = 0; i < valSplitSize; i++)
+                    {
+                        var nwOutput = network.ForwardPropagation(validation.Inputs.Row(i));
+                        validationLoss += ((validation.Labels.Row(i) - nwOutput).PointwiseMultiply(validation.Labels.Row(i) - nwOutput)).Sum();
+
+                    }
+                    validationLoss /= valSplitSize;
+
+
+                }
+
+                learningCurve.Add(new double[] { iterationLoss, validationSplit != null ? validationLoss : 0 });
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Epoch:{0} loss:{1}", epoch, iterationLoss);
                 Console.ResetColor();
