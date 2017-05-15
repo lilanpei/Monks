@@ -15,7 +15,7 @@ namespace AA1_MLP
             Network n = new Network(new List<Layer>() {
 
             new Layer(new ActivationIdentity(),true,17),
-            new Layer(new ActivationSigmoid(),true,4),
+            new Layer(new ActivationSigmoid(),true,2),
             //new Layer(new ActivationTanh(),true,2*17),
 
             new Layer(new ActivationSigmoid(),false,1),
@@ -25,6 +25,7 @@ namespace AA1_MLP
 
 
             DataSet ds = DataManager.DataManager.LoadMonksData(Properties.Settings.Default.TrainingSetLocation, 17);
+            DataSet dt = DataManager.DataManager.LoadMonksData(Properties.Settings.Default.TestSetLocation, 17);
             /*   DataSet ds = new DataSet(
                    CreateMatrix.Dense(4, 2, new double[] { 1, 0, 1, 0, 1, 1, 0, 0 }),
                    CreateMatrix.Dense(4, 1, new double[] { 0, 1, 1, 0 }));*/
@@ -46,7 +47,7 @@ namespace AA1_MLP
             // n = Utilities.ModelManager.LoadNetwork(path2SaveModel);
 
             BackPropagation br = new BackPropagation();
-            var learningCurve = br.Train(n, ds, learningRate: 0.1,validationSplit:null, numberOfEpochs: 500,shuffle:true, debug: n.Debug, momentum: 0.5,resilient:true,resilientUpdateAccelerationRate:1.2,resilientUpdateSlowDownRate:0.5,regularization:Enums.Regularizations.L2,regularizationRate:0.01);
+            var learningCurve = br.Train(n, ds, learningRate: 0.1,validationSplit:null, numberOfEpochs: 200,shuffle:false, debug: n.Debug, momentum: 0.5,resilient:false,resilientUpdateAccelerationRate:1.2,resilientUpdateSlowDownRate:0.5,regularization:Enums.Regularizations.None,regularizationRate:0.01, testData:dt);
 
             File.WriteAllText("learningcurve.txt", string.Join("\n", learningCurve.Select(s => (s.Length == 2) ? (s[0] + "," + s[1]) : s[0] + "")));
 
@@ -74,7 +75,7 @@ namespace AA1_MLP
                 System.Console.WriteLine(ds.Labels.Row(i));
 
             }
-           Utilities.ModelManager.Tester(ds, n);
+           Utilities.ModelManager.Tester(dt, n);
 
 
         }
