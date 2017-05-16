@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30501.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AA1_Monks", "AA1_Monks\AA1_Monks.csproj", "{2F81AA5C-248A-4963-A929-542529B06DAC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AA1_MLP", "AA1_MLP\AA1_MLP.csproj", "{DCC006DF-4B9D-41A1-9FF7-17E20B06CBE6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MLPTestDemo", "MLPTestDemo\MLPTestDemo.csproj", "{B0861EE4-6D71-4C91-9AE5-E46EE203BD2E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{DCC006DF-4B9D-41A1-9FF7-17E20B06CBE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCC006DF-4B9D-41A1-9FF7-17E20B06CBE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCC006DF-4B9D-41A1-9FF7-17E20B06CBE6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0861EE4-6D71-4C91-9AE5-E46EE203BD2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0861EE4-6D71-4C91-9AE5-E46EE203BD2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0861EE4-6D71-4C91-9AE5-E46EE203BD2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0861EE4-6D71-4C91-9AE5-E46EE203BD2E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

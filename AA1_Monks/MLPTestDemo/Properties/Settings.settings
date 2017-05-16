@@ -1,0 +1,27 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="MLPTestDemo.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="TrainingSetLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-4\AA1 - PROJ\MONKS-DATASETS\dataset1train</Value>
+    </Setting>
+    <Setting Name="TestSetLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-4\AA1 - PROJ\MONKS-DATASETS\dataset1test</Value>
+    </Setting>
+    <Setting Name="path2SaveModel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">nw.AA1</Value>
+    </Setting>
+    <Setting Name="LearningCurveLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">learningcurve.txt</Value>
+    </Setting>
+    <Setting Name="TestReportLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">error.txt</Value>
+    </Setting>
+    <Setting Name="ROCParamsStorageLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">ROC.txt</Value>
+    </Setting>
+    <Setting Name="path2LoadModel" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-3\ML\MONKResults\nw.Monk3.AA1</Value>
+    </Setting>
+  </Settings>
+</SettingsFile>

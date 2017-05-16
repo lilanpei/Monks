@@ -9,9 +9,9 @@ using AA1_MLP.Enums;
 
 namespace AA1_MLP.Entities.Trainers
 {
-    class BackPropagation : IOptimizer
+    public class BackPropagation : IOptimizer
     {
-        public override List<double[]> Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, IOptimizer.Historian historian = null, IOptimizer.CheckPointer checkPointer = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet testData = null)
+        public override List<double[]> Train(Network network, DataSet wholeData, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, float? validationSplit = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet testData = null)
         {
             int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
@@ -25,13 +25,13 @@ namespace AA1_MLP.Entities.Trainers
                 {
                     test_indices.Shuffle();
                 }
-                
+
                 test.Inputs = CreateMatrix.Dense(test_indices.Count, testData.Inputs.ColumnCount, 0.0);
                 test.Labels = CreateMatrix.Dense(test_indices.Count, testData.Labels.ColumnCount, 0.0);
                 for (int i = 0; i < test_indices.Count; i++)
                 {
-                    test.Inputs.SetRow(i , testData.Inputs.Row(test_indices[i]));//, 1, 0, wholeData.Inputs.ColumnCount));
-                    test.Labels.SetRow(i , testData.Labels.Row(test_indices[i]));//.SubMatrix(indices[i], 1, 0, wholeData.Labels.ColumnCount));
+                    test.Inputs.SetRow(i, testData.Inputs.Row(test_indices[i]));//, 1, 0, wholeData.Inputs.ColumnCount));
+                    test.Labels.SetRow(i, testData.Labels.Row(test_indices[i]));//.SubMatrix(indices[i], 1, 0, wholeData.Labels.ColumnCount));
 
                 }
             }
@@ -42,7 +42,7 @@ namespace AA1_MLP.Entities.Trainers
 
             DataSet validation = new DataSet(null, null);
             DataSet training = new DataSet(null, null);
-  
+
             if (validationSplit != null)
             {
                 valSplitSize = (int)(indices.Count * validationSplit);
@@ -287,8 +287,8 @@ namespace AA1_MLP.Entities.Trainers
                     for (int y = 0; y < weightsUpdates.Keys.Count; y++)
                     {
                         //weightsUpdates[y] /= numberOfBatchExamples;
-                        var resilientLearningRates = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, learningRate);
-                        if (resilient && PreviousUpdateSigns.ContainsKey(y))
+                        var resilientLearningRates = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, epoch > 0 ? learningRate : resilientUpdateSlowDownRate * learningRate);
+                        if (epoch > 0 && resilient && PreviousUpdateSigns.ContainsKey(y))
                         {
                             var currentUpdateSigns = weightsUpdates[y].PointwiseSign();
                             resilientLearningRates = PreviousUpdateSigns[y].PointwiseMultiply(currentUpdateSigns).Map(s => s > 0 ? learningRate * resilientUpdateAccelerationRate : learningRate * resilientUpdateSlowDownRate);
