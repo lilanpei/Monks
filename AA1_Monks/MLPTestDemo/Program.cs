@@ -25,7 +25,6 @@ namespace MLPTestDemo
                 new Layer(new ActivationSigmoid(),true,2),
                 new Layer(new ActivationSigmoid(),false,1),
                 }, false);
-
                 
 
             //loading monks training and testing datasets
@@ -33,9 +32,8 @@ namespace MLPTestDemo
             DataSet dt = DataManager.LoadMonksData(Properties.Settings.Default.TestSetLocation, 17);
 
 
-
             //Loading a network should be like ...
-          //  var n = AA1_MLP.Utilities.ModelManager.LoadNetwork(Properties.Settings.Default.path2LoadModel);
+            //var n = AA1_MLP.Utilities.ModelManager.LoadNetwork(Properties.Settings.Default.path2LoadModel);
 
 
             //Creating a backpropagation trainer
@@ -45,7 +43,7 @@ namespace MLPTestDemo
               var learningCurve = br.Train(n, ds, learningRate: 1, validationSplit: null, numberOfEpochs: 200, shuffle: false, debug: n.Debug, momentum: 0.5, resilient: true, resilientUpdateAccelerationRate: 1.2, resilientUpdateSlowDownRate: 0.5, regularization: AA1_MLP.Enums.Regularizations.None, regularizationRate: 0.01, testData: dt);
 
             //writing the learning curve data to desk
-            // File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => (s.Length == 2) ? (s[0] + "," + s[1]) : s[0] + "")));
+            File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => (s.Length == 2) ? (s[0] + "," + s[1]) : s[0] + "")));
 
 
             //saving the trained network to desk
@@ -62,7 +60,7 @@ namespace MLPTestDemo
             var file = new System.IO.StreamWriter(Properties.Settings.Default.ROCParamsStorageLocation);
             for (float i = 0.005f; i <= 1.0f; i += 0.005f)
             {
-                var TprFpr = AA1_MLP.Utilities.ModelManager.Tester(dt, n, i, Properties.Settings.Default.TestReportLocation);
+                var TprFpr = AA1_MLP.Utilities.ModelManager.Tester(dt, n, i);
                 file.WriteLine(string.Format("{0},{1},{2}", i, TprFpr[0], TprFpr[1]));
             }
             file.Close();

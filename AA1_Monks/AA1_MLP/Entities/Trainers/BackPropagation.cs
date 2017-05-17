@@ -288,7 +288,7 @@ namespace AA1_MLP.Entities.Trainers
                     {
                         //weightsUpdates[y] /= numberOfBatchExamples;
                         var resilientLearningRates = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, ( epoch == 0 ) && resilient ? resilientUpdateSlowDownRate * learningRate : learningRate);
-                        if (epoch > 0 && resilient && PreviousUpdateSigns.ContainsKey(y))
+                        if (resilient && PreviousUpdateSigns.ContainsKey(y))
                         {
                             var currentUpdateSigns = weightsUpdates[y].PointwiseSign();
                             resilientLearningRates = PreviousUpdateSigns[y].PointwiseMultiply(currentUpdateSigns).Map(s => s > 0 ? learningRate * resilientUpdateAccelerationRate : learningRate * resilientUpdateSlowDownRate);
