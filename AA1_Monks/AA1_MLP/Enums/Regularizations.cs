@@ -9,7 +9,7 @@ namespace AA1_MLP.Enums
     public enum Regularizations
     {
         None=0,
-        L1 = 1,
+       
         L2 = 2
     }
 }

@@ -68,6 +68,7 @@
     </Compile>
     <Compile Include="Utilities\ExtensionMethods.cs" />
     <Compile Include="Utilities\ModelManager.cs" />
+    <Compile Include="Utilities\Tools.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

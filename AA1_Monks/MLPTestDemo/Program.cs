@@ -20,14 +20,14 @@ namespace MLPTestDemo
 
 
             // Building a simple network
-              Network n = new Network(new List<Layer>() {
+            Network n = new Network(new List<Layer>() {
                 new Layer(new ActivationIdentity(),true,17),
-                new Layer(new ActivationSigmoid(),true,2),
+                new Layer(new ActivationSigmoid(),true,3),
                 new Layer(new ActivationSigmoid(),false,1),
                 }, false);
-                
 
-            //loading monks training and testing datasets
+
+            //loading monks trainingSet and testing datasets
             DataSet ds = DataManager.LoadMonksData(Properties.Settings.Default.TrainingSetLocation, 17);
             DataSet dt = DataManager.LoadMonksData(Properties.Settings.Default.TestSetLocation, 17);
 
@@ -40,10 +40,10 @@ namespace MLPTestDemo
             BackPropagation br = new BackPropagation();
 
             //Calling the Train method of the trainer with the desired parameters
-              var learningCurve = br.Train(n, ds, learningRate: 1, validationSplit: null, numberOfEpochs: 200, shuffle: false, debug: n.Debug, momentum: 0.5, resilient: true, resilientUpdateAccelerationRate: 1.2, resilientUpdateSlowDownRate: 0.5, regularization: AA1_MLP.Enums.Regularizations.None, regularizationRate: 0.01, testData: dt);
+            var learningCurve = br.Train(n, ds, learningRate: 1, numberOfEpochs: 500, shuffle: false, debug: n.Debug, momentum: 0.4, resilient: true, resilientUpdateAccelerationRate: 0.5, resilientUpdateSlowDownRate: 0.2, regularization: AA1_MLP.Enums.Regularizations.None, regularizationRate: 0.01, validationSet: dt,batchSize:7);
 
-            //writing the learning curve data to desk
-            File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => (s.Length == 2) ? (s[0] + "," + s[1]) : s[0] + "")));
+            //writing the learning curve data to desk (ugly for memory, but simple)
+            File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
 
 
             //saving the trained network to desk

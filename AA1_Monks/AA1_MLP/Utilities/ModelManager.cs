@@ -31,7 +31,7 @@ namespace AA1_MLP.Utilities
                 serializer.Serialize(s, n);
             }
         }
-
+//#$# TODO: Report the MSE for the test dataset!
         public static double[] Tester(DataSet testingSet, Network n, double threshold = 0.5, string reportLocation = "", bool printActualVsIdeal = false)
         {
             double[] TPRateFPRate = new double[2];
