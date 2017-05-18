@@ -24,7 +24,7 @@ namespace MLPTestDemo
                 new Layer(new ActivationIdentity(),true,17),
                 new Layer(new ActivationSigmoid(),true,3),
                 new Layer(new ActivationSigmoid(),false,1),
-                }, false);
+                }, new MathNet.Numerics.Distributions.Normal(-0.7, 0.7),false, false);
 
 
             //loading monks trainingSet and testing datasets

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AA1_MLP.Activations
 {
     [Serializable]
-    class ActivationLeakyRelu : IActivation
+   public class ActivationLeakyRelu : IActivation
     {
         public MathNet.Numerics.LinearAlgebra.Vector<double> CalculateActivation(MathNet.Numerics.LinearAlgebra.Vector<double> x)
         {

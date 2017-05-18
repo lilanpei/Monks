@@ -14,7 +14,7 @@ namespace AA1_MLP.Entities
         public List<Layer> Layers { get; set; }
         public List<Matrix<double>> Weights { get; set; }
         public bool Debug { get; set; }
-        public Network(List<Layer> _Layers, bool debug = false)
+        public Network(List<Layer> _Layers, IContinuousDistribution distribution, bool timesFanIn = false, bool debug = false)
         {
             Debug = debug;
             Weights = new List<Matrix<double>>();
@@ -42,10 +42,10 @@ namespace AA1_MLP.Entities
 
                     //var d = 1 / Math.Sqrt(Layers[i].NumberOfNeurons + 1);
                     //Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0,1))/d);
+                    // = new MathNet.Numerics.Distributions.ContinuousUniform(-0.7, 0.7);
+                    var d = timesFanIn ? 2f / (Layers[i].NumberOfNeurons) : 1;
+                    Weights.Add(d * CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, distribution));
 
-                    var d = 2f / (Layers[i].NumberOfNeurons);
-                    Weights.Add(d * CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.ContinuousUniform(-0.7, 0.7)));
-                    
 
 
                     Console.ForegroundColor = ConsoleColor.Red;

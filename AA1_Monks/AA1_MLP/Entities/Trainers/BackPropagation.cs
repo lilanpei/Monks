@@ -93,7 +93,7 @@ namespace AA1_MLP.Entities.Trainers
 
                     for (int j = 0; j < numberOfBatches; j++)
                     {
-                        batchesIndices.SetRow(j, new double[] { j * (double)batchSize, Math.Min(trainingSet.Inputs.RowCount-1, (j + 1) * (double)batchSize-1) });
+                        batchesIndices.SetRow(j, new double[] { j * (double)batchSize, Math.Min(trainingSet.Inputs.RowCount - 1, (j + 1) * (double)batchSize - 1) });
                     }
 
 
@@ -112,7 +112,7 @@ namespace AA1_MLP.Entities.Trainers
                     double batchLoss = 0;
                     Dictionary<int, Matrix<double>> weightsUpdates = new Dictionary<int, Matrix<double>>();
                     int numberOfBatchExamples = (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1);
-                    var batchIndices = Enumerable.Range((int)batchesIndices.Row(i).At(0), (int)batchesIndices.Row(i).At(1) + 1).ToList();
+                    var batchIndices = Enumerable.Range((int)batchesIndices.Row(i).At(0), (int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1).ToList();
                     if (shuffle)
                     {
                         batchIndices.Shuffle();
