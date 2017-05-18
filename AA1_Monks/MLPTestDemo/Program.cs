@@ -28,8 +28,9 @@ namespace MLPTestDemo
 
 
             //loading monks trainingSet and testing datasets
-            DataSet ds = DataManager.LoadMonksData(Properties.Settings.Default.TrainingSetLocation, 17);
-            DataSet dt = DataManager.LoadMonksData(Properties.Settings.Default.TestSetLocation, 17);
+            DataManager dm = new DataManager();
+            DataSet ds = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 17);
+            DataSet dt = dm.LoadData(Properties.Settings.Default.TestSetLocation, 17);
 
 
             //Loading a network should be like ...

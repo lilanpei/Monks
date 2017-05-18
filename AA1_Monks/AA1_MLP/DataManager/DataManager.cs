@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.DataManager
 {
-    public class DataManager
+    public class DataManager : IDataManager
     {
-        public static DataSet LoadMonksData(string datasetLocation, int featureVectorLength, int? numberOfExamples = null)
+        public override DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null)
         {
 
             string l;
