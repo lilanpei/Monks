@@ -56,7 +56,7 @@ namespace AA1_MLP.Entities
             }
 
             //last weight layer
-            Weights.Add(CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, new MathNet.Numerics.Distributions.ContinuousUniform(-0.7, 0.7)));
+            Weights.Add(CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, distribution));
 
         }
 

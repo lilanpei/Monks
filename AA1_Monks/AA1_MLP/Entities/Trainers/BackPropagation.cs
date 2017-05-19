@@ -11,7 +11,7 @@ namespace AA1_MLP.Entities.Trainers
 {
     public class BackPropagation : IOptimizer
     {
-        public override List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5)
+        public override List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false)
         {
             //int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
@@ -124,7 +124,8 @@ namespace AA1_MLP.Entities.Trainers
                         var label = trainingSet.Labels.Row(k);
                         //comute the loss 
                         //batchLoss += ((label - nwOutput.Map(s => s >= 0.5 ? 1.0 : 0.0)).PointwiseMultiply(label - nwOutput.Map(s => s > 0.5 ? 1.0 : 0.0))).Sum();
-                        batchLoss += ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
+                        var loss = ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
+                        batchLoss += MEE ? Math.Sqrt(loss) : loss;
 
                         /*
 
@@ -371,7 +372,8 @@ namespace AA1_MLP.Entities.Trainers
                     for (int i = 0; i < test_indices.Count; i++)
                     {
                         var nwOutput = network.ForwardPropagation(test.Inputs.Row(i));
-                        validationError += ((test.Labels.Row(i) - nwOutput).PointwiseMultiply(test.Labels.Row(i) - nwOutput)).Sum();
+                        var loss = ((test.Labels.Row(i) - nwOutput).PointwiseMultiply(test.Labels.Row(i) - nwOutput)).Sum();
+                        validationError += MEE ? Math.Sqrt(loss) : loss;
 
                     }
                     validationError /= test_indices.Count;
