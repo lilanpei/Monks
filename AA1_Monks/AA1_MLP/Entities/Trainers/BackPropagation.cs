@@ -11,7 +11,7 @@ namespace AA1_MLP.Entities.Trainers
 {
     public class BackPropagation : IOptimizer
     {
-        public override List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false)
+        public override List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2)
         {
             //int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
@@ -21,11 +21,11 @@ namespace AA1_MLP.Entities.Trainers
             if (validationSet != null)
             {
                 test_indices = Enumerable.Range(0, validationSet.Labels.RowCount).ToList();
-                if (shuffle)
-                {
-                    test_indices.Shuffle();
-                }
-
+                /*  if (shuffle)
+                  {
+                      test_indices.Shuffle();
+                  }
+                  */
                 test.Inputs = CreateMatrix.Dense(test_indices.Count, validationSet.Inputs.ColumnCount, 0.0);
                 test.Labels = CreateMatrix.Dense(test_indices.Count, validationSet.Labels.ColumnCount, 0.0);
                 for (int i = 0; i < test_indices.Count; i++)
@@ -219,9 +219,12 @@ namespace AA1_MLP.Entities.Trainers
                             {
                                 weightsUpdates.Add(layerIndex - 1, CreateMatrix.Dense(network.Weights[layerIndex - 1].RowCount, network.Weights[layerIndex - 1].ColumnCount, 0.0));
                             }
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Weights layer:{0} {1}", layerIndex - 1, network.Weights[layerIndex - 1]);
-                            Console.ResetColor();
+                            if (network.Debug)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Red;
+                                Console.WriteLine("Weights layer:{0} {1}", layerIndex - 1, network.Weights[layerIndex - 1]);
+                                Console.ResetColor();
+                            }
                             Matrix<double> weightsUpdate = null;
                             var acti = network.Layers[layerIndex - 1].LayerActivations;
                             if (network.Layers[layerIndex - 1].Bias && acti.Count - network.Layers[layerIndex - 1].NumberOfNeurons < 1)
@@ -328,7 +331,8 @@ namespace AA1_MLP.Entities.Trainers
                     previousWeightsUpdate = weightsUpdates;
 
                     iterationLoss += batchLoss / ((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1);
-                    Console.WriteLine("Batch: {0} Error: {1}", i, batchLoss);
+                    if (network.Debug)
+                        Console.WriteLine("Batch: {0} Error: {1}", i, batchLoss);
                 }
 
 
@@ -392,7 +396,18 @@ namespace AA1_MLP.Entities.Trainers
                 learningCurve.Add(new double[] { iterationLoss, validationSet != null ? validationError : 0, trueThreshold != null ? trainingAccuracy : 0, trueThreshold != null ? validationSetAccuracy : 0 });
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Epoch:{0} loss:{1}", epoch, iterationLoss);
+
+                if (reduceLearningRate&&epoch>0 &&numberOfReductions>0 &&epoch % learningRateReductionAfterEpochs == 0)
+                {
+                    learningRate *= learningRateReduction;
+                    numberOfReductions--;
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Learning Rate Reduced, now: {0}", learningRate);
+                }
+
                 Console.ResetColor();
+
+
             }
             return learningCurve;
         }

@@ -54,6 +54,28 @@ namespace AA1_Monks.DataManager
             return trainingSet;
         }
 
+        public static BasicNeuralDataSet LoadData(string datasetLocation)
+        {
+            string[] lines = File.ReadAllLines(datasetLocation).Where(s=>!string.IsNullOrEmpty(s)&&!s.StartsWith("#")).ToArray();
+            double[][] input = new double[lines.Length][];
+            double[][] output = new double[lines.Length][];
+            for (int i = 0; i < lines.Length; i++)
+            {
+                var line = lines[i].Trim().Split(',');
+                input[i] = new double[10];
+
+                for (int x = 1; x <=10; x++)
+                {
+                    input[i][x-1] = double.Parse( line[x]);
+                    
+                }
+
+                output[i] = new double[] { double.Parse((line[11])), double.Parse(line[12]) };
+            }
+
+            BasicNeuralDataSet trainingSet = new BasicNeuralDataSet(input, output);
+            return trainingSet;
+        }
 
     }
 }

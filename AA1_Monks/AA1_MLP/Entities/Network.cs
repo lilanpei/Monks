@@ -20,7 +20,7 @@ namespace AA1_MLP.Entities
             Weights = new List<Matrix<double>>();
             Layers = _Layers;
 
-            for (int i = 0; i < Layers.Count - 2; i++)
+            for (int i = 0; i < Layers.Count - 1; i++)
             {
 
                 if (debug)
@@ -44,19 +44,22 @@ namespace AA1_MLP.Entities
                     //Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0,1))/d);
                     // = new MathNet.Numerics.Distributions.ContinuousUniform(-0.7, 0.7);
                     var d = timesFanIn ? 2f / (Layers[i].NumberOfNeurons) : 1;
-                    Weights.Add(d * CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, distribution));
+                    Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, d)));
 
 
+                    if (Debug)
+                    {
 
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Initial Weights layer:{0} {1}", i, Weights[i]);
-                    Console.ResetColor();
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("Initial Weights layer:{0} {1}", i, Weights[i]);
+                        Console.ResetColor();
+                    }
                 }
 
             }
 
             //last weight layer
-            Weights.Add(CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, distribution));
+            //      Weights.Add(CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, distribution));
 
         }
 
@@ -98,10 +101,12 @@ namespace AA1_MLP.Entities
                     input = CreateVector.Dense(d.ToArray());
                 }
                 input = Layers[i].ForwardPropagation(input, Weights[i - 1], Debug);
+                if (Debug)
+                {
+                    Console.WriteLine("Output Of Layer:{0}", i);
+                    Console.WriteLine(input);
 
-                Console.WriteLine("Output Of Layer:{0}", i);
-                Console.WriteLine(input);
-
+                }
 
             }
             return input;

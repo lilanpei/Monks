@@ -35,10 +35,12 @@ namespace AA1_MLP.Entities
 
         public Vector<double> ForwardPropagation(Vector<double> inputOfPrevLayer, Matrix<double> weights, bool debug = false)
         {
-
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("Weights layer forward prop:{0} ", weights);
-            Console.ResetColor();
+            if (debug)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Weights layer forward prop:{0} ", weights);
+                Console.ResetColor();
+            }
 
 
             /* if (Bias)

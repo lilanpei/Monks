@@ -28,18 +28,18 @@ namespace AA1_Monks.ModelManager
 
         public static List<NeuralLayerDescriptor> NetworkTrainingInitializer(string trainSetLocation, out IMLDataSet TrainingSet)
         {
-            TrainingSet = DataManager.DataLoader.LoadMonksData(trainSetLocation);
+            TrainingSet = DataManager.DataLoader.LoadData(trainSetLocation);
 
             var descriptor = new List<NeuralLayerDescriptor>()
             {
                 new NeuralLayerDescriptor() {NumberOfNeurons = TrainingSet.InputSize},
                 new NeuralLayerDescriptor()
                 {
-                    Activation = new ActivationTANH(),
+                    Activation = new ActivationRamp(),
                     Bias = true,
                     NumberOfNeurons = 2*TrainingSet.InputSize
                 },
-                new NeuralLayerDescriptor() {Activation = new ActivationSigmoid(), Bias = true, NumberOfNeurons = 1}
+                new NeuralLayerDescriptor() {Activation = new ActivationRamp(), Bias = true, NumberOfNeurons = 1}
             };
 
 
