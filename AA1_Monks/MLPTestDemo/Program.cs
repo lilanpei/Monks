@@ -52,7 +52,7 @@ namespace MLPTestDemo
 
 
             //Testing the model and outputing the confusion matrix
-            AA1_MLP.Utilities.ModelManager.Tester(dt, n, 0.5, Properties.Settings.Default.TestReportLocation);
+            AA1_MLP.Utilities.ModelManager.TesterClassification(dt, n, 0.5, Properties.Settings.Default.TestReportLocation);
 
 
 
@@ -61,7 +61,7 @@ namespace MLPTestDemo
             var file = new System.IO.StreamWriter(Properties.Settings.Default.ROCParamsStorageLocation);
             for (float i = 0.005f; i <= 1.0f; i += 0.005f)
             {
-                var TprFpr = AA1_MLP.Utilities.ModelManager.Tester(dt, n, i);
+                var TprFpr = AA1_MLP.Utilities.ModelManager.TesterClassification(dt, n, i);
                 file.WriteLine(string.Format("{0},{1},{2}", i, TprFpr[0], TprFpr[1]));
             }
             file.Close();

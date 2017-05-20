@@ -31,8 +31,27 @@ namespace AA1_MLP.Utilities
                 serializer.Serialize(s, n);
             }
         }
-//#$# TODO: Report the MSE for the test dataset!
-        public static double[] Tester(DataSet testingSet, Network n, double threshold = 0.5, string reportLocation = "", bool printActualVsIdeal = false)
+        //#$# TODO: Report the MSE for the test dataset!
+
+        public static List<double[]> TesterRegression(DataSet testSet, Network n, out double MEE)
+        {
+            List<double[]> predictionsVSActuals = new List<double[]>();
+            MEE = 0;
+            for (int i = 0; i < testSet.Inputs.RowCount; i++)
+            {
+                var o = n.ForwardPropagation(testSet.Inputs.Row(i));
+                predictionsVSActuals.Add(new double[] { o[0], o[1], testSet.Labels.Row(i)[0], testSet.Labels.Row(i)[1] });
+                var loss = ((testSet.Labels.Row(i) - o).PointwiseMultiply(testSet.Labels.Row(i) - o)).Sum();
+                MEE += Math.Sqrt(loss);
+
+            }
+
+            MEE /= testSet.Labels.RowCount;
+            return predictionsVSActuals;
+
+
+        }
+        public static double[] TesterClassification(DataSet testingSet, Network n, double threshold = 0.5, string reportLocation = "", bool printActualVsIdeal = false)
         {
             double[] TPRateFPRate = new double[2];
             double TP = 0, FP = 0, TN = 0, FN = 0;
