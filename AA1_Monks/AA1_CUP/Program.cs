@@ -51,16 +51,29 @@ namespace AA1_CUP
             Directory.CreateDirectory("learningCurves");
             Directory.CreateDirectory("scatters");
             Directory.CreateDirectory("models");
-
-            foreach (var hidn in PossibleHiddenUnits)
+            if (!File.Exists("passed.txt"))
             {
-                foreach (var reg in Regularizations)
+                File.WriteAllText("passed.txt", "0,0,0,0\n");
+
+            }
+            var init = File.ReadLines("passed.txt").Last().Split(',');
+
+            int vs = int.Parse(init[0]), bs = int.Parse(init[1]), ms = int.Parse(init[2]), us = int.Parse(init[3]);
+          //  File.Delete("passed.txt");
+            for (int v = vs; v < PossibleHiddenUnits.Count; v++)
+            {
+                var hidn = PossibleHiddenUnits[v];
+                for (int b = bs; b < Regularizations.Count; b++)
                 {
-                    foreach (var mo in Momentums)
+                    var reg = Regularizations[b];
+                    for (int m = ms; m < Momentums.Count; m++)
                     {
-                        foreach (var lr in learningRate)
+                        var mo = Momentums[m];
+                        for (int u = us; u < learningRate.Count; u++)
                         {
 
+
+                            var lr = learningRate[u];
                             string pre = string.Format("hidn{0}_reg{1}_mo{2}_lr{3}", hidn, reg, mo, lr);
 
                             Network n = new Network(new List<Layer>() {
@@ -97,7 +110,7 @@ namespace AA1_CUP
                                 //writing the learning curve data to desk (ugly for memory, but simple)
                                 File.WriteAllText("learningCurves/" + pre + "learningCurve.txt", string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
 
-                                    AA1_MLP.Utilities.ModelManager.SaveNetowrk(n, "models/"+pre+"_model.AA1");
+                                AA1_MLP.Utilities.ModelManager.SaveNetowrk(n, "models/" + pre + "_model.AA1");
                                 // var n = AA1_MLP.Utilities.ModelManager.LoadNetwork("model.AA1");
 
                                 double MEE = 0;
@@ -118,6 +131,9 @@ namespace AA1_CUP
 
 
                             }
+
+                            File.AppendAllText("passed.txt", string.Format("{0},{1},{2},{3}\n", v + 1, b + 1, m + 1, u + 1));
+
                         }
                     }
 
