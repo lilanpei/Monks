@@ -50,6 +50,7 @@ namespace AA1_CUP
 
             Directory.CreateDirectory("learningCurves");
             Directory.CreateDirectory("scatters");
+            Directory.CreateDirectory("models");
 
             foreach (var hidn in PossibleHiddenUnits)
             {
@@ -78,7 +79,7 @@ namespace AA1_CUP
                                 var learningCurve = bp.Train(n,
                                          trainingSplit,
                                          lr,
-                                         500000,
+                                         100000,
                                          true,
                                          regularizationRate: reg,
                                          regularization: AA1_MLP.Enums.Regularizations.L2,
@@ -96,7 +97,7 @@ namespace AA1_CUP
                                 //writing the learning curve data to desk (ugly for memory, but simple)
                                 File.WriteAllText("learningCurves/" + pre + "learningCurve.txt", string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
 
-                                //    AA1_MLP.Utilities.ModelManager.SaveNetowrk(n, "model.AA1");
+                                    AA1_MLP.Utilities.ModelManager.SaveNetowrk(n, "models/"+pre+"_model.AA1");
                                 // var n = AA1_MLP.Utilities.ModelManager.LoadNetwork("model.AA1");
 
                                 double MEE = 0;
@@ -105,7 +106,7 @@ namespace AA1_CUP
 
                                 File.WriteAllText("scatters/" + pre + "scatter.txt", string.Join("\n", log.Select(s => string.Join(",", s))));
 
-                                File.AppendAllText("MEEs.txt", pre + ":" + MEE);
+                                File.AppendAllText("MEEs.txt", pre + ":" + MEE + "\n");
 
                                 Console.WriteLine(MEE);
 
@@ -113,7 +114,7 @@ namespace AA1_CUP
                             catch (Exception)
                             {
                                 Console.WriteLine(pre + " Failed!");
-                                File.AppendAllText("fails.txt", pre);
+                                File.AppendAllText("fails.txt", pre + "\n");
 
 
                             }
