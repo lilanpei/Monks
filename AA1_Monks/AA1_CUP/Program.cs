@@ -39,14 +39,14 @@ namespace AA1_CUP
 
 
             List<int> PossibleHiddenUnits = new List<int>();
-            for (int numberOfUnits = 2; numberOfUnits < 100; numberOfUnits += 8)
+            for (int numberOfUnits = 2; numberOfUnits < 60; numberOfUnits += 2)
             {
                 PossibleHiddenUnits.Add(numberOfUnits);
             }
-            List<double> Regularizations = new List<double>() { 1, 0.1, 0.01, 0.001, 0.0001, 0.00001 };
+            List<double> Regularizations = new List<double>() { 1, 0.5, 0.05, 0.005, 0.0005, 0.00005 };
 
-            List<double> Momentums = new List<double>() { 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9 };
-            List<double> learningRate = new List<double>() { 1, 0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001, 0.000001 };
+            List<double> Momentums = new List<double>() { 0, 0.1, 0.3, 0.5, 0.7, 0.9};
+            List<double> learningRate = new List<double>() { 0.0001,0.00005,0.00001,0.000005,0.000001,0.0000005,0.0000001 };
 
             Directory.CreateDirectory("learningCurves");
             Directory.CreateDirectory("scatters");
@@ -92,7 +92,7 @@ namespace AA1_CUP
                                 var learningCurve = bp.Train(n,
                                          trainingSplit,
                                          lr,
-                                         100000,
+                                         10000,
                                          true,
                                          regularizationRate: reg,
                                          regularization: AA1_MLP.Enums.Regularizations.L2,
@@ -132,7 +132,7 @@ namespace AA1_CUP
 
                             }
 
-                            File.AppendAllText("passed.txt", string.Format("{0},{1},{2},{3}\n", v + 1, b + 1, m + 1, u + 1));
+                            File.AppendAllText("passed.txt", string.Format("{0},{1},{2},{3}\n", ((b + 1) % Regularizations.Count==0?v + 1:v)% PossibleHiddenUnits.Count, ((m + 1) % Momentums.Count==0?b + 1:b)% Regularizations.Count, ((u + 1) % learningRate.Count==0?m + 1:m)% Momentums.Count, (u + 1)%learningRate.Count));
 
                         }
                     }
