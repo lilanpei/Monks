@@ -132,7 +132,7 @@ namespace AA1_CUP
 
                             }
                             us = (u + 1) % learningRate.Count == 0? 0:us;
-                            File.AppendAllText("passed.txt", string.Format("{0},{1},{2},{3}\n", (b + 1) % Regularizations.Count==0?v + 1:v, ((m + 1) % Momentums.Count==0?b + 1:b)% Regularizations.Count, ((u + 1) % learningRate.Count==0?m + 1:m)% Momentums.Count, (u + 1)%learningRate.Count));
+                            File.AppendAllText("passed.txt", string.Format("{0},{1},{2},{3}\n", (((u + 1) % learningRate.Count == 0 ? m + 1 : m) % Momentums.Count == 0 ? b + 1 : b) % Regularizations.Count==0?v + 1:v, (((u + 1) % learningRate.Count == 0 ? m + 1 : m) % Momentums.Count==0?b + 1:b)% Regularizations.Count, ((u + 1) % learningRate.Count==0?m + 1:m)% Momentums.Count, (u + 1)%learningRate.Count));
 
                         }
                         ms = (m + 1) % Momentums.Count == 0 ? 0 : ms;
