@@ -29,28 +29,28 @@ namespace AA1_CUP
                inputs: wholeSet.Inputs.SubMatrix(0, trainSplit, 0, wholeSet.Inputs.ColumnCount),
           labels: wholeSet.Labels.SubMatrix(0, trainSplit, 0, wholeSet.Labels.ColumnCount));
             //the validation set
-            DataSet ValidationSplit = new DataSet(
-              inputs: wholeSet.Inputs.SubMatrix(trainSplit, (wholeSet.Inputs.RowCount - trainSplit) / 2, 0, wholeSet.Inputs.ColumnCount),
-         labels: wholeSet.Labels.SubMatrix(trainSplit, (wholeSet.Inputs.RowCount - trainSplit) / 2, 0, wholeSet.Labels.ColumnCount));
+         //   DataSet ValidationSplit = new DataSet(
+         //     inputs: wholeSet.Inputs.SubMatrix(trainSplit, (wholeSet.Inputs.RowCount - trainSplit) / 2, 0, wholeSet.Inputs.ColumnCount),
+         //labels: wholeSet.Labels.SubMatrix(trainSplit, (wholeSet.Inputs.RowCount - trainSplit) / 2, 0, wholeSet.Labels.ColumnCount));
             //the hold out set for reporting the MEE of the model on the data
             DataSet TestSplit = new DataSet(
-       inputs: wholeSet.Inputs.SubMatrix(trainSplit + (wholeSet.Inputs.RowCount - trainSplit) / 2, (int)Math.Ceiling((double)(wholeSet.Inputs.RowCount - trainSplit) / 2), 0, wholeSet.Inputs.ColumnCount),
-       labels: wholeSet.Labels.SubMatrix(trainSplit + (wholeSet.Inputs.RowCount - trainSplit) / 2, (int)Math.Ceiling((double)(wholeSet.Inputs.RowCount - trainSplit) / 2), 0, wholeSet.Labels.ColumnCount));
+       inputs: wholeSet.Inputs.SubMatrix(trainSplit , (int)Math.Ceiling((double)(wholeSet.Inputs.RowCount - trainSplit)), 0, wholeSet.Inputs.ColumnCount),
+       labels: wholeSet.Labels.SubMatrix(trainSplit, (int)Math.Ceiling((double)(wholeSet.Inputs.RowCount - trainSplit)), 0, wholeSet.Labels.ColumnCount));
 
             BackPropagation bp = new BackPropagation();
 
             //will hold a number of possible values for the hidden units to try
             List<int> PossibleHiddenUnits = new List<int>();
-            for (int numberOfUnits = 2; numberOfUnits < 60; numberOfUnits += 2)
+            for (int numberOfUnits = 18; numberOfUnits < 21; numberOfUnits += 1)
             {
                 PossibleHiddenUnits.Add(numberOfUnits);
             }
             //holds different values for the Regularization to try
-            List<double> Regularizations = new List<double>() { 1, 0.5, 0.05, 0.005, 0.0005, 0.00005 };
+            List<double> Regularizations = new List<double>() { 0.01,  0.0001 };
             //holds different values for the momentum to try for training
-            List<double> Momentums = new List<double>() { 0, 0.1, 0.3, 0.5, 0.7, 0.9 };
+            List<double> Momentums = new List<double>() { 0.7, 0.9 };
             //holds different values for the learning rate to try for training
-            List<double> learningRate = new List<double>() { 0.0001, 0.00005, 0.00001, 0.000005, 0.000001, 0.0000005, 0.0000001 };
+            List<double> learningRate = new List<double>() { 0.000009, 0.00001 };
 
             //these directories will hold the experiments results
             Directory.CreateDirectory("learningCurves");
@@ -99,12 +99,12 @@ namespace AA1_CUP
                                 var learningCurve = bp.Train(n,
                                          trainingSplit,
                                          lr,
-                                         10000,
+                                         100000,
                                          true,
                                          regularizationRate: reg,
                                          regularization: AA1_MLP.Enums.Regularizations.L2,
                                          momentum: mo,
-                                         validationSet: ValidationSplit,
+                                         validationSet: TestSplit,
 
                                          MEE: true
                                     /*  resilient: true, resilientUpdateAccelerationRate: 10, resilientUpdateSlowDownRate: 1,
