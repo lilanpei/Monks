@@ -8,8 +8,12 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.DataManager
 {
+    /// <summary>
+    /// Loads, parses and encodes the Monks dataset
+    /// </summary>
     public class DataManager : IDataManager
     {
+
         public override DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null)
         {
 

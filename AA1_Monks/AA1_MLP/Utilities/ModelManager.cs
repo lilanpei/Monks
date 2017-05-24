@@ -9,8 +9,17 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Utilities
 {
+
+    /// <summary>
+    /// This class provides methods for Loading, Saving and evaluating a Network
+    /// </summary>
     public sealed class ModelManager
     {
+        /// <summary>
+        /// Given a Serialized Network Location, this fuction deserializes the network and returns it
+        /// </summary>
+        /// <param name="networkLocation"></param>
+        /// <returns></returns>
         public static Network LoadNetwork(string networkLocation)
         {
             Network network = null;
@@ -22,7 +31,11 @@ namespace AA1_MLP.Utilities
             return network;
         }
 
-
+        /// <summary>
+        /// Given a network and a serialization path, this function serializes the network to disk
+        /// </summary>
+        /// <param name="n">a network</param>
+        /// <param name="path2SaveModel">path where it should be serialized</param>
         public static void SaveNetowrk(Network n, string path2SaveModel)
         {
             var serializer = new BinaryFormatter();
@@ -31,9 +44,14 @@ namespace AA1_MLP.Utilities
                 serializer.Serialize(s, n);
             }
         }
-        //#$# TODO: Report the MSE for the test dataset!
-
-        public static List<double[]> TesterRegression(DataSet testSet, Network n, out double MEE)
+        /// <summary>
+        /// Given a network and a test set, this function returns the  predicted values for each datapoint in the set vs the actual value and outputs the Mean Euclidean Error
+        /// </summary>
+        /// <param name="testSet"></param>
+        /// <param name="n"></param>
+        /// <param name="MEE"></param>
+        /// <returns></returns>
+        public static List<double[]> TesterCUPRegression(DataSet testSet, Network n, out double MEE)
         {
             List<double[]> predictionsVSActuals = new List<double[]>();
             MEE = 0;
@@ -51,7 +69,16 @@ namespace AA1_MLP.Utilities
 
 
         }
-        public static double[] TesterClassification(DataSet testingSet, Network n, double threshold = 0.5, string reportLocation = "", bool printActualVsIdeal = false)
+        /// <summary>
+        /// Given a test set, a network and a classification score threshold, this function reports the confusion matrix and its associated metrics
+        /// </summary>
+        /// <param name="testingSet"></param>
+        /// <param name="n"></param>
+        /// <param name="threshold"></param>
+        /// <param name="reportLocation">where the report shall be stored</param>
+        /// <param name="printActualVsIdeal">if set to true, will report the actual vs predicted classes</param>
+        /// <returns></returns>
+        public static double[] TesterMonkClassification(DataSet testingSet, Network n, double threshold = 0.5, string reportLocation = "", bool printActualVsIdeal = false)
         {
             double[] TPRateFPRate = new double[2];
             double TP = 0, FP = 0, TN = 0, FN = 0;

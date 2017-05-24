@@ -8,19 +8,23 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Entities
 {
+    /// <summary>
+    ///  A general MLP architecture Class
+    /// </summary>
     [Serializable]
     public class Network
     {
         public List<Layer> Layers { get; set; }
         public List<Matrix<double>> Weights { get; set; }
         public bool Debug { get; set; }
-        public Network(List<Layer> _Layers, IContinuousDistribution distribution, bool timesFanIn = false, bool debug = false)
+
+        public Network(List<Layer> _Layers,  bool debug = false, Enums.WeightsInitialization weightsInitMethod = Enums.WeightsInitialization.Xavier)
         {
             Debug = debug;
             Weights = new List<Matrix<double>>();
             Layers = _Layers;
 
-            for (int i = 0; i < Layers.Count - 1; i++)
+            for (int i = 0; i < Layers.Count - (weightsInitMethod == Enums.WeightsInitialization.Uniform ? 2 : 1); i++)
             {
 
                 if (debug)
@@ -43,9 +47,16 @@ namespace AA1_MLP.Entities
                     //var d = 1 / Math.Sqrt(Layers[i].NumberOfNeurons + 1);
                     //Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0,1))/d);
                     // = new MathNet.Numerics.Distributions.ContinuousUniform(-0.7, 0.7);
-                    var d = timesFanIn ? 2f / (Layers[i].NumberOfNeurons) : 1;
-                    Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, d)));
+                    var d =  2f / (Layers[i].NumberOfNeurons) ;
+                    if (weightsInitMethod == Enums.WeightsInitialization.Uniform)
+                    {
+                        Weights.Add(d * CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new ContinuousUniform(-0.7, 0.7)));
+                    }
+                    else
+                    {
+                        Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, d)));
 
+                    }
 
                     if (Debug)
                     {
@@ -59,7 +70,11 @@ namespace AA1_MLP.Entities
             }
 
             //last weight layer
-            //      Weights.Add(CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, distribution));
+            if (weightsInitMethod == Enums.WeightsInitialization.Uniform)
+            {
+                Weights.Add(CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, new ContinuousUniform(-0.7, 0.7)));
+
+            }
 
         }
 

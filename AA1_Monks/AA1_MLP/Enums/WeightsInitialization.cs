@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 namespace AA1_MLP.Enums
 {
     /// <summary>
-    /// For enabeling or disabeling Regularization
+    /// Selecting weight initialization method
     /// </summary>
-    public enum Regularizations
+    public enum WeightsInitialization
     {
-        None=0,
-       
-        L2 = 2
+        Xavier,
+        Uniform
     }
 }

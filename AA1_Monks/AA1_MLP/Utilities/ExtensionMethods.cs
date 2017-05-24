@@ -4,10 +4,18 @@ using System.Collections.Generic;
 
 namespace CustomExtensionMethods
 {
+    /// <summary>
+    /// Some extension methods we needed to provide for the Math.NET Library
+    /// </summary>
     static class ExtensionMethods
     {
         private static Random rng = new Random();
 
+        /// <summary>
+        /// Shuffles a given C#.NET List
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="list"></param>
         public static void Shuffle<T>(this IList<T> list)
         {
             int n = list.Count;
@@ -20,13 +28,7 @@ namespace CustomExtensionMethods
                 list[n] = value;
             }
         }
-        /*
-                public static Matrix<double> Vec2Vecmultiply(this Vector<double> lhs, Vector<double> rhs)
-                {
-                    var mul = lhs.ToColumnMatrix() * rhs.ToRowMatrix();
-                    return mul.Transpose();//CreateMatrix.Dense(1, rhs.Count, mul.ToArray()).Transpose();
-                }
-                */
+        
         public static Matrix<double> Mtrx2Vecmultiply(this Matrix<double> lhs, Vector<double> rhs)
         {
             var mul = lhs * rhs;

@@ -29,8 +29,15 @@ namespace AA1_MLP.Entities.Trainers
         /// <param name="resilientUpdateSlowDownRate">if resilient is set to true, the learning rate will be multiplied by this value in case the sign of the previous weights updates was NOT the same as the current new one</param>
         /// <param name="validationSet"> the vakidation dataset</param>
         /// <param name="trueThreshold"> between 0 to 1, if present accuracy of the trainingSet and validation data will be computed at each epoch and reported in the returned learning curve list of doubles </param>
+        /// <param name="MEE">set to true, will report the Mean Euclidean Error instead of Mean Square Error</param>
+        /// <param name="reduceLearningRate">set to true, will enable reducing the learning rate during training</param>
+        /// <param name="learningRateReduction">will be multiplied by the learning rate during training</param>
+        /// <param name="learningRateReductionAfterEpochs">After how many epoch shall the learningRateReduction be multiplied by the learning rate</param>
+        /// <param name="numberOfReductions">number of time a reduction shall happen</param>
         /// <returns> a list of double arrays each element is a 4 elements double array "a"  a[0] = iteration trainingSet loss(MSE), a[1] = validation error(MSE), a[2] =trainingSet set accuracy, a[3] = validation set accuracy  </returns>
-        public abstract List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions=2);
+        public abstract List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2);
+
+
 
 
     }
