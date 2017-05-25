@@ -22,7 +22,9 @@ namespace AA1_CUP
 
             //Loading and parsing cup dataset
             CupDataManager dm = new CupDataManager();
-            DataSet wholeSet = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 10, 2);
+            DataSet TestSet = dm.LoadData(Properties.Settings.Default.TestSetLocation, 10, reportOsutput : false);
+            /*
+            DataSet wholeSet = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 10, 2); 
             //the training set split
             int trainSplit = (int)(0.6 * wholeSet.Inputs.RowCount);
             DataSet trainingSplit = new DataSet(
@@ -41,16 +43,16 @@ namespace AA1_CUP
 
             //will hold a number of possible values for the hidden units to try
             List<int> PossibleHiddenUnits = new List<int>();
-            for (int numberOfUnits = 18; numberOfUnits < 21; numberOfUnits += 1)
+            for (int numberOfUnits = 18; numberOfUnits < 20; numberOfUnits += 2)
             {
                 PossibleHiddenUnits.Add(numberOfUnits);
             }
             //holds different values for the Regularization to try
-            List<double> Regularizations = new List<double>() { 0.01,  0.0001 };
+            List<double> Regularizations = new List<double>() { 0.01 };
             //holds different values for the momentum to try for training
-            List<double> Momentums = new List<double>() { 0.7, 0.9 };
+            List<double> Momentums = new List<double>() { 0.5 };
             //holds different values for the learning rate to try for training
-            List<double> learningRate = new List<double>() { 0.000009, 0.00001 };
+            List<double> learningRate = new List<double>() { 0.000009 };
 
             //these directories will hold the experiments results
             Directory.CreateDirectory("learningCurves");
@@ -80,7 +82,7 @@ namespace AA1_CUP
 
 
                             var lr = learningRate[u];
-                            string pre = string.Format("hidn{0}_reg{1}_mo{2}_lr{3}", hidn, reg, mo, lr);
+                            string pre = string.Format("Final_hidn{0}_reg{1}_mo{2}_lr{3}", hidn, reg, mo, lr);
 
                             //building the architecture
                             Network n = new Network(new List<Layer>() {
@@ -97,9 +99,9 @@ namespace AA1_CUP
 
                                 //the training loop
                                 var learningCurve = bp.Train(n,
-                                         trainingSplit,
+                                         wholeSet,
                                          lr,
-                                         100000,
+                                         20000,
                                          true,
                                          regularizationRate: reg,
                                          regularization: AA1_MLP.Enums.Regularizations.L2,
@@ -107,48 +109,50 @@ namespace AA1_CUP
                                          validationSet: TestSplit,
 
                                          MEE: true
+                                         */
                                     /*  resilient: true, resilientUpdateAccelerationRate: 10, resilientUpdateSlowDownRate: 1,
                                       reduceLearningRate: true,
                                       learningRateReduction: 0.8,
                                       numberOfReductions: 3,
                                       learningRateReductionAfterEpochs: 7500*/
-                                         );
+ /*                                        );
 
                                 //writing the learning curve data to desk (ugly for memory, but simple)
                                 File.WriteAllText("learningCurves/" + pre + "learningCurve.txt", string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
 
                                 //saving the trained model
                                 AA1_MLP.Utilities.ModelManager.SaveNetowrk(n, "models/" + pre + "_model.AA1");
-                                // var n = AA1_MLP.Utilities.ModelManager.LoadNetwork("model.AA1");
+*/
+                                var n = AA1_MLP.Utilities.ModelManager.LoadNetwork("Final_hidn18_reg0.01_mo0.5_lr9E-06_model.AA1");
 
-                                double MEE = 0;
-                                var log = ModelManager.TesterCUPRegression(TestSplit, n, out MEE);
+                                //double MEE = 0;
+                                var predictions = ModelManager.GeneratorCUP(TestSet, n);
+            File.WriteAllText("OMG_LOC-OSM2-TS.txt", string.Join("\n", predictions.Select(s => string.Join(",", s))));
+            //reporting the scatter plot of the output against the actual predictions on the held out dataset split
+            /*File.WriteAllText("scatters/" + pre + "scatter.txt", string.Join("\n", log.Select(s => string.Join(",", s))));
 
-                                //reporting the scatter plot of the output against the actual predictions on the held out dataset split
-                                File.WriteAllText("scatters/" + pre + "scatter.txt", string.Join("\n", log.Select(s => string.Join(",", s))));
+            File.AppendAllText("MEEs.txt", pre + ":" + MEE + "\n");
 
-                                File.AppendAllText("MEEs.txt", pre + ":" + MEE + "\n");
+            Console.WriteLine(MEE);*/
 
-                                Console.WriteLine(MEE);
-
-                            }
-                            catch (Exception)
-                            {
-                                Console.WriteLine(pre + " Failed!");
-                                File.AppendAllText("fails.txt", pre + "\n");
+            /*}
+            catch (Exception)
+            {
+                Console.WriteLine(pre + " Failed!");
+                File.AppendAllText("fails.txt", pre + "\n");
 
 
-                            }
-                            us = (u + 1) % learningRate.Count == 0 ? 0 : us;
-                            File.AppendAllText("passed.txt", string.Format("{0},{1},{2},{3}\n", (((u + 1) % learningRate.Count == 0) && ((m + 1) % Momentums.Count == 0) && ((b + 1) % Regularizations.Count == 0)) ? v + 1 : v, ((((u + 1) % learningRate.Count == 0) && (m + 1) % Momentums.Count == 0) ? b + 1 : b) % Regularizations.Count, ((u + 1) % learningRate.Count == 0 ? m + 1 : m) % Momentums.Count, (u + 1) % learningRate.Count));
+            }
+            us = (u + 1) % learningRate.Count == 0 ? 0 : us;
+            File.AppendAllText("passed.txt", string.Format("{0},{1},{2},{3}\n", (((u + 1) % learningRate.Count == 0) && ((m + 1) % Momentums.Count == 0) && ((b + 1) % Regularizations.Count == 0)) ? v + 1 : v, ((((u + 1) % learningRate.Count == 0) && (m + 1) % Momentums.Count == 0) ? b + 1 : b) % Regularizations.Count, ((u + 1) % learningRate.Count == 0 ? m + 1 : m) % Momentums.Count, (u + 1) % learningRate.Count));
 
-                        }
+        }
                         ms = (m + 1) % Momentums.Count == 0 ? 0 : ms;
                     }
                     bs = (b + 1) % Regularizations.Count == 0 ? 0 : bs;
                 }
 
-            }
+            }*/
 
 
 
