@@ -52,6 +52,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
+    <Compile Include="Screening.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
