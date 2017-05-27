@@ -11,3 +11,5 @@ a demo for the screening process
 ### In AA1_CUP.Program.cs
 a demo for using the code to perform the regression on the test data
 
+# Report And details:
+https://docs.google.com/document/d/1v0lOPbnfBgjSr-iws1u0cb9STbOj7EJMAdh5VG40dBA/edit?usp=sharing
