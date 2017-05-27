@@ -41,16 +41,16 @@ namespace AA1_CUP
 
             //will hold a number of possible values for the hidden units to try
             List<int> PossibleHiddenUnits = new List<int>();
-            for (int numberOfUnits = 18; numberOfUnits < 21; numberOfUnits += 1)
+            for (int numberOfUnits = 20; numberOfUnits < 21; numberOfUnits += 1)
             {
                 PossibleHiddenUnits.Add(numberOfUnits);
             }
             //holds different values for the Regularization to try
-            List<double> Regularizations = new List<double>() { 0.01,  0.0001 };
+            List<double> Regularizations = new List<double>() {   0.0001 };
             //holds different values for the momentum to try for training
-            List<double> Momentums = new List<double>() { 0.7, 0.9 };
+            List<double> Momentums = new List<double>() {  0.5 };
             //holds different values for the learning rate to try for training
-            List<double> learningRate = new List<double>() { 0.000009, 0.00001 };
+            List<double> learningRate = new List<double>() {  0.00001 };
 
             //these directories will hold the experiments results
             Directory.CreateDirectory("learningCurves");
@@ -80,7 +80,7 @@ namespace AA1_CUP
 
 
                             var lr = learningRate[u];
-                            string pre = string.Format("hidn{0}_reg{1}_mo{2}_lr{3}", hidn, reg, mo, lr);
+                            string pre = string.Format("Last_hidn{0}_reg{1}_mo{2}_lr{3}", hidn, reg, mo, lr);
 
                             //building the architecture
                             Network n = new Network(new List<Layer>() {

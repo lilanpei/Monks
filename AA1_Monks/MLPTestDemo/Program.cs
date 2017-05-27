@@ -38,7 +38,7 @@ namespace MLPTestDemo
 
 
             //Loading a network should be like ...
-            //var n = AA1_MLP.Utilities.ModelManager.LoadNetwork(Properties.Settings.Default.path2LoadModel);
+            //var n = AA1_MLP.Utilities.ModelManager.LoadNetwork(PATH TO THE MODEL BINARY FILE);
 
 
             //Creating a backpropagation trainer
@@ -62,13 +62,13 @@ namespace MLPTestDemo
 
             //computing the ROC plot parameters
 
-            var file = new System.IO.StreamWriter(Properties.Settings.Default.ROCParamsStorageLocation);
-            for (float i = 0.005f; i <= 1.0f; i += 0.005f)
-            {
-                var TprFpr = AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, n, i);
-                file.WriteLine(string.Format("{0},{1},{2}", i, TprFpr[0], TprFpr[1]));
-            }
-            file.Close();
+            //var file = new System.IO.StreamWriter(Properties.Settings.Default.ROCParamsStorageLocation);
+            //for (float i = 0.005f; i <= 1.0f; i += 0.005f)
+            //{
+            //    var TprFpr = AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, n, i);
+            //    file.WriteLine(string.Format("{0},{1},{2}", i, TprFpr[0], TprFpr[1]));
+            //}
+            //file.Close();
 
 
         }
