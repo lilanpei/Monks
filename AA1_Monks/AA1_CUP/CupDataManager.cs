@@ -12,7 +12,7 @@ namespace AA1_CUP
 {
     class CupDataManager : IDataManager
     {
-        public override AA1_MLP.Entities.DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null)
+        public override AA1_MLP.Entities.DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null, bool reportOsutput = true)
         {
 
             string l;
@@ -31,13 +31,20 @@ namespace AA1_CUP
                     if (i == 0)
                     {
                         input.SetRow(i, line.Skip(1).Take(10).Select(s => double.Parse(s, CultureInfo.InvariantCulture)).ToArray());
-                        output.SetRow(i, line.Skip(11).Select(s => double.Parse(s, CultureInfo.InvariantCulture)).ToArray());
+                        if (reportOsutput)
+                        {
+                            output.SetRow(i, line.Skip(11).Select(s => double.Parse(s, CultureInfo.InvariantCulture)).ToArray());
+                        }
+                        
 
                     }
                     else
                     {
                         input = input.InsertRow(i, CreateVector.Dense(line.Skip(1).Take(10).Select(s => double.Parse(s)).ToArray()));
-                        output = output.InsertRow(i, CreateVector.Dense(line.Skip(11).Select(s => double.Parse(s)).ToArray()));
+                        if (reportOsutput)
+                        { 
+                            output = output.InsertRow(i, CreateVector.Dense(line.Skip(11).Select(s => double.Parse(s)).ToArray()));
+                        }
                     }
                     i++;
                     if (numberOfExamples != null)

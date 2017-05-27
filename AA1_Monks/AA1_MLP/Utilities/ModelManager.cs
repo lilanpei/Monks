@@ -45,6 +45,23 @@ namespace AA1_MLP.Utilities
             }
         }
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="testSet"></param>
+        /// <param name="n"></param>
+        /// <returns></returns>
+        public static List<double[]> GeneratorCUP(DataSet testSet, Network n)
+        {
+            List<double[]> predictions = new List<double[]>();
+            for (int i = 0; i < testSet.Inputs.RowCount; i++)
+            {
+                var o = n.ForwardPropagation(testSet.Inputs.Row(i));
+                predictions.Add(new double[] { i+1, o[0], o[1] });
+
+            }
+            return predictions;
+        }
+        /// <summary>
         /// Given a network and a test set, this function returns the  predicted values for each datapoint in the set vs the actual value and outputs the Mean Euclidean Error
         /// </summary>
         /// <param name="testSet"></param>
