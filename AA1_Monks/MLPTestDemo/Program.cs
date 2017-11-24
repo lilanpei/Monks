@@ -31,7 +31,7 @@ namespace MLPTestDemo
                 }, false, AA1_MLP.Enums.WeightsInitialization.Uniform);
 
 
-            //loading monks trainingSet and testing datasets
+            //loading monks Dataset and testing datasets
             DataManager dm = new DataManager();
             DataSet ds = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 17);
             DataSet dt = dm.LoadData(Properties.Settings.Default.TestSetLocation, 17);

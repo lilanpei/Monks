@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 namespace AA1_MLP.Activations
 {
     /// <summary>
+    /// -- marked for deletion --
     /// This special activation function is for the input layer neurons, it just returns the value of whatever vecor passed to it
     /// </summary>
     [Serializable]
