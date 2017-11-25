@@ -9,35 +9,38 @@ using AA1_MLP.Enums;
 
 namespace AA1_MLP.Entities.Trainers
 {
+    /// <summary>
+    /// Gradient methods with backpropagation of errors for updating the weights
+    /// </summary>
     public class BackPropagation : IOptimizer
     {
         public override List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2)
         {
             //int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
-            List<int> indices = Enumerable.Range(0, trainingSet.Labels.RowCount).ToList();
-            List<int> test_indices = null;
+            List<int> trainingSetIndices = Enumerable.Range(0, trainingSet.Labels.RowCount).ToList();
+            List<int> testSetIndices = null;
             DataSet test = new DataSet(null, null);
             if (validationSet != null)
             {
-                test_indices = Enumerable.Range(0, validationSet.Labels.RowCount).ToList();
+                testSetIndices = Enumerable.Range(0, validationSet.Labels.RowCount).ToList();
                 /*  if (shuffle)
                   {
-                      test_indices.Shuffle();
+                      testSetIndices.Shuffle();
                   }
                   */
-                test.Inputs = CreateMatrix.Dense(test_indices.Count, validationSet.Inputs.ColumnCount, 0.0);
-                test.Labels = CreateMatrix.Dense(test_indices.Count, validationSet.Labels.ColumnCount, 0.0);
-                for (int i = 0; i < test_indices.Count; i++)
+                test.Inputs = CreateMatrix.Dense(testSetIndices.Count, validationSet.Inputs.ColumnCount, 0.0);
+                test.Labels = CreateMatrix.Dense(testSetIndices.Count, validationSet.Labels.ColumnCount, 0.0);
+                for (int i = 0; i < testSetIndices.Count; i++)
                 {
-                    test.Inputs.SetRow(i, validationSet.Inputs.Row(test_indices[i]));//, 1, 0, Dataset.Inputs.ColumnCount));
-                    test.Labels.SetRow(i, validationSet.Labels.Row(test_indices[i]));//.SubMatrix(indices[i], 1, 0, Dataset.Labels.ColumnCount));
+                    test.Inputs.SetRow(i, validationSet.Inputs.Row(testSetIndices[i]));//, 1, 0, Dataset.Inputs.ColumnCount));
+                    test.Labels.SetRow(i, validationSet.Labels.Row(testSetIndices[i]));//.SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Labels.ColumnCount));
 
                 }
             }
             if (shuffle)
             {
-                indices.Shuffle();
+                trainingSetIndices.Shuffle();
             }
 
             /*   DataSet validation = new DataSet(null, null);
@@ -45,7 +48,7 @@ namespace AA1_MLP.Entities.Trainers
                */
             //if (validationSplit != null)
             //{
-            //    valSplitSize = (int)(indices.Count * validationSplit);
+            //    valSplitSize = (int)(trainingSetIndices.Count * validationSplit);
 
             //    validation.Inputs = CreateMatrix.Dense(valSplitSize, Dataset.Inputs.ColumnCount, 0.0);
             //    validation.Labels = CreateMatrix.Dense(valSplitSize, Dataset.Labels.ColumnCount, 0.0);
@@ -53,18 +56,18 @@ namespace AA1_MLP.Entities.Trainers
             //    for (int i = 0; i < valSplitSize; i++)
             //    {
 
-            //        validation.Inputs.SetRow(i, Dataset.Inputs.Row(indices[i]));// .SubMatrix(indices[i], 1, 0, Dataset.Inputs.ColumnCount));
-            //        validation.Labels.SetRow(i, Dataset.Labels.Row(indices[i]));//SubMatrix(indices[i], 1, 0, Dataset.Labels.ColumnCount));
+            //        validation.Inputs.SetRow(i, Dataset.Inputs.Row(trainingSetIndices[i]));// .SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Inputs.ColumnCount));
+            //        validation.Labels.SetRow(i, Dataset.Labels.Row(trainingSetIndices[i]));//SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Labels.ColumnCount));
 
             //    }
 
-            //    Dataset.Inputs = CreateMatrix.Dense(indices.Count - valSplitSize, Dataset.Inputs.ColumnCount, 0.0);
-            //    Dataset.Labels = CreateMatrix.Dense(indices.Count - valSplitSize, Dataset.Labels.ColumnCount, 0.0);
+            //    Dataset.Inputs = CreateMatrix.Dense(trainingSetIndices.Count - valSplitSize, Dataset.Inputs.ColumnCount, 0.0);
+            //    Dataset.Labels = CreateMatrix.Dense(trainingSetIndices.Count - valSplitSize, Dataset.Labels.ColumnCount, 0.0);
 
-            //    for (int i = valSplitSize; i < indices.Count; i++)
+            //    for (int i = valSplitSize; i < trainingSetIndices.Count; i++)
             //    {
-            //        Dataset.Inputs.SetRow(i - valSplitSize, Dataset.Inputs.Row(indices[i]));//, 1, 0, Dataset.Inputs.ColumnCount));
-            //        Dataset.Labels.SetRow(i - valSplitSize, Dataset.Labels.Row(indices[i]));//.SubMatrix(indices[i], 1, 0, Dataset.Labels.ColumnCount));
+            //        Dataset.Inputs.SetRow(i - valSplitSize, Dataset.Inputs.Row(trainingSetIndices[i]));//, 1, 0, Dataset.Inputs.ColumnCount));
+            //        Dataset.Labels.SetRow(i - valSplitSize, Dataset.Labels.Row(trainingSetIndices[i]));//.SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Labels.ColumnCount));
 
             //    }
             //}
@@ -78,40 +81,34 @@ namespace AA1_MLP.Entities.Trainers
              }*/
 
             Matrix<double> batchesIndices = null;//a 2d matrix of shape(nmberOfBatches,2), rows are batches, row[0] =barchstart, row[1] = batchEnd 
-            Dictionary<int, Matrix<double>> previousWeightsUpdate = null;
-            Dictionary<int, Matrix<double>> PreviousUpdateSigns = new Dictionary<int, Matrix<double>>();
+            Dictionary<int, Matrix<double>> previousWeightsUpdate = null;//for the momentum updates
+            Dictionary<int, Matrix<double>> PreviousUpdateSigns = new Dictionary<int, Matrix<double>>();//for the resilient backpropagation,if the sign changes we slow down with the slow down ratio, if it stays the same we accelerate with the acceleration ratio
 
             for (int epoch = 0; epoch < numberOfEpochs; epoch++)
             {
-
-
-                if (batchSize != null)
+                if (batchSize != null)//will build a matrix "batchesIndices" describing the batches that in each row, contains the start and the end of a batch
                 {
                     var numberOfBatches = (int)Math.Ceiling(((trainingSet.Labels.RowCount / (double)(batchSize))));
-
                     batchesIndices = CreateMatrix.Dense(numberOfBatches, 2, 0.0);
-
                     for (int j = 0; j < numberOfBatches; j++)
                     {
                         batchesIndices.SetRow(j, new double[] { j * (double)batchSize, Math.Min(trainingSet.Inputs.RowCount - 1, (j + 1) * (double)batchSize - 1) });
                     }
-
-
                 }
-                else
+                else//put all of the dataset in one batch
                 {
                     batchesIndices = CreateMatrix.Dense(1, 2, 0.0);
                     batchesIndices.SetRow(0, new double[] { 0, trainingSet.Inputs.RowCount - 1 });
                 }
 
-                double iterationLoss = 0;
+                double iterationLoss = 0;//will hold the average of the batches average losses, each batch contributes to this with its loss average =  batchloss/batchsize
 
                 for (int i = 0; i < batchesIndices.RowCount; i++)//for each batch
                 {
 
                     double batchLoss = 0;
                     Dictionary<int, Matrix<double>> weightsUpdates = new Dictionary<int, Matrix<double>>();
-                    int numberOfBatchExamples = (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1);
+                    int numberOfBatchExamples = (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1);//not all batches have batchSize, unfortunately, the last one could be smaller
                     var batchIndices = Enumerable.Range((int)batchesIndices.Row(i).At(0), (int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1).ToList();
                     if (shuffle)
                     {
@@ -124,6 +121,8 @@ namespace AA1_MLP.Entities.Trainers
                         var label = trainingSet.Labels.Row(k);
                         //comute the loss 
                         //batchLoss += ((label - nwOutput.Map(s => s >= 0.5 ? 1.0 : 0.0)).PointwiseMultiply(label - nwOutput.Map(s => s > 0.5 ? 1.0 : 0.0))).Sum();
+                        
+                        //TODO: get the loss computation out as a parameter to the function, so that the user can specify it freely
                         var loss = ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
                         batchLoss += MEE ? Math.Sqrt(loss) : loss;
 
@@ -187,7 +186,7 @@ namespace AA1_MLP.Entities.Trainers
                             else
                             {
                                 Matrix<double> wei = network.Weights[layerIndex];
-                                if (wei.RowCount > derivative.Count)
+                                if (wei.RowCount > derivative.Count)//there is a bias
                                 {
                                     wei = wei.SubMatrix(0, wei.RowCount - 1, 0, wei.ColumnCount);
                                 }
@@ -227,10 +226,10 @@ namespace AA1_MLP.Entities.Trainers
                             }
                             Matrix<double> weightsUpdate = null;
                             var acti = network.Layers[layerIndex - 1].LayerActivations;
-                            if (network.Layers[layerIndex - 1].Bias && acti.Count - network.Layers[layerIndex - 1].NumberOfNeurons < 1)
+                            if (network.Layers[layerIndex - 1].Bias && acti.Count - network.Layers[layerIndex - 1].NumberOfNeurons < 1)//if the user asked a bias should be added, we need to add a dummy neuron of activation =1 as a bias at the end of the layer's activations
                             {
                                 var l = acti.ToList();
-                                l.Add(1);
+                                l.Add(1);//adding the bias
 
                                 acti = CreateVector.Dense(l.ToArray());
                             }
@@ -373,14 +372,14 @@ namespace AA1_MLP.Entities.Trainers
                 double validationError = 0;
                 if (validationSet != null)
                 {
-                    for (int i = 0; i < test_indices.Count; i++)
+                    for (int i = 0; i < testSetIndices.Count; i++)
                     {
                         var nwOutput = network.ForwardPropagation(test.Inputs.Row(i));
                         var loss = ((test.Labels.Row(i) - nwOutput).PointwiseMultiply(test.Labels.Row(i) - nwOutput)).Sum();
                         validationError += MEE ? Math.Sqrt(loss) : loss;
 
                     }
-                    validationError /= test_indices.Count;
+                    validationError /= testSetIndices.Count;
 
 
                 }
