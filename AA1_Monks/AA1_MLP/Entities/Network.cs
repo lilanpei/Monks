@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace AA1_MLP.Entities
 {
     /// <summary>
-    ///  A general MLP architecture Class
+    ///  A class representing a multilayer perceptron object, here one can compose feedforward neural networks with different number of layers , neurons and different activation functions
     /// </summary>
     [Serializable]
     public class Network
@@ -17,7 +17,12 @@ namespace AA1_MLP.Entities
         public List<Layer> Layers { get; set; }
         public List<Matrix<double>> Weights { get; set; }
         public bool Debug { get; set; }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="_Layers">a list of layers each specifying its number of neurons, bias and activation function for the neurons</param>
+        /// <param name="debug">set to true, will print debug messages and will test a small network archietecture</param>
+        /// <param name="weightsInitMethod">How the weights should be instantiated, Xavier by default or Uniform </param>
         public Network(List<Layer> _Layers,  bool debug = false, Enums.WeightsInitialization weightsInitMethod = Enums.WeightsInitialization.Xavier)
         {
             Debug = debug;
@@ -68,8 +73,7 @@ namespace AA1_MLP.Entities
                 }
 
             }
-
-            //last weight layer
+            //TODO: fix the problem with the idea that uniform should have a different weights scale for the last layer, if this is not true, then there is no need for the condition in the for loop!
             if (weightsInitMethod == Enums.WeightsInitialization.Uniform)
             {
                 Weights.Add(CreateMatrix.Random<double>(Layers[Layers.Count - 2].NumberOfNeurons + (Layers[Layers.Count - 2].Bias ? 1 : 0), Layers[Layers.Count - 1].NumberOfNeurons, new ContinuousUniform(-0.7, 0.7)));
@@ -77,7 +81,11 @@ namespace AA1_MLP.Entities
             }
 
         }
-
+        /// <summary>
+        /// Iteratively calls the forward ropagation method of each layer on the output of the previous layer
+        /// </summary>
+        /// <param name="input">The inputs to the neural network for the current problem</param>
+        /// <returns></returns>
         public Vector<double> ForwardPropagation(Vector<double> input)
         {
             //Layers[0].LayerActivationsSumInputs = CreateVector.DenseOfVector(input);

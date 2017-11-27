@@ -1,7 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\AA1_Monks"
+    "\\AA1_Monks",
+    "\\AA1_Monks\\AA1_MLP",
+    "\\AA1_Monks\\AA1_MLP\\Activations"
   ],
+  "SelectedNode": "\\AA1_Monks\\AA1_MLP\\Activations\\Activations.cs",
   "PreviewInSolutionExplorer": false
 }
