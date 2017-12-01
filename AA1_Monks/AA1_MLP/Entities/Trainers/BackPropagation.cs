@@ -14,7 +14,7 @@ namespace AA1_MLP.Entities.Trainers
     /// </summary>
     public class BackPropagation : IOptimizer
     {
-        public override List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2)
+        public override List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2, bool nestrov = false)
         {
             //int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
@@ -121,7 +121,7 @@ namespace AA1_MLP.Entities.Trainers
                         var label = trainingSet.Labels.Row(k);
                         //comute the loss 
                         //batchLoss += ((label - nwOutput.Map(s => s >= 0.5 ? 1.0 : 0.0)).PointwiseMultiply(label - nwOutput.Map(s => s > 0.5 ? 1.0 : 0.0))).Sum();
-                        
+
                         //TODO: get the loss computation out as a parameter to the function, so that the user can specify it freely
                         var loss = ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
                         batchLoss += MEE ? Math.Sqrt(loss) : loss;
@@ -311,15 +311,85 @@ namespace AA1_MLP.Entities.Trainers
                             {
                                 Matrix<double> w = network.Weights[y].Clone();
                                 w.ClearRow(w.RowCount - 1);
-                                network.Weights[y] += resilientLearningRates.PointwiseMultiply(momentumUpdate + (weightsUpdates[y] - 2 * regularizationRate * w));
+                                network.Weights[y] += resilientLearningRates.PointwiseMultiply((weightsUpdates[y] - 2 * regularizationRate * w)) + momentumUpdate;
                             }
                             else
                             {
-                                network.Weights[y] += resilientLearningRates.PointwiseMultiply(momentumUpdate + (weightsUpdates[y] - 2 * regularizationRate * network.Weights[y]));
+                                if (nestrov)
+                                {
+
+
+                                    var prevNest = previousWeightsUpdate[y];
+                                    previousWeightsUpdate[y] = (momentum * prevNest) - (weightsUpdates[y] * resilientLearningRates);
+                                    network.Weights[y] += (momentum * prevNest) - ((1 + momentum) * previousWeightsUpdate[y]);
+
+                                  /*  double prevNesterov = this.lastDelta[i];
+                                    this.lastDelta[i] = (this.momentum * prevNesterov) + (this.gradients.getGradients()[i] * this.learningRate);
+                                    delta = (this.momentum * prevNesterov) - ((1 + this.momentum) * this.lastDelta[i]);*/
+
+
+
+                                    if (previousWeightsUpdate != null)
+                                    {
+                                        network.Weights[y] += momentumUpdate + ((1 + momentum) * previousWeightsUpdate[y]);
+                                    }
+                                    else
+                                    {
+                                        network.Weights[y] += resilientLearningRates.PointwiseMultiply(weightsUpdates[y] - 2 * regularizationRate * network.Weights[y]) + momentumUpdate;
+                                    }
+
+                                }
+                                else
+                                {
+                                    network.Weights[y] += resilientLearningRates.PointwiseMultiply((weightsUpdates[y] - 2 * regularizationRate * network.Weights[y])) + momentumUpdate;
+                                }
                             }
                         }
                         else
-                            network.Weights[y] += resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]);
+                        {
+                            if (nestrov)
+                            {
+
+
+
+                                if (previousWeightsUpdate != null)
+                                {
+                                  //  network.Weights[y] += momentumUpdate + ((1 + momentum) * previousWeightsUpdate[y]);
+
+                                    //this works, need to copy it to the regularized part!!!
+
+                                    var prevNest = previousWeightsUpdate[y].Clone();
+                                    previousWeightsUpdate[y] = (momentum * prevNest) - (resilientLearningRates.PointwiseMultiply(weightsUpdates[y]));
+                                    
+                                        weightsUpdates[y] = (momentum * prevNest) - ((1 + momentum) * previousWeightsUpdate[y]);
+
+                                }
+                                else
+                                {
+                                    weightsUpdates[y] = resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) + momentumUpdate;
+                                }
+
+                                network.Weights[y] += weightsUpdates[y];
+
+
+                            }
+                            else
+                            {
+                                network.Weights[y] += resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) + momentumUpdate;
+                            }
+                        }
+                        /*
+
+                double prevNesterov = this.lastDelta[i];
+                this.lastDelta[i] = (this.momentum * prevNesterov)  + (this.gradients.getGradients()[i] * this.learningRate);
+                delta = (this.momentum * prevNesterov) - ((1+this.momentum)*this.lastDelta[i]);
+
+                        ----
+                         
+                delta = (this.gradients.getGradients()[i] * -this.learningRate) + (this.lastDelta[i] * this.momentum);
+                this.lastDelta[i] = delta;
+                         
+                        */
 
                         if (!PreviousUpdateSigns.ContainsKey(y))
                         {
@@ -396,7 +466,7 @@ namespace AA1_MLP.Entities.Trainers
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Epoch:{0} loss:{1}", epoch, iterationLoss);
 
-                if (reduceLearningRate&&epoch>0 &&numberOfReductions>0 &&epoch % learningRateReductionAfterEpochs == 0)
+                if (reduceLearningRate && epoch > 0 && numberOfReductions > 0 && epoch % learningRateReductionAfterEpochs == 0)
                 {
                     learningRate *= learningRateReduction;
                     numberOfReductions--;

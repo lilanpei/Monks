@@ -25,7 +25,7 @@ namespace MLPTestDemo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-4\\AA1 - PROJ\\MONKS-DATASETS\\dataset1train")]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\Monk\\MONKS-DATASETS\\dataset1train")]
         public string TrainingSetLocation {
             get {
                 return ((string)(this["TrainingSetLocation"]));
@@ -37,7 +37,7 @@ namespace MLPTestDemo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-4\\AA1 - PROJ\\MONKS-DATASETS\\dataset1test")]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\Monk\\MONKS-DATASETS\\dataset1test")]
         public string TestSetLocation {
             get {
                 return ((string)(this["TestSetLocation"]));

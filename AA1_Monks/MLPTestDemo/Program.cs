@@ -28,7 +28,7 @@ namespace MLPTestDemo
                 new Layer(new ActivationIdentity(),true,17),
                 new Layer(new ActivationSigmoid(),true,3),
                 new Layer(new ActivationSigmoid(),false,1),
-                }, false, AA1_MLP.Enums.WeightsInitialization.Uniform);
+                }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
 
 
             //loading monks Dataset and testing datasets
@@ -45,7 +45,7 @@ namespace MLPTestDemo
             BackPropagation br = new BackPropagation();
 
             //Calling the Train method of the trainer with the desired parameters
-            var learningCurve = br.Train(n, ds, learningRate: 1, numberOfEpochs: 500, shuffle: false, debug: n.Debug, momentum: 0.4, resilient: true, resilientUpdateAccelerationRate: 0.5, resilientUpdateSlowDownRate: 0.2, regularization: AA1_MLP.Enums.Regularizations.None, regularizationRate: 0.01, validationSet: dt, batchSize: 7);
+            var learningCurve = br.Train(n, ds, learningRate: 1, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:true, momentum: 0.9, resilient: true, resilientUpdateAccelerationRate: 0.5, resilientUpdateSlowDownRate: 0.2, regularization: AA1_MLP.Enums.Regularizations.None, regularizationRate: 0.001, validationSet: dt, batchSize: 7);
 
             //writing the learning curve data to desk (ugly for memory, but simple)
             File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
