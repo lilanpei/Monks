@@ -84,6 +84,7 @@ namespace AA1_MLP.Entities.Trainers
             Dictionary<int, Matrix<double>> previousWeightsUpdate = null;//for the momentum updates
             Dictionary<int, Matrix<double>> PreviousUpdateSigns = new Dictionary<int, Matrix<double>>();//for the resilient backpropagation,if the sign changes we slow down with the slow down ratio, if it stays the same we accelerate with the acceleration ratio
 
+
             for (int epoch = 0; epoch < numberOfEpochs; epoch++)
             {
                 if (batchSize != null)//will build a matrix "batchesIndices" describing the batches that in each row, contains the start and the end of a batch
@@ -105,9 +106,12 @@ namespace AA1_MLP.Entities.Trainers
 
                 for (int i = 0; i < batchesIndices.RowCount; i++)//for each batch
                 {
+                    Dictionary<int, Matrix<double>> momentumUpdate = new Dictionary<int, Matrix<double>>();
+
 
                     double batchLoss = 0;
                     Dictionary<int, Matrix<double>> weightsUpdates = new Dictionary<int, Matrix<double>>();
+
                     int numberOfBatchExamples = (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1);//not all batches have batchSize, unfortunately, the last one could be smaller
                     var batchIndices = Enumerable.Range((int)batchesIndices.Row(i).At(0), (int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1).ToList();
                     if (shuffle)
@@ -218,6 +222,13 @@ namespace AA1_MLP.Entities.Trainers
                             {
                                 weightsUpdates.Add(layerIndex - 1, CreateMatrix.Dense(network.Weights[layerIndex - 1].RowCount, network.Weights[layerIndex - 1].ColumnCount, 0.0));
                             }
+
+                            if (!momentumUpdate.ContainsKey(layerIndex - 1))
+                            {
+                                momentumUpdate.Add(layerIndex - 1, CreateMatrix.Dense(network.Weights[layerIndex - 1].RowCount, network.Weights[layerIndex - 1].ColumnCount, 0.0));
+                            }
+
+
                             if (network.Debug)
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
@@ -234,6 +245,7 @@ namespace AA1_MLP.Entities.Trainers
                                 acti = CreateVector.Dense(l.ToArray());
                             }
                             weightsUpdate = acti.OuterProduct(network.Layers[layerIndex].Delta);
+
                             //  if (layerIndex == network.Layers.Count - 1)
                             {
                                 //delta output sum * hidden layer results
@@ -276,11 +288,11 @@ namespace AA1_MLP.Entities.Trainers
 
                             }
 
-                        }
+                        }//back propagating per layer
 
                         if (debug)
                             Console.WriteLine("-------- Batch:{0} element:{1} end-----", i, k);
-                    }
+                    }//per example in the batch
                     if (debug)
                         Console.WriteLine("batch end");
 
@@ -289,6 +301,8 @@ namespace AA1_MLP.Entities.Trainers
 
                     for (int y = 0; y < weightsUpdates.Keys.Count; y++)
                     {
+                        Matrix<double> finalUpdate = null;
+
                         //weightsUpdates[y] /= numberOfBatchExamples;
                         var resilientLearningRates = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, (epoch == 0) && resilient ? resilientUpdateSlowDownRate * learningRate : learningRate);
                         if (resilient && PreviousUpdateSigns.ContainsKey(y))
@@ -298,7 +312,8 @@ namespace AA1_MLP.Entities.Trainers
                         }
 
 
-                        var momentumUpdate = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, 0.0);
+                        var prev_v = momentumUpdate[y].Clone();
+
                         if (previousWeightsUpdate != null)
                         {
 
@@ -306,15 +321,14 @@ namespace AA1_MLP.Entities.Trainers
                             if (regularization == Regularizations.L2)
                             {
 
-                                momentumUpdate += momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(((weightsUpdates[y] - 2 * regularizationRate * network.Weights[y])));
+                                momentumUpdate[y] += momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(((weightsUpdates[y] - 2 * regularizationRate * network.Weights[y])));
                             }
                             else
                             {
-                                momentumUpdate += momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]);
+                                momentumUpdate[y] += momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]);
                             }
                         }
 
-                        Matrix<double> finalUpdate = null;
                         //if (regularization != Regularizations.None)
                         //{
                         //    //network.Weights[y] = (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]));
@@ -348,27 +362,26 @@ namespace AA1_MLP.Entities.Trainers
                         //    }
                         //}
                         //else //no regularization
+
+
                         {
 
                             if (nestrov)
                             {
-                                if (previousWeightsUpdate!=null)
-                                {
-                                    finalUpdate = (1 + momentum) * momentumUpdate - momentum * previousWeightsUpdate[y];
 
-                                }
-                                else
-                                {
-                                    finalUpdate = /*resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) +*/ momentumUpdate;
 
-                                }
+                                //           var    v_prev = v # back this up
+                                //            v = mu * v - learning_rate * dx # velocity update stays the same
+
+                                //            x += -mu * v_prev + (1 + mu) * v # position update changes form*/
+                                finalUpdate = (1 + momentum) * momentumUpdate[y] - momentum * prev_v;
 
 
 
                             }
                             else//no nestrove ad no regularization
                             {
-                                finalUpdate = /*resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) +*/ momentumUpdate;
+                                finalUpdate = /*resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) +*/ momentumUpdate[y];
                             }
                         }
                         /*

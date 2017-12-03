@@ -45,7 +45,7 @@ namespace MLPTestDemo
             BackPropagation br = new BackPropagation();
 
             //Calling the Train method of the trainer with the desired parameters
-            var learningCurve = br.Train(n, ds, learningRate: 0.1, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:true, momentum: 0.9, resilient: false, resilientUpdateAccelerationRate: 0.2, resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.Regularizations.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7);
+            var learningCurve = br.Train(n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3, resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.Regularizations.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7);
 
             //writing the learning curve data to desk (ugly for memory, but simple)
             File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
