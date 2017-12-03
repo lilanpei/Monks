@@ -301,81 +301,74 @@ namespace AA1_MLP.Entities.Trainers
                         var momentumUpdate = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, 0.0);
                         if (previousWeightsUpdate != null)
                         {
-                            momentumUpdate += momentum * previousWeightsUpdate[y];
-                        }
-                        if (regularization != Regularizations.None)
-                        {
-                            //network.Weights[y] = (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]));
-                            //network.Weights[y] = 2 * regularizationRate * network.Weights[y] + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]);
-                            if (network.Layers[y].Bias)
+
+                            //mu * v - learning_rate * dx_ahead
+                            if (regularization == Regularizations.L2)
                             {
-                                Matrix<double> w = network.Weights[y].Clone();
-                                w.ClearRow(w.RowCount - 1);
-                                network.Weights[y] += resilientLearningRates.PointwiseMultiply((weightsUpdates[y] - 2 * regularizationRate * w)) + momentumUpdate;
+
+                                momentumUpdate += momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(((weightsUpdates[y] - 2 * regularizationRate * network.Weights[y])));
                             }
                             else
                             {
-                                if (nestrov)
-                                {
-
-
-                                    var prevNest = previousWeightsUpdate[y];
-                                    previousWeightsUpdate[y] = (momentum * prevNest) - (weightsUpdates[y] * resilientLearningRates);
-                                    network.Weights[y] += (momentum * prevNest) - ((1 + momentum) * previousWeightsUpdate[y]);
-
-                                  /*  double prevNesterov = this.lastDelta[i];
-                                    this.lastDelta[i] = (this.momentum * prevNesterov) + (this.gradients.getGradients()[i] * this.learningRate);
-                                    delta = (this.momentum * prevNesterov) - ((1 + this.momentum) * this.lastDelta[i]);*/
-
-
-
-                                    if (previousWeightsUpdate != null)
-                                    {
-                                        network.Weights[y] += momentumUpdate + ((1 + momentum) * previousWeightsUpdate[y]);
-                                    }
-                                    else
-                                    {
-                                        network.Weights[y] += resilientLearningRates.PointwiseMultiply(weightsUpdates[y] - 2 * regularizationRate * network.Weights[y]) + momentumUpdate;
-                                    }
-
-                                }
-                                else
-                                {
-                                    network.Weights[y] += resilientLearningRates.PointwiseMultiply((weightsUpdates[y] - 2 * regularizationRate * network.Weights[y])) + momentumUpdate;
-                                }
+                                momentumUpdate += momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]);
                             }
                         }
-                        else
+
+                        Matrix<double> finalUpdate = null;
+                        //if (regularization != Regularizations.None)
+                        //{
+                        //    //network.Weights[y] = (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]));
+                        //    //network.Weights[y] = 2 * regularizationRate * network.Weights[y] + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]);
+                        //    if (network.Layers[y].Bias)
+                        //    {
+                        //        Matrix<double> w = network.Weights[y].Clone();
+                        //        w.ClearRow(w.RowCount - 1);
+                        //        finalUpdate = /*resilientLearningRates.PointwiseMultiply*/((weightsUpdates[y] - 2 * regularizationRate * w)) + momentumUpdate;
+
+                        //    }
+                        //    else //no bias with regularization
+                        //    {
+                        //        if (nestrov) //no bias with regularization with nestrov
+                        //        {
+
+                        //            /*
+                        //            v_prev = v # back this up
+                        //            v = mu * v - learning_rate * dx # velocity update stays the same
+                        //            x += -mu * v_prev + (1 + mu) * v # position update changes form*/
+
+                        //            //momentumUpdate += momentum * previousWeightsUpdate[y] - learningRate * weightsUpdates[y];
+
+
+                        //            finalUpdate = (1 + momentum) * momentumUpdate - momentum * previousWeightsUpdate[y];
+                        //        }
+                        //        else//no bias with regularization without nestrov
+                        //        {
+                        //            finalUpdate = /*resilientLearningRates.PointwiseMultiply*/((weightsUpdates[y] - 2 * regularizationRate * network.Weights[y])) + momentumUpdate;
+                        //        }
+                        //    }
+                        //}
+                        //else //no regularization
                         {
+
                             if (nestrov)
                             {
-
-
-
-                                if (previousWeightsUpdate != null)
+                                if (previousWeightsUpdate!=null)
                                 {
-                                  //  network.Weights[y] += momentumUpdate + ((1 + momentum) * previousWeightsUpdate[y]);
-
-                                    //this works, need to copy it to the regularized part!!!
-
-                                    var prevNest = previousWeightsUpdate[y].Clone();
-                                    previousWeightsUpdate[y] = (momentum * prevNest) - (resilientLearningRates.PointwiseMultiply(weightsUpdates[y]));
-                                    
-                                        weightsUpdates[y] = (momentum * prevNest) - ((1 + momentum) * previousWeightsUpdate[y]);
+                                    finalUpdate = (1 + momentum) * momentumUpdate - momentum * previousWeightsUpdate[y];
 
                                 }
                                 else
                                 {
-                                    weightsUpdates[y] = resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) + momentumUpdate;
+                                    finalUpdate = /*resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) +*/ momentumUpdate;
+
                                 }
 
-                                network.Weights[y] += weightsUpdates[y];
 
 
                             }
-                            else
+                            else//no nestrove ad no regularization
                             {
-                                network.Weights[y] += resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) + momentumUpdate;
+                                finalUpdate = /*resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) +*/ momentumUpdate;
                             }
                         }
                         /*
@@ -390,6 +383,10 @@ namespace AA1_MLP.Entities.Trainers
                 this.lastDelta[i] = delta;
                          
                         */
+
+
+                        network.Weights[y] += finalUpdate;
+
 
                         if (!PreviousUpdateSigns.ContainsKey(y))
                         {

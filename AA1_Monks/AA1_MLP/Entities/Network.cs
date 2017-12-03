@@ -59,7 +59,7 @@ namespace AA1_MLP.Entities
                     }
                     else
                     {
-                        Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, d)));
+                        Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, d,new Random(1))));
 
                     }
 
