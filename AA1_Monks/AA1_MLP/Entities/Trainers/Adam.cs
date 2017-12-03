@@ -6,39 +6,38 @@ using System.Threading.Tasks;
 using CustomExtensionMethods;
 using MathNet.Numerics.LinearAlgebra;
 using AA1_MLP.Enums;
+using AA1_MLP.Entities.TrainersParams;
 
 namespace AA1_MLP.Entities.Trainers
 {
-    /// <summary>
-    /// Gradient methods with backpropagation of errors for updating the weights
-    /// </summary>
-    public class BackPropagation : IOptimizer
+    public class Adam : IOptimizer
     {
-        public override List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2, bool nestrov = false)
+        public override List<double[]> Train(TrainersParams.ITrainerParams trainParams)
         {
+            AdamParams passedParams = (AdamParams)trainParams;
             //int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
-            List<int> trainingSetIndices = Enumerable.Range(0, trainingSet.Labels.RowCount).ToList();
+            List<int> trainingSetIndices = Enumerable.Range(0, passedParams.trainingSet.Labels.RowCount).ToList();
             List<int> testSetIndices = null;
             DataSet test = new DataSet(null, null);
-            if (validationSet != null)
+            if (passedParams.validationSet != null)
             {
-                testSetIndices = Enumerable.Range(0, validationSet.Labels.RowCount).ToList();
+                testSetIndices = Enumerable.Range(0, passedParams.validationSet.Labels.RowCount).ToList();
                 /*  if (shuffle)
                   {
                       testSetIndices.Shuffle();
                   }
                   */
-                test.Inputs = CreateMatrix.Dense(testSetIndices.Count, validationSet.Inputs.ColumnCount, 0.0);
-                test.Labels = CreateMatrix.Dense(testSetIndices.Count, validationSet.Labels.ColumnCount, 0.0);
+                test.Inputs = CreateMatrix.Dense(testSetIndices.Count, passedParams.validationSet.Inputs.ColumnCount, 0.0);
+                test.Labels = CreateMatrix.Dense(testSetIndices.Count, passedParams.validationSet.Labels.ColumnCount, 0.0);
                 for (int i = 0; i < testSetIndices.Count; i++)
                 {
-                    test.Inputs.SetRow(i, validationSet.Inputs.Row(testSetIndices[i]));//, 1, 0, Dataset.Inputs.ColumnCount));
-                    test.Labels.SetRow(i, validationSet.Labels.Row(testSetIndices[i]));//.SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Labels.ColumnCount));
+                    test.Inputs.SetRow(i, passedParams.validationSet.Inputs.Row(testSetIndices[i]));//, 1, 0, Dataset.Inputs.ColumnCount));
+                    test.Labels.SetRow(i, passedParams.validationSet.Labels.Row(testSetIndices[i]));//.SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Labels.ColumnCount));
 
                 }
             }
-            if (shuffle)
+            if (passedParams.shuffle)
             {
                 trainingSetIndices.Shuffle();
             }
@@ -85,50 +84,55 @@ namespace AA1_MLP.Entities.Trainers
             Dictionary<int, Matrix<double>> PreviousUpdateSigns = new Dictionary<int, Matrix<double>>();//for the resilient backpropagation,if the sign changes we slow down with the slow down ratio, if it stays the same we accelerate with the acceleration ratio
 
 
-            for (int epoch = 0; epoch < numberOfEpochs; epoch++)
+            for (int epoch = 1; epoch <= passedParams.numberOfEpochs; epoch++)
             {
-                if (batchSize != null)//will build a matrix "batchesIndices" describing the batches that in each row, contains the start and the end of a batch
+                if (passedParams.batchSize != null)//will build a matrix "batchesIndices" describing the batches that in each row, contains the start and the end of a batch
                 {
-                    var numberOfBatches = (int)Math.Ceiling(((trainingSet.Labels.RowCount / (double)(batchSize))));
+                    var numberOfBatches = (int)Math.Ceiling(((passedParams.trainingSet.Labels.RowCount / (double)(passedParams.batchSize))));
                     batchesIndices = CreateMatrix.Dense(numberOfBatches, 2, 0.0);
                     for (int j = 0; j < numberOfBatches; j++)
                     {
-                        batchesIndices.SetRow(j, new double[] { j * (double)batchSize, Math.Min(trainingSet.Inputs.RowCount - 1, (j + 1) * (double)batchSize - 1) });
+                        batchesIndices.SetRow(j, new double[] { j * (double)passedParams.batchSize, Math.Min(passedParams.trainingSet.Inputs.RowCount - 1, (j + 1) * (double)passedParams.batchSize - 1) });
                     }
                 }
                 else//put all of the dataset in one batch
                 {
                     batchesIndices = CreateMatrix.Dense(1, 2, 0.0);
-                    batchesIndices.SetRow(0, new double[] { 0, trainingSet.Inputs.RowCount - 1 });
+                    batchesIndices.SetRow(0, new double[] { 0, passedParams.trainingSet.Inputs.RowCount - 1 });
                 }
 
                 double iterationLoss = 0;//will hold the average of the batches average losses, each batch contributes to this with its loss average =  batchloss/batchsize
 
                 for (int i = 0; i < batchesIndices.RowCount; i++)//for each batch
                 {
-                    Dictionary<int, Matrix<double>> momentumUpdate = new Dictionary<int, Matrix<double>>();
+                    //                    Dictionary<int, Matrix<double>> momentumUpdate = new Dictionary<int, Matrix<double>>();
 
 
                     double batchLoss = 0;
                     Dictionary<int, Matrix<double>> weightsUpdates = new Dictionary<int, Matrix<double>>();
+                    Dictionary<int, Matrix<double>> firstMoment = new Dictionary<int, Matrix<double>>();
+                    Dictionary<int, Matrix<double>> secondMoment = new Dictionary<int, Matrix<double>>();
+                    Dictionary<int, Matrix<double>> mhat = new Dictionary<int, Matrix<double>>();
+                    Dictionary<int, Matrix<double>> vhat = new Dictionary<int, Matrix<double>>();
 
                     int numberOfBatchExamples = (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1);//not all batches have batchSize, unfortunately, the last one could be smaller
                     var batchIndices = Enumerable.Range((int)batchesIndices.Row(i).At(0), (int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1).ToList();
-                    if (shuffle)
+                    if (passedParams.shuffle)
                     {
                         batchIndices.Shuffle();
                     }
+
                     foreach (int k in batchIndices)//for each elemnt in th batch
                     {
-                        var nwOutput = network.ForwardPropagation(trainingSet.Inputs.Row(k));
+                        var nwOutput = passedParams.network.ForwardPropagation(passedParams.trainingSet.Inputs.Row(k));
                         // network.Layers[0].LayerActivationsSumInputs = Dataset.Inputs.Row(k);
-                        var label = trainingSet.Labels.Row(k);
+                        var label = passedParams.trainingSet.Labels.Row(k);
                         //comute the loss 
                         //batchLoss += ((label - nwOutput.Map(s => s >= 0.5 ? 1.0 : 0.0)).PointwiseMultiply(label - nwOutput.Map(s => s > 0.5 ? 1.0 : 0.0))).Sum();
 
                         //TODO: get the loss computation out as a parameter to the function, so that the user can specify it freely
                         var loss = ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
-                        batchLoss += MEE ? Math.Sqrt(loss) : loss;
+                        batchLoss += passedParams.MEE ? Math.Sqrt(loss) : loss;
 
                         /*
 
@@ -144,7 +148,7 @@ namespace AA1_MLP.Entities.Trainers
                         var residual = label - nwOutput;
                         //var residual = -((label.PointwiseMultiply(nwOutput.Map(f => Math.Log(f)))) + (1 - label).PointwiseMultiply((nwOutput.Map(f => Math.Log(1 - f)))));
 
-                        if (debug)
+                        if (passedParams.debug)
                         {
                             Console.WriteLine("Target:{0}", label);
                             Console.WriteLine("Calculated:{0}", nwOutput);
@@ -157,11 +161,11 @@ namespace AA1_MLP.Entities.Trainers
                         // network.Layers.Last().Delta = residual;
                         //compute the delta of previous layer
                         //Matrix<double> previousDeltaOptSum = null;
-                        for (int layerIndex = network.Layers.Count - 1; layerIndex >= 1; layerIndex--)
+                        for (int layerIndex = passedParams.network.Layers.Count - 1; layerIndex >= 1; layerIndex--)
                         {
-                            if (debug)
+                            if (passedParams.debug)
                                 Console.WriteLine("##### enting backpropagation layer index: {0} ######", layerIndex);
-                            Vector<double> derivative = network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs);
+                            Vector<double> derivative = passedParams.network.Layers[layerIndex].Activation.CalculateDerivative(passedParams.network.Layers[layerIndex].LayerActivationsSumInputs);
                             /* if (network.Layers[layerIndex].Bias)
                              {
                                   derivative = network.Layers[layerIndex].Activation.CalculateDerivative(network.Layers[layerIndex].LayerActivationsSumInputs);
@@ -173,29 +177,29 @@ namespace AA1_MLP.Entities.Trainers
 
                              }*/
                             //  var residualTimesDerivative = residual.PointwiseMultiply(derivative);
-                            if (debug)
+                            if (passedParams.debug)
                             {
-                                Console.WriteLine("output sum(the sum inputted to the activation(LayerActivationsSumInputs)): {0}", network.Layers[layerIndex].LayerActivationsSumInputs);
+                                Console.WriteLine("output sum(the sum inputted to the activation(LayerActivationsSumInputs)): {0}", passedParams.network.Layers[layerIndex].LayerActivationsSumInputs);
                                 Console.WriteLine("derivative: {0}", derivative);
                                 Console.WriteLine("output sum margin of error(residual): {0}", residual);
                                 Console.WriteLine("Delta output sum of Layer(residual*derivative): {0}", layerIndex);
                                 //    Console.WriteLine(residualTimesDerivative);
 
                             }
-                            if (layerIndex == network.Layers.Count - 1)
+                            if (layerIndex == passedParams.network.Layers.Count - 1)
                             {
-                                network.Layers[layerIndex].Delta = residual.PointwiseMultiply(derivative);
+                                passedParams.network.Layers[layerIndex].Delta = residual.PointwiseMultiply(derivative);
 
                             }
                             else
                             {
-                                Matrix<double> wei = network.Weights[layerIndex];
+                                Matrix<double> wei = passedParams.network.Weights[layerIndex];
                                 if (wei.RowCount > derivative.Count)//there is a bias
                                 {
                                     wei = wei.SubMatrix(0, wei.RowCount - 1, 0, wei.ColumnCount);
                                 }
 
-                                network.Layers[layerIndex].Delta = (wei * network.Layers[layerIndex + 1].Delta).PointwiseMultiply(derivative);
+                                passedParams.network.Layers[layerIndex].Delta = (wei * passedParams.network.Layers[layerIndex + 1].Delta).PointwiseMultiply(derivative);
                             }
                             //if (layerIndex != 1)
                             //{
@@ -220,31 +224,35 @@ namespace AA1_MLP.Entities.Trainers
                             // network.Weights[layerIndex - 1] -= LearningRate * network.Layers[layerIndex].Delta.OuterProduct( network.Layers[layerIndex - 1].LayerActivationsSumInputs);
                             if (!weightsUpdates.ContainsKey(layerIndex - 1))
                             {
-                                weightsUpdates.Add(layerIndex - 1, CreateMatrix.Dense(network.Weights[layerIndex - 1].RowCount, network.Weights[layerIndex - 1].ColumnCount, 0.0));
+                                weightsUpdates.Add(layerIndex - 1, CreateMatrix.Dense(passedParams.network.Weights[layerIndex - 1].RowCount, passedParams.network.Weights[layerIndex - 1].ColumnCount, 0.0));
+                                firstMoment.Add(layerIndex - 1, CreateMatrix.Dense(passedParams.network.Weights[layerIndex - 1].RowCount, passedParams.network.Weights[layerIndex - 1].ColumnCount, 0.0));
+                                secondMoment.Add(layerIndex - 1, CreateMatrix.Dense(passedParams.network.Weights[layerIndex - 1].RowCount, passedParams.network.Weights[layerIndex - 1].ColumnCount, 0.0));
+                                mhat.Add(layerIndex - 1, CreateMatrix.Dense(passedParams.network.Weights[layerIndex - 1].RowCount, passedParams.network.Weights[layerIndex - 1].ColumnCount, 0.0));
+                                vhat.Add(layerIndex - 1, CreateMatrix.Dense(passedParams.network.Weights[layerIndex - 1].RowCount, passedParams.network.Weights[layerIndex - 1].ColumnCount, 0.0));
                             }
 
-                            if (!momentumUpdate.ContainsKey(layerIndex - 1))
+                            /*if (!momentumUpdate.ContainsKey(layerIndex - 1))
                             {
-                                momentumUpdate.Add(layerIndex - 1, CreateMatrix.Dense(network.Weights[layerIndex - 1].RowCount, network.Weights[layerIndex - 1].ColumnCount, 0.0));
-                            }
+                                momentumUpdate.Add(layerIndex - 1, CreateMatrix.Dense(passedParams.network.Weights[layerIndex - 1].RowCount, passedParams.network.Weights[layerIndex - 1].ColumnCount, 0.0));
+                            }*/
 
 
-                            if (network.Debug)
+                            if (passedParams.network.Debug)
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine("Weights layer:{0} {1}", layerIndex - 1, network.Weights[layerIndex - 1]);
+                                Console.WriteLine("Weights layer:{0} {1}", layerIndex - 1, passedParams.network.Weights[layerIndex - 1]);
                                 Console.ResetColor();
                             }
                             Matrix<double> weightsUpdate = null;
-                            var acti = network.Layers[layerIndex - 1].LayerActivations;
-                            if (network.Layers[layerIndex - 1].Bias && acti.Count - network.Layers[layerIndex - 1].NumberOfNeurons < 1)//if the user asked a bias should be added, we need to add a dummy neuron of activation =1 as a bias at the end of the layer's activations
+                            var acti = passedParams.network.Layers[layerIndex - 1].LayerActivations;
+                            if (passedParams.network.Layers[layerIndex - 1].Bias && acti.Count - passedParams.network.Layers[layerIndex - 1].NumberOfNeurons < 1)//if the user asked a bias should be added, we need to add a dummy neuron of activation =1 as a bias at the end of the layer's activations
                             {
                                 var l = acti.ToList();
                                 l.Add(1);//adding the bias
 
                                 acti = CreateVector.Dense(l.ToArray());
                             }
-                            weightsUpdate = acti.OuterProduct(network.Layers[layerIndex].Delta);
+                            weightsUpdate = acti.OuterProduct(passedParams.network.Layers[layerIndex].Delta);
 
                             //  if (layerIndex == network.Layers.Count - 1)
                             {
@@ -274,26 +282,43 @@ namespace AA1_MLP.Entities.Trainers
                                   //delta output sum * hidden-to-outer weights * S'(hidden sum)
                               }
                               */
+                            var prevFirstMoment = firstMoment[layerIndex - 1].Clone();
+                            var prevSecondMoment = secondMoment[layerIndex - 1].Clone();
 
-                            weightsUpdates[layerIndex - 1] = weightsUpdates[layerIndex - 1].Add(weightsUpdate);
+
+                            if (passedParams.regularization == Regularizations.L2)
+                            {
+
+                                weightsUpdates[layerIndex - 1] = weightsUpdates[layerIndex - 1].Add((weightsUpdate - 2 * passedParams.regularizationRate * passedParams.network.Weights[layerIndex - 1]));
+
+                            }
+                            else
+                            { weightsUpdates[layerIndex - 1] = weightsUpdates[layerIndex - 1].Add(weightsUpdate); }
+
+
+                            firstMoment[layerIndex - 1] = passedParams.beta1 * prevFirstMoment + (1 - passedParams.beta1) * (-1 * weightsUpdates[layerIndex - 1]);
+                            secondMoment[layerIndex - 1] = passedParams.beta2 * prevSecondMoment + (1 - passedParams.beta2) * weightsUpdates[layerIndex - 1].PointwisePower(2);
+
+                            mhat[layerIndex - 1] = firstMoment[layerIndex - 1] / (1 - Math.Pow(passedParams.beta1, epoch));
+                            vhat[layerIndex - 1] = secondMoment[layerIndex - 1] / (1 - Math.Pow(passedParams.beta2, epoch));
                             // weightsUpdates[layerIndex - 1] = weightsupdatematrix;
-                            if (debug)
+                            if (passedParams.debug)
                             {
                                 Console.WriteLine("weights updates of weightsMatrix(learning rate* outerproduct(Layer{1} delta,layer{2} output from activations) ): {0} ", layerIndex - 1, layerIndex, layerIndex - 1);
-                                Console.WriteLine("learning rate:{0}", learningRate);
-                                Console.WriteLine("Layer:{0} delta: {1}", layerIndex, network.Layers[layerIndex].Delta);
-                                Console.WriteLine("layer{0} output from activations:{1}", layerIndex - 1, network.Layers[layerIndex - 1].LayerActivations);
+                                Console.WriteLine("learning rate:{0}", passedParams.learningRate);
+                                Console.WriteLine("Layer:{0} delta: {1}", layerIndex, passedParams.network.Layers[layerIndex].Delta);
+                                Console.WriteLine("layer{0} output from activations:{1}", layerIndex - 1, passedParams.network.Layers[layerIndex - 1].LayerActivations);
                                 Console.WriteLine(weightsUpdate);
-                                Console.WriteLine("----------- BackPropagation LayerIndex{0} ------------", layerIndex);
+                                Console.WriteLine("----------- Gradientdescent LayerIndex{0} ------------", layerIndex);
 
                             }
 
                         }//back propagating per layer
 
-                        if (debug)
+                        if (passedParams.debug)
                             Console.WriteLine("-------- Batch:{0} element:{1} end-----", i, k);
                     }//per example in the batch
-                    if (debug)
+                    if (passedParams.debug)
                         Console.WriteLine("batch end");
 
                     //EpochBatchesLosses.Add(new double[] { batchLoss / numberOfBatchExamples });
@@ -302,32 +327,32 @@ namespace AA1_MLP.Entities.Trainers
                     for (int y = 0; y < weightsUpdates.Keys.Count; y++)
                     {
                         Matrix<double> finalUpdate = null;
-
                         //weightsUpdates[y] /= numberOfBatchExamples;
-                        var resilientLearningRates = CreateMatrix.Dense(network.Weights[y].RowCount, network.Weights[y].ColumnCount, (epoch == 0) && resilient ? resilientUpdateSlowDownRate * learningRate : learningRate);
-                        if (resilient && PreviousUpdateSigns.ContainsKey(y))
+                        /*  var resilientLearningRates = CreateMatrix.Dense(passedParams.network.Weights[y].RowCount, passedParams.network.Weights[y].ColumnCount, (epoch == 0) && passedParams.resilient ? passedParams.resilientUpdateSlowDownRate * passedParams.learningRate : passedParams.learningRate);
+                          if (passedParams.resilient && PreviousUpdateSigns.ContainsKey(y))
+                          {
+                              var currentUpdateSigns = weightsUpdates[y].PointwiseSign();
+                              resilientLearningRates = PreviousUpdateSigns[y].PointwiseMultiply(currentUpdateSigns).Map(s => s > 0 ? passedParams.learningRate * passedParams.resilientUpdateAccelerationRate : passedParams.learningRate * passedParams.resilientUpdateSlowDownRate);
+                          }*/
+
+
+                        //    var prev_v = momentumUpdate[y].Clone();
+
+                        //   if (previousWeightsUpdate != null)
+                        //  {
+
+                        //mu * v - learning_rate * dx_ahead
+                        if (passedParams.regularization == Regularizations.L2)
                         {
-                            var currentUpdateSigns = weightsUpdates[y].PointwiseSign();
-                            resilientLearningRates = PreviousUpdateSigns[y].PointwiseMultiply(currentUpdateSigns).Map(s => s > 0 ? learningRate * resilientUpdateAccelerationRate : learningRate * resilientUpdateSlowDownRate);
+
+                            //   momentumUpdate[y] += passedParams.momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(((weightsUpdates[y] - 2 * passedParams.regularizationRate * passedParams.network.Weights[y])));
                         }
-
-
-                        var prev_v = momentumUpdate[y].Clone();
-
-                        if (previousWeightsUpdate != null)
+                        else
                         {
 
-                            //mu * v - learning_rate * dx_ahead
-                            if (regularization == Regularizations.L2)
-                            {
-
-                                momentumUpdate[y] += momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(((weightsUpdates[y] - 2 * regularizationRate * network.Weights[y])));
-                            }
-                            else
-                            {
-                                momentumUpdate[y] += momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]);
-                            }
+                            //   momentumUpdate[y] += passedParams.momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]);
                         }
+                        //        }
 
                         //if (regularization != Regularizations.None)
                         //{
@@ -364,41 +389,29 @@ namespace AA1_MLP.Entities.Trainers
                         //else //no regularization
 
 
-                        {
 
-                            if (nestrov)
-                            {
-
-
-                                //           var    v_prev = v # back this up
-                                //            v = mu * v - learning_rate * dx # velocity update stays the same
-
-                                //            x += -mu * v_prev + (1 + mu) * v # position update changes form*/
-                                finalUpdate = (1 + momentum) * momentumUpdate[y] - momentum * prev_v;
+                        //if (passedParams.nestrov)
+                        //{
 
 
+                        //    //           var    v_prev = v # back this up
+                        //    //            v = mu * v - learning_rate * dx # velocity update stays the same
 
-                            }
-                            else//no nestrove ad no regularization
-                            {
-                                finalUpdate = /*resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) +*/ momentumUpdate[y];
-                            }
-                        }
-                        /*
-
-                double prevNesterov = this.lastDelta[i];
-                this.lastDelta[i] = (this.momentum * prevNesterov)  + (this.gradients.getGradients()[i] * this.learningRate);
-                delta = (this.momentum * prevNesterov) - ((1+this.momentum)*this.lastDelta[i]);
-
-                        ----
-                         
-                delta = (this.gradients.getGradients()[i] * -this.learningRate) + (this.lastDelta[i] * this.momentum);
-                this.lastDelta[i] = delta;
-                         
-                        */
+                        //    //            x += -mu * v_prev + (1 + mu) * v # position update changes form*/
+                        //    finalUpdate = (1 + passedParams.momentum) * momentumUpdate[y] - passedParams.momentum * prev_v;
 
 
-                        network.Weights[y] += finalUpdate;
+
+                        //}
+                        //else//no nestrove ad no regularization
+                        //{
+                        //    finalUpdate = /*resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) +*/ momentumUpdate[y];
+                        //}
+
+
+
+
+                        passedParams.network.Weights[y] += -passedParams.learningRate * mhat[y].PointwiseDivide((vhat[y].PointwiseSqrt() + passedParams.epsilon));
 
 
                         if (!PreviousUpdateSigns.ContainsKey(y))
@@ -410,7 +423,7 @@ namespace AA1_MLP.Entities.Trainers
                     previousWeightsUpdate = weightsUpdates;
 
                     iterationLoss += batchLoss / ((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1);
-                    if (network.Debug)
+                    if (passedParams.network.Debug)
                         Console.WriteLine("Batch: {0} Error: {1}", i, batchLoss);
                 }
 
@@ -450,13 +463,13 @@ namespace AA1_MLP.Entities.Trainers
 
                 // computing the test loss:
                 double validationError = 0;
-                if (validationSet != null)
+                if (passedParams.validationSet != null)
                 {
                     for (int i = 0; i < testSetIndices.Count; i++)
                     {
-                        var nwOutput = network.ForwardPropagation(test.Inputs.Row(i));
+                        var nwOutput = passedParams.network.ForwardPropagation(test.Inputs.Row(i));
                         var loss = ((test.Labels.Row(i) - nwOutput).PointwiseMultiply(test.Labels.Row(i) - nwOutput)).Sum();
-                        validationError += MEE ? Math.Sqrt(loss) : loss;
+                        validationError += passedParams.MEE ? Math.Sqrt(loss) : loss;
 
                     }
                     validationError /= testSetIndices.Count;
@@ -465,24 +478,24 @@ namespace AA1_MLP.Entities.Trainers
                 }
                 double trainingAccuracy = 0, validationSetAccuracy = 0;
 
-                if (trueThreshold != null)
+                if (passedParams.trueThreshold != null)
                 {
-                    trainingAccuracy = Utilities.Tools.ComputeAccuracy(network, trainingSet, trueThreshold);
-                    validationSetAccuracy = Utilities.Tools.ComputeAccuracy(network, validationSet, trueThreshold);
+                    trainingAccuracy = Utilities.Tools.ComputeAccuracy(passedParams.network, passedParams.trainingSet, passedParams.trueThreshold);
+                    validationSetAccuracy = Utilities.Tools.ComputeAccuracy(passedParams.network, passedParams.validationSet, passedParams.trueThreshold);
                 }
 
 
-                learningCurve.Add(new double[] { iterationLoss, validationSet != null ? validationError : 0, trueThreshold != null ? trainingAccuracy : 0, trueThreshold != null ? validationSetAccuracy : 0 });
+                learningCurve.Add(new double[] { iterationLoss, passedParams.validationSet != null ? validationError : 0, passedParams.trueThreshold != null ? trainingAccuracy : 0, passedParams.trueThreshold != null ? validationSetAccuracy : 0 });
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Epoch:{0} loss:{1}", epoch, iterationLoss);
 
-                if (reduceLearningRate && epoch > 0 && numberOfReductions > 0 && epoch % learningRateReductionAfterEpochs == 0)
-                {
-                    learningRate *= learningRateReduction;
-                    numberOfReductions--;
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Learning Rate Reduced, now: {0}", learningRate);
-                }
+                /*  if (passedParams.reduceLearningRate && epoch > 0 && passedParams.numberOfReductions > 0 && epoch % passedParams.learningRateReductionAfterEpochs == 0)
+                  {
+                      passedParams.learningRate *= passedParams.learningRateReduction;
+                      passedParams.numberOfReductions--;
+                      Console.ForegroundColor = ConsoleColor.Red;
+                      Console.WriteLine("Learning Rate Reduced, now: {0}", passedParams.learningRate);
+                  }*/
 
                 Console.ResetColor();
 
@@ -490,8 +503,5 @@ namespace AA1_MLP.Entities.Trainers
             }
             return learningCurve;
         }
-
-
-
     }
 }

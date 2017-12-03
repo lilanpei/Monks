@@ -1,4 +1,5 @@
-﻿using AA1_MLP.Enums;
+﻿using AA1_MLP.Entities.TrainersParams;
+using AA1_MLP.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,9 @@ namespace AA1_MLP.Entities.Trainers
         /// <param name="learningRateReductionAfterEpochs">After how many epoch shall the learningRateReduction be multiplied by the learning rate</param>
         /// <param name="numberOfReductions">number of time a reduction shall happen</param>
         /// <returns> a list of double arrays each element is a 4 elements double array "a"  a[0] = iteration Dataset loss(MSE), a[1] = validation error(MSE), a[2] =Dataset set accuracy, a[3] = validation set accuracy  </returns>
-        public abstract List<double[]> Train(Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2, bool nestrov = false);
+
+        //Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2, bool nestrov = false
+        public abstract List<double[]> Train(ITrainerParams trainParams);
 
 
 

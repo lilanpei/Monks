@@ -8,7 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using AA1_MLP.Entities.TrainersParams;
+using AA1_MLP.Enums;
 namespace MLPTestDemo
 {
     /// <summary>
@@ -42,10 +43,9 @@ namespace MLPTestDemo
 
 
             //Creating a backpropagation trainer
-            BackPropagation br = new BackPropagation();
-
-            //Calling the Train method of the trainer with the desired parameters
-            var learningCurve = br.Train(n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3, resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.Regularizations.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7);
+            //var learningCurve = TrainWithSGD(n, ds, dt);
+            //creates an ADAM trainer
+            var learningCurve = TrainWithAdam(n, ds, dt);
 
             //writing the learning curve data to desk (ugly for memory, but simple)
             File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
@@ -71,6 +71,65 @@ namespace MLPTestDemo
             //file.Close();
 
 
+        }
+
+        private static List<double[]> TrainWithSGD(Network n, DataSet ds, DataSet dt)
+        {
+            Gradientdescent br = new Gradientdescent();
+
+            //Calling the Train method of the trainer with the desired parameters
+            //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
+            //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.Regularizations.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
+            GradientDescentParams passedParams = new GradientDescentParams();
+            passedParams.network = n;
+            passedParams.trainingSet = ds;
+            passedParams.learningRate = 0.3;
+            passedParams.numberOfEpochs = 200;
+            passedParams.shuffle = false;
+            passedParams.debug = n.Debug;
+            passedParams.nestrov = false;
+            passedParams.momentum = 0.9;
+            passedParams.resilient = false;
+            passedParams.resilientUpdateAccelerationRate = 0.3;
+            passedParams.resilientUpdateSlowDownRate = 0.1;
+            passedParams.regularization = Regularizations.L2;
+            passedParams.regularizationRate = 0.001;
+            passedParams.validationSet = dt;
+            passedParams.batchSize = 7;
+
+
+
+            var learningCurve = br.Train(passedParams);
+            return learningCurve;
+        }
+
+
+
+
+        private static List<double[]> TrainWithAdam(Network n, DataSet ds, DataSet dt)
+        {
+            Adam br = new Adam();
+
+            //Calling the Train method of the trainer with the desired parameters
+            //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
+            //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.Regularizations.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
+            AdamParams passedParams = new AdamParams();
+            passedParams.network = n;
+            passedParams.trainingSet = ds;
+            passedParams.learningRate = 0.1;
+            passedParams.numberOfEpochs = 1000;
+            passedParams.shuffle = false;
+            passedParams.debug = n.Debug;
+            passedParams.regularization = Regularizations.L2;
+            passedParams.regularizationRate = 0.0001;
+            passedParams.validationSet = dt;
+            passedParams.batchSize = 7;
+
+
+
+
+            var learningCurve = br.Train(passedParams);
+            return learningCurve;
         }
 
 

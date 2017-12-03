@@ -55,7 +55,11 @@
     <Compile Include="Activations\IdentityActivation.cs" />
     <Compile Include="DataManager\DataManager.cs" />
     <Compile Include="DataManager\IDataManager.cs" />
-    <Compile Include="Entities\Trainers\BackPropagation.cs" />
+    <Compile Include="Entities\TrainersParams\AdamParams.cs" />
+    <Compile Include="Entities\TrainersParams\GradientDescentParams.cs" />
+    <Compile Include="Entities\TrainersParams\ITrainerParams.cs" />
+    <Compile Include="Entities\Trainers\Adam.cs" />
+    <Compile Include="Entities\Trainers\Gradientdescent.cs" />
     <Compile Include="Entities\DataSet.cs" />
     <Compile Include="Entities\Trainers\IOptimizer.cs" />
     <Compile Include="Entities\Layer.cs" />
