@@ -27,7 +27,8 @@ namespace MLPTestDemo
             // Building a simple network
             Network n = new Network(new List<Layer>() {
                 new Layer(new ActivationIdentity(),true,17),
-                new Layer(new ActivationSigmoid(),true,3),
+                new Layer(new ActivationSigmoid(),true,5),
+
                 new Layer(new ActivationSigmoid(),false,1),
                 }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
 
@@ -63,10 +64,10 @@ namespace MLPTestDemo
             //computing the ROC plot parameters
 
             //var file = new System.IO.StreamWriter(Properties.Settings.Default.ROCParamsStorageLocation);
-            //for (float i = 0.005f; i <= 1.0f; i += 0.005f)
+            //for (float batchIndex = 0.005f; batchIndex <= 1.0f; batchIndex += 0.005f)
             //{
-            //    var TprFpr = AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, n, i);
-            //    file.WriteLine(string.Format("{0},{1},{2}", i, TprFpr[0], TprFpr[1]));
+            //    var TprFpr = AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, n, batchIndex);
+            //    file.WriteLine(string.Format("{0},{1},{2}", batchIndex, TprFpr[0], TprFpr[1]));
             //}
             //file.Close();
 
@@ -116,12 +117,12 @@ namespace MLPTestDemo
             AdamParams passedParams = new AdamParams();
             passedParams.network = n;
             passedParams.trainingSet = ds;
-            passedParams.learningRate = 0.1;
-            passedParams.numberOfEpochs = 1000;
+            passedParams.learningRate = 0.01;
+            passedParams.numberOfEpochs = 2000;
             passedParams.shuffle = false;
             passedParams.debug = n.Debug;
-            passedParams.regularization = Regularizations.L2;
-            passedParams.regularizationRate = 0.0001;
+            passedParams.regularization = Regularizations.None;
+            passedParams.regularizationRate = 0.001;
             passedParams.validationSet = dt;
             passedParams.batchSize = 7;
 

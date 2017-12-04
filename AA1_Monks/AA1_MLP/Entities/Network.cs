@@ -49,8 +49,8 @@ namespace AA1_MLP.Entities
                 else
                 {
 
-                    //var d = 1 / Math.Sqrt(Layers[i].NumberOfNeurons + 1);
-                    //Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0,1))/d);
+                    //var d = 1 / Math.Sqrt(Layers[batchIndex].NumberOfNeurons + 1);
+                    //Weights.Add(CreateMatrix.Random<double>(Layers[batchIndex].NumberOfNeurons + (Layers[batchIndex].Bias ? 1 : 0), Layers[batchIndex + 1].NumberOfNeurons, new MathNet.Numerics.Distributions.Normal(0,1))/d);
                     // = new MathNet.Numerics.Distributions.ContinuousUniform(-0.7, 0.7);
                     var d =  2f / (Layers[i].NumberOfNeurons) ;
                     if (weightsInitMethod == Enums.WeightsInitialization.Uniform)

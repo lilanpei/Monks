@@ -37,7 +37,7 @@ namespace AA1_MLP.Entities.Trainers
                 for (int i = 0; i < testSetIndices.Count; i++)
                 {
                     test.Inputs.SetRow(i, passedParams.validationSet.Inputs.Row(testSetIndices[i]));//, 1, 0, Dataset.Inputs.ColumnCount));
-                    test.Labels.SetRow(i, passedParams.validationSet.Labels.Row(testSetIndices[i]));//.SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Labels.ColumnCount));
+                    test.Labels.SetRow(i, passedParams.validationSet.Labels.Row(testSetIndices[i]));//.SubMatrix(trainingSetIndices[batchIndex], 1, 0, Dataset.Labels.ColumnCount));
 
                 }
             }
@@ -56,21 +56,21 @@ namespace AA1_MLP.Entities.Trainers
             //    validation.Inputs = CreateMatrix.Dense(valSplitSize, Dataset.Inputs.ColumnCount, 0.0);
             //    validation.Labels = CreateMatrix.Dense(valSplitSize, Dataset.Labels.ColumnCount, 0.0);
 
-            //    for (int i = 0; i < valSplitSize; i++)
+            //    for (int batchIndex = 0; batchIndex < valSplitSize; batchIndex++)
             //    {
 
-            //        validation.Inputs.SetRow(i, Dataset.Inputs.Row(trainingSetIndices[i]));// .SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Inputs.ColumnCount));
-            //        validation.Labels.SetRow(i, Dataset.Labels.Row(trainingSetIndices[i]));//SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Labels.ColumnCount));
+            //        validation.Inputs.SetRow(batchIndex, Dataset.Inputs.Row(trainingSetIndices[batchIndex]));// .SubMatrix(trainingSetIndices[batchIndex], 1, 0, Dataset.Inputs.ColumnCount));
+            //        validation.Labels.SetRow(batchIndex, Dataset.Labels.Row(trainingSetIndices[batchIndex]));//SubMatrix(trainingSetIndices[batchIndex], 1, 0, Dataset.Labels.ColumnCount));
 
             //    }
 
             //    Dataset.Inputs = CreateMatrix.Dense(trainingSetIndices.Count - valSplitSize, Dataset.Inputs.ColumnCount, 0.0);
             //    Dataset.Labels = CreateMatrix.Dense(trainingSetIndices.Count - valSplitSize, Dataset.Labels.ColumnCount, 0.0);
 
-            //    for (int i = valSplitSize; i < trainingSetIndices.Count; i++)
+            //    for (int batchIndex = valSplitSize; batchIndex < trainingSetIndices.Count; batchIndex++)
             //    {
-            //        Dataset.Inputs.SetRow(i - valSplitSize, Dataset.Inputs.Row(trainingSetIndices[i]));//, 1, 0, Dataset.Inputs.ColumnCount));
-            //        Dataset.Labels.SetRow(i - valSplitSize, Dataset.Labels.Row(trainingSetIndices[i]));//.SubMatrix(trainingSetIndices[i], 1, 0, Dataset.Labels.ColumnCount));
+            //        Dataset.Inputs.SetRow(batchIndex - valSplitSize, Dataset.Inputs.Row(trainingSetIndices[batchIndex]));//, 1, 0, Dataset.Inputs.ColumnCount));
+            //        Dataset.Labels.SetRow(batchIndex - valSplitSize, Dataset.Labels.Row(trainingSetIndices[batchIndex]));//.SubMatrix(trainingSetIndices[batchIndex], 1, 0, Dataset.Labels.ColumnCount));
 
             //    }
             //}
@@ -300,7 +300,7 @@ namespace AA1_MLP.Entities.Trainers
                         Console.WriteLine("batch end");
 
                     //EpochBatchesLosses.Add(new double[] { batchLoss / numberOfBatchExamples });
-                    // batchLoss /= (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1);
+                    // batchLoss /= (((int)batchesIndices.Row(batchIndex).At(1) - (int)batchesIndices.Row(batchIndex).At(0)) + 1);
 
                     for (int y = 0; y < weightsUpdates.Keys.Count; y++)
                     {
@@ -334,7 +334,7 @@ namespace AA1_MLP.Entities.Trainers
 
                         //if (regularization != Regularizations.None)
                         //{
-                        //    //network.Weights[y] = (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]));
+                        //    //network.Weights[y] = (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(batchIndex).At(1) - (int)batchesIndices.Row(batchIndex).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]));
                         //    //network.Weights[y] = 2 * regularizationRate * network.Weights[y] + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]);
                         //    if (network.Layers[y].Bias)
                         //    {
@@ -429,10 +429,10 @@ namespace AA1_MLP.Entities.Trainers
 
                   if (validationSplit != null)
                   {
-                      for (int i = 0; i < valSplitSize; i++)
+                      for (int batchIndex = 0; batchIndex < valSplitSize; batchIndex++)
                       {
-                          var nwOutput = network.ForwardPropagation(validation.Inputs.Row(i));
-                          validationLoss += ((validation.Labels.Row(i) - nwOutput).PointwiseMultiply(validation.Labels.Row(i) - nwOutput)).Sum();
+                          var nwOutput = network.ForwardPropagation(validation.Inputs.Row(batchIndex));
+                          validationLoss += ((validation.Labels.Row(batchIndex) - nwOutput).PointwiseMultiply(validation.Labels.Row(batchIndex) - nwOutput)).Sum();
 
                       }
                       validationLoss /= valSplitSize;
