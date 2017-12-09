@@ -3,10 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="TrainingSetLocation" Type="System.String" Scope="User">
-      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-3\ML\Monk\MONKS-DATASETS\dataset1train</Value>
+      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-3\ML\Monk\MONKS-DATASETS\dataset2train</Value>
     </Setting>
     <Setting Name="TestSetLocation" Type="System.String" Scope="User">
-      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-3\ML\Monk\MONKS-DATASETS\dataset1test</Value>
+      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-3\ML\Monk\MONKS-DATASETS\dataset2test</Value>
     </Setting>
     <Setting Name="path2SaveModel" Type="System.String" Scope="User">
       <Value Profile="(Default)">nw.AA1</Value>

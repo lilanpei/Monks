@@ -44,9 +44,9 @@ namespace MLPTestDemo
 
 
             //Creating a backpropagation trainer
-            //var learningCurve = TrainWithSGD(n, ds, dt);
+            var learningCurve = TrainWithSGD(n, ds, dt);
             //creates an ADAM trainer
-            var learningCurve = TrainWithAdam(n, ds, dt);
+           // var learningCurve = TrainWithAdam(n, ds, dt);
 
             //writing the learning curve data to desk (ugly for memory, but simple)
             File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
@@ -85,15 +85,15 @@ namespace MLPTestDemo
             passedParams.network = n;
             passedParams.trainingSet = ds;
             passedParams.learningRate = 0.3;
-            passedParams.numberOfEpochs = 200;
+            passedParams.numberOfEpochs = 500;
             passedParams.shuffle = false;
             passedParams.debug = n.Debug;
             passedParams.nestrov = false;
-            passedParams.momentum = 0.9;
+            passedParams.momentum =0.9;
             passedParams.resilient = false;
             passedParams.resilientUpdateAccelerationRate = 0.3;
             passedParams.resilientUpdateSlowDownRate = 0.1;
-            passedParams.regularization = Regularizations.L2;
+            passedParams.regularization = Regularizations.None;
             passedParams.regularizationRate = 0.001;
             passedParams.validationSet = dt;
             passedParams.batchSize = 7;
