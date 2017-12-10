@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
 namespace AA1_MLP.Entities.TrainersParams
 {
-    public class GradientDescentParams : ITrainerParams
+    public class GradientDescentParams : INeuralTrainerParams
     {
         public double momentum = 0;
         public bool resilient = false;

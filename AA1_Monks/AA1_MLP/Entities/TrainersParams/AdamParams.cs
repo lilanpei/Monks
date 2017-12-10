@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Entities.TrainersParams
 {
-    public class AdamParams : ITrainerParams
+    public class AdamParams : INeuralTrainerParams
     {
 
         public double beta1 = 0.9;

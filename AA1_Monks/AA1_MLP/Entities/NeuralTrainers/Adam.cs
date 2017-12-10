@@ -12,7 +12,7 @@ namespace AA1_MLP.Entities.Trainers
 {
     public class Adam : IOptimizer
     {
-        public override List<double[]> Train(TrainersParams.ITrainerParams trainParams)
+        public override List<double[]> Train(ITrainerParams trainParams)
         {
             AdamParams passedParams = (AdamParams)trainParams;
             //int valSplitSize = 0;
