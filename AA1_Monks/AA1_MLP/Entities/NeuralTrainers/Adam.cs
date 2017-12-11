@@ -223,7 +223,7 @@ namespace AA1_MLP.Entities.Trainers
 
 
                         /*
-                          alpha_t = alpha * np.sqrt(1 - beta2**t) / (1 - beta1**t)
+                          alpha_t = learningRate * np.sqrt(1 - beta2**t) / (1 - beta1**t)
 
                           m_t = beta1 * m + (1 - beta1) * g_t
                           v_t = beta2 * v + (1 - beta2) * g_t * g_t

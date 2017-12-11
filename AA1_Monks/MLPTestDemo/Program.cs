@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AA1_MLP.Entities.TrainersParams;
 using AA1_MLP.Enums;
+using AA1_MLP.Entities.Regression;
 namespace MLPTestDemo
 {
     /// <summary>
@@ -44,11 +45,15 @@ namespace MLPTestDemo
 
 
             //Creating a backpropagation trainer
-            var learningCurve = TrainWithSGD(n, ds, dt);
+          //  var learningCurve = TrainWithSGD(n, ds, dt);
+            
+            
+            //creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
+            var learningCurve = SolveWithLinearRegression(ds);
             //creates an ADAM trainer
            // var learningCurve = TrainWithAdam(n, ds, dt);
 
-            //writing the learning curve data to desk (ugly for memory, but simple)
+            //writing the learning curve trainingdataWithBias to desk (ugly for memory, but simple)
             File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
 
 
@@ -104,6 +109,27 @@ namespace MLPTestDemo
             return learningCurve;
         }
 
+        private static List<double[]> SolveWithLinearRegression( DataSet ds)
+        {
+            LLSGradientDescent gd = new LLSGradientDescent();
+
+            //Calling the Train method of the trainer with the desired parameters
+            //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
+            //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.Regularizations.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
+            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams();
+            passedParams.trainingSet = ds;
+            passedParams.learningRate = 0.3;
+            passedParams.numOfIterations = 1000;
+            passedParams.shuffle = false;
+            passedParams.debug = false;
+
+            //passedParams.validationSet = dt;
+
+
+
+            var learningCurve = gd.Train(passedParams);
+            return learningCurve;
+        }
 
 
 

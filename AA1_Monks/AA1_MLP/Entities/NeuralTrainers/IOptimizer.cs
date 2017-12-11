@@ -19,8 +19,8 @@ namespace AA1_MLP.Entities.Trainers
         /// <param name="Dataset"> the training dataset</param>
         /// <param name="learningRate"> the initial learning rate</param>
         /// <param name="numberOfEpochs">number of Dataset epochs</param>
-        /// <param name="shuffle">set to true, will shuffle the data</param>
-        /// <param name="batchSize">the Dataset data batch size</param>
+        /// <param name="shuffle">set to true, will shuffle the trainingdataWithBias</param>
+        /// <param name="batchSize">the Dataset trainingdataWithBias batch size</param>
         /// <param name="debug">set to true, will print verbose messages to the screen</param>
         /// <param name="regularizationRate">the L2 regularization rate used</param>
         /// <param name="regularization">Regularization method used, only L2 is implemented for now</param>
@@ -29,7 +29,7 @@ namespace AA1_MLP.Entities.Trainers
         /// <param name="resilientUpdateAccelerationRate"> if resilient is set to true, the learning rate will be multiplied by this value in case the sign of the previous weights updates was the same as the current new one</param>
         /// <param name="resilientUpdateSlowDownRate">if resilient is set to true, the learning rate will be multiplied by this value in case the sign of the previous weights updates was NOT the same as the current new one</param>
         /// <param name="validationSet"> the validation dataset</param>
-        /// <param name="trueThreshold"> between 0 to 1, if present accuracy of the Dataset and validation data will be computed at each epoch and reported in the returned learning curve list of doubles </param>
+        /// <param name="trueThreshold"> between 0 to 1, if present accuracy of the Dataset and validation trainingdataWithBias will be computed at each epoch and reported in the returned learning curve list of doubles </param>
         /// <param name="MEE">set to true, will report the Mean Euclidean Error instead of Mean Square Error</param>
         /// <param name="reduceLearningRate">set to true, will enable reducing the learning rate during training</param>
         /// <param name="learningRateReduction">will be multiplied by the learning rate during training</param>
