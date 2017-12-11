@@ -7,7 +7,7 @@ using AA1_MLP.Enums;
 
 namespace AA1_MLP.Entities.TrainersParams
 {
-   public class LinearLeastSquaresParams:ITrainerParams
+   public class LinearLeastSquaresParams:TrainerParams
     {
         public double learningRate=1.0,tol=0.001;
         public bool fit_intercept=true,normalize=true,copy_X=true;

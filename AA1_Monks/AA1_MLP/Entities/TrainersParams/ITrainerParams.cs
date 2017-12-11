@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Entities.TrainersParams
 {
-    public class ITrainerParams
+    public class TrainerParams
     {
         public DataSet trainingSet;
         public bool shuffle = false;

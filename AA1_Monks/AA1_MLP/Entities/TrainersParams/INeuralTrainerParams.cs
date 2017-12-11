@@ -6,7 +6,7 @@ using System.Text;
 
 namespace AA1_MLP.Entities.TrainersParams
 {
-    public class INeuralTrainerParams:ITrainerParams
+    public class INeuralTrainerParams:TrainerParams
     {
 
 

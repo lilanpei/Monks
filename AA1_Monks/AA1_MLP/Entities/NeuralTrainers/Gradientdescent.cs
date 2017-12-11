@@ -16,7 +16,7 @@ namespace AA1_MLP.Entities.Trainers
     public class Gradientdescent : IOptimizer
     {
         //Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2, bool nestrov = false
-        public override List<double[]> Train(ITrainerParams trainParams)
+        public override List<double[]> Train(TrainerParams trainParams)
         {
             GradientDescentParams passedParams = (GradientDescentParams) trainParams;
             //int valSplitSize = 0;

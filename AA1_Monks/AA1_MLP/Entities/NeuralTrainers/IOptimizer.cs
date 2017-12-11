@@ -38,7 +38,7 @@ namespace AA1_MLP.Entities.Trainers
         /// <returns> a list of double arrays each element is a 4 elements double array "a"  a[0] = iteration Dataset loss(MSE), a[1] = validation error(MSE), a[2] =Dataset set accuracy, a[3] = validation set accuracy  </returns>
 
         //Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2, bool nestrov = false
-        public abstract List<double[]> Train(ITrainerParams trainParams);
+        public abstract List<double[]> Train(TrainerParams trainParams);
 
 
 

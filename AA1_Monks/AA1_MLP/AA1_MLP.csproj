@@ -56,6 +56,7 @@
     <Compile Include="DataManager\DataManager.cs" />
     <Compile Include="DataManager\IDataManager.cs" />
     <Compile Include="Entities\RegressionTrainers\LLSGradientDescent.cs" />
+    <Compile Include="Entities\RegressionTrainers\LLSNormal.cs" />
     <Compile Include="Entities\TrainersParams\AdamParams.cs" />
     <Compile Include="Entities\TrainersParams\GradientDescentParams.cs" />
     <Compile Include="Entities\TrainersParams\INeuralTrainerParams.cs" />

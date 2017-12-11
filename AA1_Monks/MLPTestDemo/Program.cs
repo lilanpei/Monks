@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using AA1_MLP.Entities.TrainersParams;
 using AA1_MLP.Enums;
 using AA1_MLP.Entities.Regression;
+using AA1_MLP.Entities.RegressionTrainers;
 namespace MLPTestDemo
 {
     /// <summary>
@@ -48,8 +49,14 @@ namespace MLPTestDemo
           //  var learningCurve = TrainWithSGD(n, ds, dt);
             
             
-            //creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
-            var learningCurve = SolveWithLinearRegression(ds);
+           // creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
+            var learningCurve = SolveWithLinearRegression(ds,dt);
+
+            //LLS with normal equations solution
+            //var tp = new TrainerParams();
+            //tp.trainingSet = ds;
+            //tp.validationSet = dt;
+            //var learningCurve = new LLSNormal().Train(tp);
             //creates an ADAM trainer
            // var learningCurve = TrainWithAdam(n, ds, dt);
 
@@ -109,7 +116,7 @@ namespace MLPTestDemo
             return learningCurve;
         }
 
-        private static List<double[]> SolveWithLinearRegression( DataSet ds)
+        private static List<double[]> SolveWithLinearRegression(DataSet ds, DataSet dt)
         {
             LLSGradientDescent gd = new LLSGradientDescent();
 
@@ -123,7 +130,7 @@ namespace MLPTestDemo
             passedParams.shuffle = false;
             passedParams.debug = false;
 
-            //passedParams.validationSet = dt;
+            passedParams.validationSet = dt;
 
 
 

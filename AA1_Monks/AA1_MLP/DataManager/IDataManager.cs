@@ -18,7 +18,7 @@ namespace AA1_MLP.DataManager
         /// <param name="datasetLocation"></param>
         /// <param name="featureVectorLength"></param>
         /// <param name="outputLength"></param>
-        /// <param name="numberOfExamples"></param>
+        /// <param name="trainingNumberOfExamples"></param>
         /// <returns></returns>
         abstract public DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null, bool reportOsutput = true);
     }
