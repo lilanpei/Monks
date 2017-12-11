@@ -46,11 +46,11 @@ namespace MLPTestDemo
 
 
             //Creating a backpropagation trainer
-          //  var learningCurve = TrainWithSGD(n, ds, dt);
-            
-            
-           // creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
-            var learningCurve = SolveWithLinearRegression(ds,dt);
+            //  var learningCurve = TrainWithSGD(n, ds, dt);
+
+
+            // creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
+            var learningCurve = SolveWithLinearRegression(ds, dt);
 
             //LLS with normal equations solution
             //var tp = new TrainerParams();
@@ -58,7 +58,7 @@ namespace MLPTestDemo
             //tp.validationSet = dt;
             //var learningCurve = new LLSNormal().Train(tp);
             //creates an ADAM trainer
-           // var learningCurve = TrainWithAdam(n, ds, dt);
+            // var learningCurve = TrainWithAdam(n, ds, dt);
 
             //writing the learning curve trainingdataWithBias to desk (ugly for memory, but simple)
             File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
@@ -101,7 +101,7 @@ namespace MLPTestDemo
             passedParams.shuffle = false;
             passedParams.debug = n.Debug;
             passedParams.nestrov = false;
-            passedParams.momentum =0.9;
+            passedParams.momentum = 0.9;
             passedParams.resilient = false;
             passedParams.resilientUpdateAccelerationRate = 0.3;
             passedParams.resilientUpdateSlowDownRate = 0.1;
@@ -125,13 +125,14 @@ namespace MLPTestDemo
             //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.Regularizations.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
             LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams();
             passedParams.trainingSet = ds;
-            passedParams.learningRate = 0.3;
-            passedParams.numOfIterations = 1000;
+            passedParams.learningRate = 0.007;
+            passedParams.numOfIterations = 3000;
             passedParams.shuffle = false;
             passedParams.debug = false;
-
+            passedParams.regularizationRate = 0.01;
+            passedParams.regularizationType = Regularizations.None;
             passedParams.validationSet = dt;
-
+            passedParams.degree = 10;
 
 
             var learningCurve = gd.Train(passedParams);

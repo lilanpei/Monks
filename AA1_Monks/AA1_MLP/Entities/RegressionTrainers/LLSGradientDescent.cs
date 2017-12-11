@@ -1,4 +1,5 @@
 ﻿using AA1_MLP.Entities.TrainersParams;
+using AA1_MLP.Enums;
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using MathNet.Numerics.LinearAlgebra.Double;
@@ -23,8 +24,11 @@ namespace AA1_MLP.Entities.Regression
             //should make the bias a passed param?
 
             int trainingNumberOfExamples = trainParams.trainingSet.Labels.RowCount;
+            int numberOfDataColumns = passedParams.degree > 1 ? 1 + passedParams.degree * trainParams.trainingSet.Inputs.ColumnCount : 1 + trainParams.trainingSet.Inputs.ColumnCount;//+1 for the bias
+
+
             //adding the bias column o fones to the training trainingdataWithBias
-            int numberOfDataColumns = 1 + trainParams.trainingSet.Inputs.ColumnCount;//+1 for the bias
+
             Matrix<double> trainingdataWithBias = CreateMatrix.Dense(trainingNumberOfExamples, numberOfDataColumns, 0.0);
             Matrix<double> validationdataWithBias = CreateMatrix.Dense(passedParams.validationSet.Labels.RowCount, numberOfDataColumns, 0.0);
 
@@ -32,11 +36,15 @@ namespace AA1_MLP.Entities.Regression
             {
                 double[] row = new double[numberOfDataColumns];
                 row[0] = 1;
-                for (int j = 1; j < numberOfDataColumns; j++)
+                for (int j = 1; j <= trainParams.trainingSet.Inputs.ColumnCount; j++)
                 {
                     row[j] = trainParams.trainingSet.Inputs[i, j - 1];//j starts from one because we set the first element on its own, but the training set requires it to count from 0, so the -1 in the indexer
-
+                    for (int k = 1; k < passedParams.degree; k++)
+                    {
+                        row[k * trainParams.trainingSet.Inputs.ColumnCount + j] = Math.Pow(row[j], k + 1);
+                    }
                 }
+
                 trainingdataWithBias.SetRow(i, row);
 
             }
@@ -45,17 +53,20 @@ namespace AA1_MLP.Entities.Regression
             {
                 double[] row = new double[numberOfDataColumns];
                 row[0] = 1;
-                for (int j = 1; j < numberOfDataColumns; j++)
+                for (int j = 1; j <= trainParams.validationSet.Inputs.ColumnCount; j++)
                 {
                     row[j] = trainParams.validationSet.Inputs[i, j - 1];//j starts from one because we set the first element on its own, but the training set requires it to count from 0, so the -1 in the indexer
-
+                    for (int k = 1; k < passedParams.degree; k++)
+                    {
+                        row[k * trainParams.validationSet.Inputs.ColumnCount + j] = Math.Pow(row[j], k+1);
+                    }
                 }
                 validationdataWithBias.SetRow(i, row);
 
             }
 
 
-            Matrix<double> weights = CreateMatrix.Random<double>(numberOfDataColumns, 1, new ContinuousUniform(-0.7, 0.7));
+            Matrix<double> weights = CreateMatrix.Random<double>(numberOfDataColumns, 1, new Normal(0, 1));
 
 
             List<double[]> lossHistory = new List<double[]>();
@@ -68,12 +79,21 @@ namespace AA1_MLP.Entities.Regression
 
                 //updating the weights
 
-                weights -= passedParams.learningRate * gradient;
+                if (passedParams.regularizationType == Regularizations.L2)
+                {
+                    weights -= passedParams.learningRate * gradient + passedParams.regularizationRate * weights;
+
+                }
+                else
+                {
+                    weights -= passedParams.learningRate * gradient;
+
+                }
                 var cost = CostFunction(trainingdataWithBias, trainParams.trainingSet.Labels, weights);
                 var valCost = CostFunction(validationdataWithBias, trainParams.validationSet.Labels, weights);
 
-                Console.WriteLine("iteration:{0},{1},{2}", i, cost,valCost);
-                lossHistory.Add(new double[] { cost,valCost });
+                Console.WriteLine("iteration:{0},{1},{2}", i, cost, valCost);
+                lossHistory.Add(new double[] { cost, valCost });
             }
 
 
