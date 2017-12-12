@@ -55,7 +55,7 @@ namespace AA1_MLP.Utilities
             List<double[]> predictions = new List<double[]>();
             for (int i = 0; i < testSet.Inputs.RowCount; i++)
             {
-                var o = n.ForwardPropagation(testSet.Inputs.Row(i));
+                var o = n.Predict(testSet.Inputs.Row(i));
                 predictions.Add(new double[] { i+1, o[0], o[1] });
 
             }
@@ -74,7 +74,7 @@ namespace AA1_MLP.Utilities
             MEE = 0;
             for (int i = 0; i < testSet.Inputs.RowCount; i++)
             {
-                var o = n.ForwardPropagation(testSet.Inputs.Row(i));
+                var o = n.Predict(testSet.Inputs.Row(i));
                 predictionsVSActuals.Add(new double[] { o[0], o[1], testSet.Labels.Row(i)[0], testSet.Labels.Row(i)[1] });
                 var loss = ((testSet.Labels.Row(i) - o).PointwiseMultiply(testSet.Labels.Row(i) - o)).Sum();
                 MEE += Math.Sqrt(loss);
@@ -95,7 +95,7 @@ namespace AA1_MLP.Utilities
         /// <param name="reportLocation">where the report shall be stored</param>
         /// <param name="printActualVsIdeal">if set to true, will report the actual vs predicted classes</param>
         /// <returns></returns>
-        public static double[] TesterMonkClassification(DataSet testingSet, Network n, double threshold = 0.5, string reportLocation = "", bool printActualVsIdeal = false)
+        public static double[] TesterMonkClassification(DataSet testingSet, IModel n, double threshold = 0.5, string reportLocation = "", bool printActualVsIdeal = false)
         {
             double[] TPRateFPRate = new double[2];
             double TP = 0, FP = 0, TN = 0, FN = 0;
@@ -110,7 +110,7 @@ namespace AA1_MLP.Utilities
             }
             for (int i = 0; i < testingSet.Inputs.RowCount; i++)
             {
-                var o = n.ForwardPropagation(testingSet.Inputs.Row(i));//network.Compute(pair.Input);
+                var o = n.Predict(testingSet.Inputs.Row(i));//network.Compute(pair.Input);
                 if ((o[0] >= threshold ? 1 : 0) == 1 && (int)testingSet.Labels.Row(i)[0] == 1)
                 {
                     TP++;

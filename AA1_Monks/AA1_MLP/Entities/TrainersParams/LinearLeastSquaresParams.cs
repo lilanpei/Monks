@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AA1_MLP.Enums;
+using AA1_MLP.Entities.Linear;
 
 namespace AA1_MLP.Entities.TrainersParams
 {
@@ -14,7 +15,7 @@ namespace AA1_MLP.Entities.TrainersParams
         public int? numOfIterations = null;
         public double regularizationRate = 0.001;
         public Regularizations regularizationType = Regularizations.L2;
-
+        public LinearModel model;
 
 
         public int degree = 1;

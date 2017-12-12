@@ -91,7 +91,7 @@ namespace AA1_MLP.Entities.Trainers
 
                     foreach (int k in batchIndices)//for each elemnt in th batch
                     {
-                        var nwOutput = passedParams.network.ForwardPropagation(passedParams.trainingSet.Inputs.Row(k));
+                        var nwOutput = passedParams.network.Predict(passedParams.trainingSet.Inputs.Row(k));
                         var label = passedParams.trainingSet.Labels.Row(k);
 
 
@@ -280,7 +280,7 @@ namespace AA1_MLP.Entities.Trainers
                 {
                     for (int i = 0; i < testSetIndices.Count; i++)
                     {
-                        var nwOutput = passedParams.network.ForwardPropagation(test.Inputs.Row(i));
+                        var nwOutput = passedParams.network.Predict(test.Inputs.Row(i));
                         var loss = ((test.Labels.Row(i) - nwOutput).PointwiseMultiply(test.Labels.Row(i) - nwOutput)).Sum();
                         validationError += passedParams.MEE ? Math.Sqrt(loss) : loss;
 

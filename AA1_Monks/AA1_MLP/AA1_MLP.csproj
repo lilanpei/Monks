@@ -53,8 +53,11 @@
     <Compile Include="Activations\ActivationTanh.cs" />
     <Compile Include="Activations\IActivation.cs" />
     <Compile Include="Activations\IdentityActivation.cs" />
-    <Compile Include="DataManager\DataManager.cs" />
-    <Compile Include="DataManager\IDataManager.cs" />
+    <Compile Include="DataManagers\CupDataManager.cs" />
+    <Compile Include="DataManagers\MonksDataManager.cs" />
+    <Compile Include="DataManagers\IDataManager.cs" />
+    <Compile Include="Entities\IModel.cs" />
+    <Compile Include="Entities\Linear\LinearModel.cs" />
     <Compile Include="Entities\RegressionTrainers\LLSGradientDescent.cs" />
     <Compile Include="Entities\RegressionTrainers\LLSNormal.cs" />
     <Compile Include="Entities\TrainersParams\AdamParams.cs" />

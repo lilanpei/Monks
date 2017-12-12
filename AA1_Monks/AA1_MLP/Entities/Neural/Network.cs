@@ -12,7 +12,7 @@ namespace AA1_MLP.Entities
     ///  A class representing a multilayer perceptron object, here one can compose feedforward neural networks with different number of layers , neurons and different activation functions
     /// </summary>
     [Serializable]
-    public class Network
+    public class Network : IModel
     {
         public List<Layer> Layers { get; set; }
         public List<Matrix<double>> Weights { get; set; }
@@ -86,7 +86,7 @@ namespace AA1_MLP.Entities
         /// </summary>
         /// <param name="input">The inputs to the neural network for the current problem</param>
         /// <returns></returns>
-        public Vector<double> ForwardPropagation(Vector<double> input)
+        public override  Vector<double> Predict(Vector<double> input)
         {
             //Layers[0].LayerActivationsSumInputs = CreateVector.DenseOfVector(input);
 

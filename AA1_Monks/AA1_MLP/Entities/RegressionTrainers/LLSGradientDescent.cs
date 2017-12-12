@@ -21,8 +21,9 @@ namespace AA1_MLP.Entities.Regression
         public override List<double[]> Train(TrainersParams.TrainerParams trainParams)
         {
             LinearLeastSquaresParams passedParams = (LinearLeastSquaresParams)trainParams;
+            passedParams.model.Degree = passedParams.degree;
             //should make the bias a passed param?
-
+            passedParams.model.bias = true;
             int trainingNumberOfExamples = trainParams.trainingSet.Labels.RowCount;
             int numberOfDataColumns = passedParams.degree > 1 ? 1 + passedParams.degree * trainParams.trainingSet.Inputs.ColumnCount : 1 + trainParams.trainingSet.Inputs.ColumnCount;//+1 for the bias
 
@@ -58,7 +59,7 @@ namespace AA1_MLP.Entities.Regression
                     row[j] = trainParams.validationSet.Inputs[i, j - 1];//j starts from one because we set the first element on its own, but the training set requires it to count from 0, so the -1 in the indexer
                     for (int k = 1; k < passedParams.degree; k++)
                     {
-                        row[k * trainParams.validationSet.Inputs.ColumnCount + j] = Math.Pow(row[j], k+1);
+                        row[k * trainParams.validationSet.Inputs.ColumnCount + j] = Math.Pow(row[j], k + 1);
                     }
                 }
                 validationdataWithBias.SetRow(i, row);
@@ -66,14 +67,14 @@ namespace AA1_MLP.Entities.Regression
             }
 
 
-            Matrix<double> weights = CreateMatrix.Random<double>(numberOfDataColumns, 1, new Normal(0, 1));
+            passedParams.model.Weights = CreateMatrix.Random<double>(numberOfDataColumns, 1, new Normal(0, 1));
 
 
             List<double[]> lossHistory = new List<double[]>();
 
             for (int i = 0; i < passedParams.numOfIterations; i++)
             {
-                var hypothesis = trainingdataWithBias.Multiply(weights);//Ax  -> where A is our data matrix and x is our parameters vector
+                var hypothesis = trainingdataWithBias.Multiply(passedParams.model.Weights);//Ax  -> where A is our data matrix and x is our parameters vector
                 var loss = hypothesis - trainParams.trainingSet.Labels; //(Ax-b)
                 var gradient = trainingdataWithBias.Transpose().Multiply(loss) / trainingNumberOfExamples; //A'*(Ax-b)/n  -> the gradient of (||Ax-b||^2)/(2n) what we are minimizing
 
@@ -81,16 +82,16 @@ namespace AA1_MLP.Entities.Regression
 
                 if (passedParams.regularizationType == Regularizations.L2)
                 {
-                    weights -= passedParams.learningRate * gradient + passedParams.regularizationRate * weights;
+                    passedParams.model.Weights -= passedParams.learningRate * gradient + passedParams.regularizationRate * passedParams.model.Weights;
 
                 }
                 else
                 {
-                    weights -= passedParams.learningRate * gradient;
+                    passedParams.model.Weights -= passedParams.learningRate * gradient;
 
                 }
-                var cost = CostFunction(trainingdataWithBias, trainParams.trainingSet.Labels, weights);
-                var valCost = CostFunction(validationdataWithBias, trainParams.validationSet.Labels, weights);
+                var cost = CostFunction(trainingdataWithBias, trainParams.trainingSet.Labels, passedParams.model.Weights);
+                var valCost = CostFunction(validationdataWithBias, trainParams.validationSet.Labels, passedParams.model.Weights);
 
                 Console.WriteLine("iteration:{0},{1},{2}", i, cost, valCost);
                 lossHistory.Add(new double[] { cost, valCost });

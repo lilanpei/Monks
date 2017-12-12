@@ -24,7 +24,7 @@ namespace AA1_MLP.Utilities
           double trainingAccuracy = 0;
           for (int i = 0; i < Dataset.Inputs.RowCount; i++)
           {
-              var o = network.ForwardPropagation(Dataset.Inputs.Row(i));
+              var o = network.Predict(Dataset.Inputs.Row(i));
               trainingAccuracy += ((o[0] >= trueThreshold ? 1 : 0) == Dataset.Labels.Row(i)[0]) ? 1 : 0;
 
           }

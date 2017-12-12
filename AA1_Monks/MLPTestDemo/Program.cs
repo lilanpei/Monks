@@ -12,6 +12,8 @@ using AA1_MLP.Entities.TrainersParams;
 using AA1_MLP.Enums;
 using AA1_MLP.Entities.Regression;
 using AA1_MLP.Entities.RegressionTrainers;
+using AA1_MLP.Entities.Linear;
+using AA1_MLP.DataManagers;
 namespace MLPTestDemo
 {
     /// <summary>
@@ -36,9 +38,16 @@ namespace MLPTestDemo
 
 
             //loading monks Dataset and testing datasets
-            DataManager dm = new DataManager();
-            DataSet ds = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 17);
-            DataSet dt = dm.LoadData(Properties.Settings.Default.TestSetLocation, 17);
+            //MonksDataManager dm = new MonksDataManager();
+            //DataSet ds = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 17);
+            //DataSet dt = dm.LoadData(Properties.Settings.Default.TestSetLocation, 17);
+
+
+            //loading cup like data
+
+            CupDataManager dm = new CupDataManager();
+            DataSet ds = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 1);
+            DataSet dt = dm.LoadData(Properties.Settings.Default.TestSetLocation, 1);
 
 
             //Loading a network should be like ...
@@ -50,13 +59,15 @@ namespace MLPTestDemo
 
 
             // creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
-            var learningCurve = SolveWithLinearRegression(ds, dt);
+            LinearModel model = new LinearModel();
+            var learningCurve = SolveWithLinearRegression(ds, dt, model);
 
             //LLS with normal equations solution
             //var tp = new TrainerParams();
             //tp.trainingSet = ds;
             //tp.validationSet = dt;
             //var learningCurve = new LLSNormal().Train(tp);
+
             //creates an ADAM trainer
             // var learningCurve = TrainWithAdam(n, ds, dt);
 
@@ -67,9 +78,13 @@ namespace MLPTestDemo
             //saving the trained network to desk
             //AA1_MLP.Utilities.ModelManager.SaveNetowrk(n, path2SaveModel);
 
-
+            //CAUTION!!!****************$$$$$$$$$$$$$$$$$$$$$-----------------###############
+            //CAUTION!!!****************$$$$$$$$$$$$$$$$$$$$$-----------------###############
+            //CAUTION!!!****************$$$$$$$$$$$$$$$$$$$$$-----------------###############
+            //CAUTION!!!****************$$$$$$$$$$$$$$$$$$$$$-----------------###############                                       
+            //This uses only the network for testing, neeeeeed tooooo wrrrriiiitttteeee one for Linear Least Squares uhhhhhhhhhhhhhh
             //Testing the model and outputing the confusion matrix
-            AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, n, 0.5, Properties.Settings.Default.TestReportLocation);
+            AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, model, 0.5, Properties.Settings.Default.TestReportLocation);
 
 
 
@@ -116,23 +131,25 @@ namespace MLPTestDemo
             return learningCurve;
         }
 
-        private static List<double[]> SolveWithLinearRegression(DataSet ds, DataSet dt)
+        private static List<double[]> SolveWithLinearRegression(DataSet ds, DataSet dt, LinearModel model)
         {
             LLSGradientDescent gd = new LLSGradientDescent();
 
             //Calling the Train method of the trainer with the desired parameters
             //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
             //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.Regularizations.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
-            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams();
+
+
+            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model };
             passedParams.trainingSet = ds;
-            passedParams.learningRate = 0.007;
+            passedParams.learningRate = 1;
             passedParams.numOfIterations = 3000;
             passedParams.shuffle = false;
             passedParams.debug = false;
             passedParams.regularizationRate = 0.01;
             passedParams.regularizationType = Regularizations.None;
             passedParams.validationSet = dt;
-            passedParams.degree = 10;
+            passedParams.degree = 30;
 
 
             var learningCurve = gd.Train(passedParams);
