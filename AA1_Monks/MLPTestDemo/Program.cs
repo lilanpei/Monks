@@ -38,16 +38,16 @@ namespace MLPTestDemo
 
 
             //loading monks Dataset and testing datasets
-            //MonksDataManager dm = new MonksDataManager();
-            //DataSet ds = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 17);
-            //DataSet dt = dm.LoadData(Properties.Settings.Default.TestSetLocation, 17);
+            MonksDataManager dm = new MonksDataManager();
+            DataSet ds = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 17);
+            DataSet dt = dm.LoadData(Properties.Settings.Default.TestSetLocation, 17);
 
 
             //loading cup like data
 
-            CupDataManager dm = new CupDataManager();
-            DataSet ds = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 1);
-            DataSet dt = dm.LoadData(Properties.Settings.Default.TestSetLocation, 1);
+            //CupDataManager dm = new CupDataManager();
+            //DataSet ds = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 1);
+            //DataSet dt = dm.LoadData(Properties.Settings.Default.TestSetLocation, 1);
 
 
             //Loading a network should be like ...
@@ -60,13 +60,14 @@ namespace MLPTestDemo
 
             // creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
             LinearModel model = new LinearModel();
-            var learningCurve = SolveWithLinearRegression(ds, dt, model);
+            //var learningCurve = SolveWithLinearRegression(ds, dt, model);
 
             //LLS with normal equations solution
             //var tp = new TrainerParams();
-            //tp.trainingSet = ds;
-            //tp.validationSet = dt;
-            //var learningCurve = new LLSNormal().Train(tp);
+            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model };
+            passedParams.trainingSet = ds;
+            passedParams.validationSet = dt;
+            var learningCurve = new LLSNormal().Train(passedParams);
 
             //creates an ADAM trainer
             // var learningCurve = TrainWithAdam(n, ds, dt);
