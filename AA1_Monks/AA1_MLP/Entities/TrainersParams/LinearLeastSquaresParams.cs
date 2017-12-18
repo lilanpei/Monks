@@ -16,6 +16,7 @@ namespace AA1_MLP.Entities.TrainersParams
         public double regularizationRate = 0.001;
         public Regularizations regularizationType = Regularizations.L2;
         public LinearModel model;
+        public double eps= 2.2204e-16;
 
 
         public int degree = 1;
