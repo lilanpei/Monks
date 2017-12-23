@@ -67,7 +67,8 @@ namespace MLPTestDemo
             LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model };
             passedParams.trainingSet = ds;
             passedParams.validationSet = dt;
-            var learningCurve = new LLSNormal().Train(passedParams);
+            var learningCurve = new LLSSVD().Train(passedParams);
+            //var learningCurve = new LLSNormal().Train(passedParams);
 
             //creates an ADAM trainer
             // var learningCurve = TrainWithAdam(n, ds, dt);
