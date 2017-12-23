@@ -19,7 +19,12 @@ namespace AA1_MLP.Entities.RegressionTrainers
             LinearLeastSquaresParams passedParams = (LinearLeastSquaresParams)trainParams;
 
             var svd = trainParams.trainingSet.Inputs.Svd();
-            int r = trainParams.trainingSet.Inputs.Rank();
+            int r = 1;//trainParams.trainingSet.Inputs.Rank();
+
+
+            while (r < trainParams.trainingSet.Inputs.ColumnCount && svd.S.At(r ) >= Math.Max(trainParams.trainingSet.Inputs.RowCount, trainParams.trainingSet.Inputs.ColumnCount) * passedParams.eps * svd.S[0])
+                r++;
+
 
             Console.WriteLine("Rank r is:{0}", r);
             var d = svd.U.Transpose().Multiply(trainParams.trainingSet.Labels);
