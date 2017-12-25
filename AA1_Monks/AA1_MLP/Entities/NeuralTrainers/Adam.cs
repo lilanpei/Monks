@@ -46,7 +46,6 @@ namespace AA1_MLP.Entities.Trainers
 
             Matrix<double> batchesIndices = null;//a 2d matrix of shape(nmberOfBatches,2), rows are batches, row[0] =barchstart, row[1] = batchEnd 
             Dictionary<int, Matrix<double>> previousWeightsUpdate = null;//for the momentum updates
-            Dictionary<int, Matrix<double>> PreviousUpdateSigns = new Dictionary<int, Matrix<double>>();//for the resilient backpropagation,if the sign changes we slow down with the slow down ratio, if it stays the same we accelerate with the acceleration ratio
 
             int adamUpdateStep = 1;
             for (int epoch = 1; epoch <= passedParams.numberOfEpochs; epoch++)
@@ -239,7 +238,7 @@ namespace AA1_MLP.Entities.Trainers
                            passedParams.network.Weights[y] -= (passedParams.learningRate * firstMoment[y]).PointwiseDivide((secondMoment[y].PointwiseSqrt() + passedParams.epsilon));
                            */
 
-                        //dummy implementation of adam at the beginning of the paper
+                        //simple implementation of adam at the beginning of the paper
                         firstMoment[y] = passedParams.beta1 * prevFirstMoment[y] + (1 - passedParams.beta1) * (-1 * weightsUpdates[y]);
                         secondMoment[y] = passedParams.beta2 * prevSecondMoment[y] + (1 - passedParams.beta2) * weightsUpdates[y].PointwisePower(2);
                         mhat[y] = firstMoment[y] / (1 - Math.Pow(passedParams.beta1, adamUpdateStep));
@@ -254,11 +253,7 @@ namespace AA1_MLP.Entities.Trainers
 
 
 
-                        if (!PreviousUpdateSigns.ContainsKey(y))
-                        {
-                            PreviousUpdateSigns.Add(y, null);
-                        }
-                        PreviousUpdateSigns[y] = weightsUpdates[y].PointwiseSign();
+
                     }
                     previousWeightsUpdate = weightsUpdates;
 

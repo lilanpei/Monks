@@ -18,7 +18,13 @@ namespace AA1_MLP.Entities.Trainers
         //Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2, bool nestrov = false
         public override List<double[]> Train(TrainerParams trainParams)
         {
-            GradientDescentParams passedParams = (GradientDescentParams) trainParams;
+            GradientDescentParams passedParams = (GradientDescentParams)trainParams;
+
+            if (passedParams.resilient)
+            {
+                passedParams.learningRate = 1;
+                
+            }
             //int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
             List<int> trainingSetIndices = Enumerable.Range(0, passedParams.trainingSet.Labels.RowCount).ToList();
@@ -46,7 +52,7 @@ namespace AA1_MLP.Entities.Trainers
                 trainingSetIndices.Shuffle();
             }
 
-           
+
 
             Matrix<double> batchesIndices = null;//a 2d matrix of shape(nmberOfBatches,2), rows are batches, row[0] =barchstart, row[1] = batchEnd 
             Dictionary<int, Matrix<double>> previousWeightsUpdate = null;//for the momentum updates
@@ -99,7 +105,7 @@ namespace AA1_MLP.Entities.Trainers
                         var loss = ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
                         batchLoss += passedParams.MEE ? Math.Sqrt(loss) : loss;
 
-                     
+
                         var residual = label - nwOutput;
 
                         if (passedParams.debug)
@@ -116,13 +122,15 @@ namespace AA1_MLP.Entities.Trainers
                         if (passedParams.debug)
                             Console.WriteLine("-------- Batch:{0} element:{1} end-----", i, k);
                     }//per example in the batch
+
+
                     if (passedParams.debug)
                         Console.WriteLine("batch end");
 
                     //EpochBatchesLosses.Add(new double[] { batchLoss / numberOfBatchExamples });
                     // batchLoss /= (((int)batchesIndices.Row(batchIndex).At(1) - (int)batchesIndices.Row(batchIndex).At(0)) + 1);
 
-                    UpdateWeights(passedParams, previousWeightsUpdate, PreviousUpdateSigns, epoch, momentumUpdate, weightsUpdates);
+                    UpdateWeights(passedParams, previousWeightsUpdate, PreviousUpdateSigns, epoch, momentumUpdate, weightsUpdates, batchElementsIndices.Count);
                     previousWeightsUpdate = ClonePrevWeightsUpdates(previousWeightsUpdate, weightsUpdates);
                     epochLoss += batchLoss / ((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1);
                     if (passedParams.network.Debug)
@@ -132,7 +140,7 @@ namespace AA1_MLP.Entities.Trainers
 
                 epochLoss /= batchesIndices.RowCount;
 
-              
+
 
                 // computing the test loss:
                 double validationError = 0;
@@ -267,13 +275,13 @@ namespace AA1_MLP.Entities.Trainers
             }//back propagating per layer
         }
 
-        private static void UpdateWeights(GradientDescentParams passedParams, Dictionary<int, Matrix<double>> previousWeightsUpdate, Dictionary<int, Matrix<double>> PreviousUpdateSigns, int epoch, Dictionary<int, Matrix<double>> momentumUpdate, Dictionary<int, Matrix<double>> weightsUpdates)
+        private static void UpdateWeights(GradientDescentParams passedParams, Dictionary<int, Matrix<double>> previousWeightsUpdate, Dictionary<int, Matrix<double>> PreviousUpdateSigns, int epoch, Dictionary<int, Matrix<double>> momentumUpdate, Dictionary<int, Matrix<double>> weightsUpdates, int numberOfBatchExamplesInBatch)
         {
             for (int y = 0; y < weightsUpdates.Keys.Count; y++)
             {
                 Matrix<double> finalUpdate = null;
 
-                //weightsUpdates[y] /= numberOfBatchExamples;
+              //  weightsUpdates[y] /= numberOfBatchExamplesInBatch;
                 var resilientLearningRates = CreateMatrix.Dense(passedParams.network.Weights[y].RowCount, passedParams.network.Weights[y].ColumnCount, (epoch == 0) && passedParams.resilient ? passedParams.resilientUpdateSlowDownRate * passedParams.learningRate : passedParams.learningRate);
                 if (passedParams.resilient && PreviousUpdateSigns.ContainsKey(y))
                 {
