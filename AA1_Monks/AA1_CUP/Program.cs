@@ -18,21 +18,22 @@ namespace AA1_CUP
     {
         static void Main(string[] args)
         {
+            Screening.Screen();
 
 
             //Loading and parsing cup dataset
-            CupDataManager dm = new CupDataManager();
-            //Loading the test dataset
-            DataSet TestSet = dm.LoadData(Properties.Settings.Default.TestSetLocation, 10, reportOsutput: false);
 
+            //  CupDataManager dm = new CupDataManager();
+            //Loading the test dataset
+            //DataSet TestSet = dm.LoadData(Properties.Settings.Default.TestSetLocation, 10, reportOsutput: false);
             //Loading the trained model
-            var n = AA1_MLP.Utilities.ModelManager.LoadNetwork("Final_hidn18_reg0.01_mo0.5_lr9E-06_model.AA1");
+            //var n = AA1_MLP.Utilities.ModelManager.LoadNetwork("Final_hidn18_reg0.01_mo0.5_lr9E-06_model.AA1");
 
             //double MEE = 0;
             //applying the model on the test data
-            var predictions = ModelManager.GeneratorCUP(TestSet, n);
+            //var predictions = ModelManager.GeneratorCUP(TestSet, n);
             //writing the results
-            File.WriteAllText("OMG_LOC-OSM2-TS.txt", string.Join("\n", predictions.Select(s => string.Join(",", s))));
+            // File.WriteAllText("OMG_LOC-OSM2-TS.txt", string.Join("\n", predictions.Select(s => string.Join(",", s))));
 
 
 

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace AA1_MLP.Entities
 {
+    [Serializable]
    public abstract class IModel
     {
 
