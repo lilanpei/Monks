@@ -23,7 +23,7 @@ namespace AA1_MLP.Entities.Trainers
             if (passedParams.resilient)
             {
                 passedParams.learningRate = 1;
-                
+
             }
             //int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
@@ -304,6 +304,18 @@ namespace AA1_MLP.Entities.Trainers
                     else
                     {
                         momentumUpdate[y] += passedParams.momentum * previousWeightsUpdate[y] + resilientLearningRates.PointwiseMultiply(weightsUpdates[y]);
+                    }
+                }
+                else
+                {
+                    if (passedParams.regularization == Regularizations.L2)
+                    {
+
+                        momentumUpdate[y] += resilientLearningRates.PointwiseMultiply(((weightsUpdates[y] - 2 * passedParams.regularizationRate * passedParams.network.Weights[y])));
+                    }
+                    else
+                    {
+                        momentumUpdate[y] += resilientLearningRates.PointwiseMultiply(weightsUpdates[y]);
                     }
                 }
 
