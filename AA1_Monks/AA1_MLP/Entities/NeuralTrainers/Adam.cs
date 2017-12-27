@@ -239,6 +239,7 @@ namespace AA1_MLP.Entities.Trainers
                            */
 
                         //simple implementation of adam at the beginning of the paper
+                        weightsUpdates[y] = weightsUpdates[y] / numberOfBatchExamples;
                         firstMoment[y] = passedParams.beta1 * prevFirstMoment[y] + (1 - passedParams.beta1) * (-1 * weightsUpdates[y]);
                         secondMoment[y] = passedParams.beta2 * prevSecondMoment[y] + (1 - passedParams.beta2) * weightsUpdates[y].PointwisePower(2);
                         mhat[y] = firstMoment[y] / (1 - Math.Pow(passedParams.beta1, adamUpdateStep));

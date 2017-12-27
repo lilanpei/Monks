@@ -31,7 +31,7 @@ namespace MLPTestDemo
             // Building a simple network
             Network n = new Network(new List<Layer>() {
                 new Layer(new ActivationIdentity(),true,17),
-                new Layer(new ActivationSigmoid(),true,5),
+                new Layer(new ActivationSigmoid(),true,3),
 
                 new Layer(new ActivationSigmoid(),false,1),
                 }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
@@ -54,24 +54,28 @@ namespace MLPTestDemo
             //var n = AA1_MLP.Utilities.ModelManager.LoadNetwork(PATH TO THE MODEL BINARY FILE);
 
 
-            //Creating a backpropagation trainer
-            //  var learningCurve = TrainWithSGD(n, ds, dt);
+            //**Creating a backpropagation trainer
+              var learningCurve = TrainWithSGD(n, ds, dt);
 
 
             // creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
-            LinearModel model = new LinearModel();
+            //LinearModel model = new LinearModel();
             //var learningCurve = SolveWithLinearRegression(ds, dt, model);
 
             //LLS with normal equations solution
             //var tp = new TrainerParams();
-            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model };
-            passedParams.trainingSet = ds;
-            passedParams.validationSet = dt;
-            var learningCurve = new LLSSVD().Train(passedParams);
+
+            //**trying SVD
+            //LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model };
+            //passedParams.trainingSet = ds;
+            //passedParams.validationSet = dt;
+            //var learningCurve = new LLSSVD().Train(passedParams);
+
+
             //var learningCurve = new LLSNormal().Train(passedParams);
 
             //creates an ADAM trainer
-            // var learningCurve = TrainWithAdam(n, ds, dt);
+             //var learningCurve = TrainWithAdam(n, ds, dt);
 
             //writing the learning curve trainingdataWithBias to desk (ugly for memory, but simple)
             File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
@@ -86,7 +90,7 @@ namespace MLPTestDemo
             //CAUTION!!!****************$$$$$$$$$$$$$$$$$$$$$-----------------###############                                       
             //This uses only the network for testing, neeeeeed tooooo wrrrriiiitttteeee one for Linear Least Squares uhhhhhhhhhhhhhh
             //Testing the model and outputing the confusion matrix
-            AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, model, 0.5, Properties.Settings.Default.TestReportLocation);
+            AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, n, 0.5, Properties.Settings.Default.TestReportLocation);
 
 
 
@@ -113,19 +117,19 @@ namespace MLPTestDemo
             GradientDescentParams passedParams = new GradientDescentParams();
             passedParams.network = n;
             passedParams.trainingSet = ds;
-            passedParams.learningRate = 0.3;
-            passedParams.numberOfEpochs = 500;
+            passedParams.learningRate = 0.8;
+            passedParams.numberOfEpochs = 100;
             passedParams.shuffle = false;
             passedParams.debug = n.Debug;
             passedParams.nestrov = false;
-            passedParams.momentum = 0.9;
+            passedParams.momentum = 0.7;
             passedParams.resilient = false;
             passedParams.resilientUpdateAccelerationRate = 0.3;
             passedParams.resilientUpdateSlowDownRate = 0.1;
-            passedParams.regularization = Regularizations.None;
+            passedParams.regularization = Regularizations.L2;
             passedParams.regularizationRate = 0.001;
             passedParams.validationSet = dt;
-            passedParams.batchSize = 7;
+            passedParams.batchSize = null;
 
 
 
@@ -170,12 +174,12 @@ namespace MLPTestDemo
             AdamParams passedParams = new AdamParams();
             passedParams.network = n;
             passedParams.trainingSet = ds;
-            passedParams.learningRate = 0.01;
-            passedParams.numberOfEpochs = 2000;
-            passedParams.shuffle = false;
+            passedParams.learningRate = 0.09;
+            passedParams.numberOfEpochs = 200;
+            passedParams.shuffle = true;
             passedParams.debug = n.Debug;
             passedParams.regularization = Regularizations.None;
-            passedParams.regularizationRate = 0.001;
+            passedParams.regularizationRate = 0.0001;
             passedParams.validationSet = dt;
             passedParams.batchSize = 7;
 
