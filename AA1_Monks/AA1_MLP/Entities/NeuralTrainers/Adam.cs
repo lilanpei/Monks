@@ -244,13 +244,14 @@ namespace AA1_MLP.Entities.Trainers
                         secondMoment[y] = passedParams.beta2 * prevSecondMoment[y] + (1 - passedParams.beta2) * weightsUpdates[y].PointwisePower(2);
                         mhat[y] = firstMoment[y] / (1 - Math.Pow(passedParams.beta1, adamUpdateStep));
                         vhat[y] = secondMoment[y] / (1 - Math.Pow(passedParams.beta2, adamUpdateStep));
-                        passedParams.network.Weights[y] -= (passedParams.learningRate * mhat[y]).PointwiseDivide((vhat[y].PointwiseSqrt() + passedParams.epsilon));
+                        var finalUpdates = (passedParams.learningRate * mhat[y]).PointwiseDivide((vhat[y].PointwiseSqrt() + passedParams.epsilon));
+                        passedParams.network.Weights[y] -= finalUpdates;
 
 
 
                         prevFirstMoment[y] = firstMoment[y].Clone();
                         prevSecondMoment[y] = secondMoment[y].Clone();
-
+                        weightsUpdates[y] = finalUpdates.Clone();
 
 
 

@@ -81,7 +81,7 @@ namespace AA1_CUP
             //holds different values for the momentum to try for training
             List<double> Momentums = new List<double>() { 0.5 };
             //holds different values for the learning rate to try for training
-            List<double> learningRate = new List<double>() { 0.01, 0.001, 0.0001 };
+            List<double> learningRate = new List<double>() { 0.001, 0.001, 0.0001 };
 
             //these directories will hold the experiments results
             Directory.CreateDirectory("learningCurves");
@@ -129,7 +129,7 @@ namespace AA1_CUP
 
 
 
-                            Gradientdescent br = new Gradientdescent();
+                          /*  Gradientdescent br = new Gradientdescent();
 
                             //Calling the Train method of the trainer with the desired parameters
                             //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
@@ -155,9 +155,9 @@ namespace AA1_CUP
 
 
                             var learningCurve = br.Train(passedParams);
+                            */
 
-
-                            /* Adam br = new Adam();
+                             Adam br = new Adam();
 
                              //Calling the Train method of the trainer with the desired parameters
                              //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
@@ -172,14 +172,14 @@ namespace AA1_CUP
                              passedParams.regularization = Regularizations.L2;
                              passedParams.regularizationRate = reg;
                              passedParams.validationSet = TestDatasetSplit;
-                             passedParams.batchSize = 7;
+                             passedParams.batchSize = 50;
 
 
 
 
                              var learningCurve = br.Train(passedParams);
 
-                             */
+                             
 
 
                             ////the training loop
