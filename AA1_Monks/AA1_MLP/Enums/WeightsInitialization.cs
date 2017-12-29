@@ -12,6 +12,7 @@ namespace AA1_MLP.Enums
     public enum WeightsInitialization
     {
         Xavier,
-        Uniform
+        Uniform,
+        Grot
     }
 }

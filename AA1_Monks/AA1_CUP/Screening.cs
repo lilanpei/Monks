@@ -28,18 +28,31 @@ namespace AA1_CUP
             DataSet wholeSet = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 10, 2);
             //wholeSet.Inputs = wholeSet.Inputs.NormalizeColumns(2) ;
 
+           // wholeSet.Labels = wholeSet.Labels/10;
+
+
             //standardiing data
 
             //x=(x-mean)/std
 
-            for (int i = 0; i < wholeSet.Inputs.ColumnCount; i++)
+             /* for (int i = 0; i < wholeSet.Inputs.ColumnCount; i++)
+              {
+                  double mean = wholeSet.Inputs.Column(i).Average();
+                  double std = Math.Sqrt((wholeSet.Inputs.Column(i) - mean).PointwisePower(2).Sum() / wholeSet.Inputs.Column(i).Count);
+                  wholeSet.Inputs.SetColumn(i, (wholeSet.Inputs.Column(i) - mean) / std);
+
+
+              }*/
+
+
+           /* for (int i = 0; i < wholeSet.Inputs.ColumnCount; i++)
             {
-                double mean = wholeSet.Inputs.Column(i).Average();
-                double std = Math.Sqrt((wholeSet.Inputs.Column(i) - mean).PointwisePower(2).Sum() / wholeSet.Inputs.Column(i).Count);
-                wholeSet.Inputs.SetColumn(i, (wholeSet.Inputs.Column(i) - mean) / std);
+                double min = wholeSet.Inputs.Column(i).Min();
+                double max = wholeSet.Inputs.Column(i).Max();
+                double max_min = max - min;
+                wholeSet.Inputs.SetColumn(i, (wholeSet.Inputs.Column(i) - min) / max_min);
 
-
-            }
+            }*/
 
             //the training set split
             int trainSplit = (int)(0.6 * wholeSet.Inputs.RowCount);
@@ -59,16 +72,16 @@ namespace AA1_CUP
 
             //will hold a number of possible values for the hidden units to try
             List<int> PossibleHiddenUnits = new List<int>();
-            for (int numberOfUnits = 30; numberOfUnits < 100; numberOfUnits += 10)
+            for (int numberOfUnits = 30; numberOfUnits <= 100; numberOfUnits += 10)
             {
                 PossibleHiddenUnits.Add(numberOfUnits);
             }
             //holds different values for the Regularization to try
             List<double> RegularizationRates = new List<double>() { 0.001, 0.0001 };
             //holds different values for the momentum to try for training
-            List<double> Momentums = new List<double>() { 0.9, 0.3 };
+            List<double> Momentums = new List<double>() { 0 };
             //holds different values for the learning rate to try for training
-            List<double> learningRate = new List<double>() { 0.1, 0.0003 };
+            List<double> learningRate = new List<double>() { 0.0007, 0.001, 0.0001 };
 
             //these directories will hold the experiments results
             Directory.CreateDirectory("learningCurves");
@@ -107,8 +120,8 @@ namespace AA1_CUP
                   //   new Layer(new ActivationLeakyRelu(),true,40),
 
 
-                     new Layer(new ActivationSigmoid(),false,2),
-                     }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
+                     new Layer(new ActivationIdentity(),false,2),
+                     }, false, AA1_MLP.Enums.WeightsInitialization.Grot);
 
                             /*try
                             {*/
@@ -116,57 +129,57 @@ namespace AA1_CUP
 
 
 
-                            /*   Gradientdescent br = new Gradientdescent();
-
-                               //Calling the Train method of the trainer with the desired parameters
-                               //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
-                               //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.RegularizationRates.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
-                               GradientDescentParams passedParams = new GradientDescentParams();
-                               passedParams.network = n;
-                               passedParams.trainingSet = TrainDataset;
-                               passedParams.learningRate = lr;
-                               passedParams.numberOfEpochs = 100000;
-                               passedParams.shuffle = false;
-                               passedParams.debug = n.Debug;
-                               passedParams.nestrov = true;
-                               passedParams.momentum = mo;
-                               passedParams.resilient = false;
-                               passedParams.resilientUpdateAccelerationRate = 0.3;
-                               passedParams.resilientUpdateSlowDownRate = 0.1;
-                               passedParams.regularization = Regularizations.L2;
-                               passedParams.regularizationRate = reg;
-                               passedParams.validationSet = TestDatasetSplit;
-                               passedParams.batchSize = 8 ;
-                               passedParams.MEE = true;
-
-
-
-                               var learningCurve = br.Train(passedParams);*/
-
-
-                            Adam br = new Adam();
+                            Gradientdescent br = new Gradientdescent();
 
                             //Calling the Train method of the trainer with the desired parameters
                             //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
                             //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.RegularizationRates.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
-                            AdamParams passedParams = new AdamParams();
+                            GradientDescentParams passedParams = new GradientDescentParams();
                             passedParams.network = n;
                             passedParams.trainingSet = TrainDataset;
                             passedParams.learningRate = lr;
-                            passedParams.numberOfEpochs = 10000;
-                            passedParams.shuffle = true;
+                            passedParams.numberOfEpochs = 100000;
+                            passedParams.shuffle = false;
                             passedParams.debug = n.Debug;
+                            passedParams.nestrov = false;
+                            passedParams.momentum = mo;
+                            passedParams.resilient = false;
+                            passedParams.resilientUpdateAccelerationRate = 0.3;
+                            passedParams.resilientUpdateSlowDownRate = 0.1;
                             passedParams.regularization = Regularizations.L2;
                             passedParams.regularizationRate = reg;
                             passedParams.validationSet = TestDatasetSplit;
-                            passedParams.batchSize = 7;
-
+                            passedParams.batchSize = 10;
+                            passedParams.MEE = true;
 
 
 
                             var learningCurve = br.Train(passedParams);
 
 
+                            /* Adam br = new Adam();
+
+                             //Calling the Train method of the trainer with the desired parameters
+                             //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
+                             //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.RegularizationRates.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
+                             AdamParams passedParams = new AdamParams();
+                             passedParams.network = n;
+                             passedParams.trainingSet = TrainDataset;
+                             passedParams.learningRate = lr;
+                             passedParams.numberOfEpochs = 10000;
+                             passedParams.shuffle = true;
+                             passedParams.debug = n.Debug;
+                             passedParams.regularization = Regularizations.L2;
+                             passedParams.regularizationRate = reg;
+                             passedParams.validationSet = TestDatasetSplit;
+                             passedParams.batchSize = 7;
+
+
+
+
+                             var learningCurve = br.Train(passedParams);
+
+                             */
 
 
                             ////the training loop
