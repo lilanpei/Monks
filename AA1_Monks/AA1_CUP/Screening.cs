@@ -79,7 +79,7 @@ namespace AA1_CUP
             //holds different values for the Regularization to try
             List<double> RegularizationRates = new List<double>() { 0.001, 0.0001 };
             //holds different values for the momentum to try for training
-            List<double> Momentums = new List<double>() { 0.7 };
+            List<double> Momentums = new List<double>() { 0.5 };
             //holds different values for the learning rate to try for training
             List<double> learningRate = new List<double>() { 0.01, 0.001, 0.0001 };
 
@@ -141,7 +141,7 @@ namespace AA1_CUP
                             passedParams.numberOfEpochs = 10000;
                             passedParams.shuffle = false;
                             passedParams.debug = n.Debug;
-                            passedParams.nestrov = false;
+                            passedParams.nestrov = true;
                             passedParams.momentum = mo;
                             passedParams.resilient = false;
                             passedParams.resilientUpdateAccelerationRate = 0.3;

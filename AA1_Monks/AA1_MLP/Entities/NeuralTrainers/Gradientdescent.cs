@@ -281,7 +281,7 @@ namespace AA1_MLP.Entities.Trainers
             {
                 Matrix<double> finalUpdate = null;
 
-               weightsUpdates[y] /= numberOfBatchExamplesInBatch;
+                weightsUpdates[y] /= numberOfBatchExamplesInBatch;
                 var resilientLearningRates = CreateMatrix.Dense(passedParams.network.Weights[y].RowCount, passedParams.network.Weights[y].ColumnCount, (epoch == 0) && passedParams.resilient ? passedParams.resilientUpdateSlowDownRate * passedParams.learningRate : passedParams.learningRate);
                 if (passedParams.resilient && PreviousUpdateSigns.ContainsKey(y))
                 {
@@ -354,32 +354,31 @@ namespace AA1_MLP.Entities.Trainers
                 //else //no regularization
 
 
+
+
+                if (passedParams.nestrov)
                 {
 
-                    if (passedParams.nestrov)
-                    {
+
+                    //           var    v_prev = v # back this up
+                    //            v = mu * v - learning_rate * dx # velocity update stays the same
+
+                    //            x += -mu * v_prev + (1 + mu) * v # position update changes form*/
+                    finalUpdate = (1 + passedParams.momentum) * momentumUpdate[y] - passedParams.momentum * prev_v;
+                    momentumUpdate[y] = finalUpdate.Clone();
 
 
-                        //           var    v_prev = v # back this up
-                        //            v = mu * v - learning_rate * dx # velocity update stays the same
-
-                        //            x += -mu * v_prev + (1 + mu) * v # position update changes form*/
-                        finalUpdate = (1 + passedParams.momentum) * momentumUpdate[y] - passedParams.momentum * prev_v;
-
-
-
-                    }
-                    else//no nestrove ad no regularization
-                    {
-                        finalUpdate = /*resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) +*/ momentumUpdate[y];
-                    }
                 }
+                else//no nestrove ad no regularization
+                {
+                    finalUpdate = /*resilientLearningRates.PointwiseMultiply(weightsUpdates[y]) +*/ momentumUpdate[y];
+                }
+
 
 
 
                 passedParams.network.Weights[y] += finalUpdate;
                 weightsUpdates[y] = finalUpdate.Clone();
-
                 if (!PreviousUpdateSigns.ContainsKey(y))
                 {
                     PreviousUpdateSigns.Add(y, null);
