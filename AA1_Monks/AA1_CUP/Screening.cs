@@ -28,7 +28,7 @@ namespace AA1_CUP
             DataSet wholeSet = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 10, 2);
             //wholeSet.Inputs = wholeSet.Inputs.NormalizeColumns(2) ;
 
-           // wholeSet.Labels = wholeSet.Labels/10;
+          // wholeSet.Labels = wholeSet.Labels/10;
 
 
             //standardiing data
@@ -79,9 +79,9 @@ namespace AA1_CUP
             //holds different values for the Regularization to try
             List<double> RegularizationRates = new List<double>() { 0.001, 0.0001 };
             //holds different values for the momentum to try for training
-            List<double> Momentums = new List<double>() { 0 };
+            List<double> Momentums = new List<double>() { 0.7 };
             //holds different values for the learning rate to try for training
-            List<double> learningRate = new List<double>() { 0.0007, 0.001, 0.0001 };
+            List<double> learningRate = new List<double>() { 0.01, 0.001, 0.0001 };
 
             //these directories will hold the experiments results
             Directory.CreateDirectory("learningCurves");
@@ -116,7 +116,7 @@ namespace AA1_CUP
                             //building the architecture
                             Network n = new Network(new List<Layer>() {
                      new Layer(new ActivationIdentity(),true,10),
-                     new Layer(new ActivationSigmoid(),true,hidn),
+                     new Layer(new ActivationTanh(),true,hidn),
                   //   new Layer(new ActivationLeakyRelu(),true,40),
 
 
@@ -138,7 +138,7 @@ namespace AA1_CUP
                             passedParams.network = n;
                             passedParams.trainingSet = TrainDataset;
                             passedParams.learningRate = lr;
-                            passedParams.numberOfEpochs = 100000;
+                            passedParams.numberOfEpochs = 10000;
                             passedParams.shuffle = false;
                             passedParams.debug = n.Debug;
                             passedParams.nestrov = false;
@@ -149,7 +149,7 @@ namespace AA1_CUP
                             passedParams.regularization = Regularizations.L2;
                             passedParams.regularizationRate = reg;
                             passedParams.validationSet = TestDatasetSplit;
-                            passedParams.batchSize = 10;
+                            passedParams.batchSize = 50;
                             passedParams.MEE = true;
 
 

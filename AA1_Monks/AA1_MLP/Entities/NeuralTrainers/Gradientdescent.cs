@@ -378,7 +378,7 @@ namespace AA1_MLP.Entities.Trainers
 
 
                 passedParams.network.Weights[y] += finalUpdate;
-
+                weightsUpdates[y] = finalUpdate.Clone();
 
                 if (!PreviousUpdateSigns.ContainsKey(y))
                 {
