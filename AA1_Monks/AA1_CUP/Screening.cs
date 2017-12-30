@@ -17,42 +17,40 @@ namespace AA1_CUP
     /// <summary>
     /// Performing an automated grid search for hyperparameters for the model for the Cup problem
     /// </summary>
-    public class Screening
+    public class CrossValidation : IScreening
     {
-        public static void Screen()
+        public void Screen(DataSet wholeSet, int k = 0)
         {
 
 
-            //Loading and parsing cup dataset
-            CupDataManager dm = new CupDataManager();
-            DataSet wholeSet = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 10, 2);
+
             //wholeSet.Inputs = wholeSet.Inputs.NormalizeColumns(2) ;
 
-          // wholeSet.Labels = wholeSet.Labels/10;
+            // wholeSet.Labels = wholeSet.Labels/10;
 
 
             //standardiing data
 
             //x=(x-mean)/std
 
-             /* for (int i = 0; i < wholeSet.Inputs.ColumnCount; i++)
-              {
-                  double mean = wholeSet.Inputs.Column(i).Average();
-                  double std = Math.Sqrt((wholeSet.Inputs.Column(i) - mean).PointwisePower(2).Sum() / wholeSet.Inputs.Column(i).Count);
-                  wholeSet.Inputs.SetColumn(i, (wholeSet.Inputs.Column(i) - mean) / std);
+            /* for (int idxdataFold = 0; idxdataFold < wholeSet.Inputs.ColumnCount; idxdataFold++)
+             {
+                 double mean = wholeSet.Inputs.Column(idxdataFold).Average();
+                 double std = Math.Sqrt((wholeSet.Inputs.Column(idxdataFold) - mean).PointwisePower(2).Sum() / wholeSet.Inputs.Column(idxdataFold).Count);
+                 wholeSet.Inputs.SetColumn(idxdataFold, (wholeSet.Inputs.Column(idxdataFold) - mean) / std);
 
 
-              }*/
+             }*/
 
 
-           /* for (int i = 0; i < wholeSet.Inputs.ColumnCount; i++)
-            {
-                double min = wholeSet.Inputs.Column(i).Min();
-                double max = wholeSet.Inputs.Column(i).Max();
-                double max_min = max - min;
-                wholeSet.Inputs.SetColumn(i, (wholeSet.Inputs.Column(i) - min) / max_min);
+            /* for (int idxdataFold = 0; idxdataFold < wholeSet.Inputs.ColumnCount; idxdataFold++)
+             {
+                 double min = wholeSet.Inputs.Column(idxdataFold).Min();
+                 double max = wholeSet.Inputs.Column(idxdataFold).Max();
+                 double max_min = max - min;
+                 wholeSet.Inputs.SetColumn(idxdataFold, (wholeSet.Inputs.Column(idxdataFold) - min) / max_min);
 
-            }*/
+             }*/
 
             //the training set split
             int trainSplit = (int)(0.6 * wholeSet.Inputs.RowCount);
@@ -72,7 +70,7 @@ namespace AA1_CUP
 
             //will hold a number of possible values for the hidden units to try
             List<int> PossibleHiddenUnits = new List<int>();
-            for (int numberOfUnits = 30; numberOfUnits <= 100; numberOfUnits += 10)
+            for (int numberOfUnits = 10; numberOfUnits <= 70; numberOfUnits += 10)
             {
                 PossibleHiddenUnits.Add(numberOfUnits);
             }
@@ -129,57 +127,57 @@ namespace AA1_CUP
 
 
 
-                          /*  Gradientdescent br = new Gradientdescent();
+                            /*  Gradientdescent br = new Gradientdescent();
+
+                              //Calling the Train method of the trainer with the desired parameters
+                              //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
+                              //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.RegularizationRates.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
+                              GradientDescentParams passedParams = new GradientDescentParams();
+                              passedParams.network = n;
+                              passedParams.trainingSet = TrainDataset;
+                              passedParams.learningRate = lr;
+                              passedParams.numberOfEpochs = 10000;
+                              passedParams.shuffle = false;
+                              passedParams.debug = n.Debug;
+                              passedParams.nestrov = true;
+                              passedParams.momentum = mo;
+                              passedParams.resilient = false;
+                              passedParams.resilientUpdateAccelerationRate = 0.3;
+                              passedParams.resilientUpdateSlowDownRate = 0.1;
+                              passedParams.regularization = Regularizations.L2;
+                              passedParams.regularizationRate = reg;
+                              passedParams.validationSet = TestDatasetSplit;
+                              passedParams.batchSize = 50;
+                              passedParams.MEE = true;
+
+
+
+                              var learningCurve = br.Train(passedParams);
+                              */
+
+                            Adam br = new Adam();
 
                             //Calling the Train method of the trainer with the desired parameters
                             //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
                             //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.RegularizationRates.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
-                            GradientDescentParams passedParams = new GradientDescentParams();
+                            AdamParams passedParams = new AdamParams();
                             passedParams.network = n;
                             passedParams.trainingSet = TrainDataset;
                             passedParams.learningRate = lr;
                             passedParams.numberOfEpochs = 10000;
-                            passedParams.shuffle = false;
+                            passedParams.shuffle = true;
                             passedParams.debug = n.Debug;
-                            passedParams.nestrov = true;
-                            passedParams.momentum = mo;
-                            passedParams.resilient = false;
-                            passedParams.resilientUpdateAccelerationRate = 0.3;
-                            passedParams.resilientUpdateSlowDownRate = 0.1;
                             passedParams.regularization = Regularizations.L2;
                             passedParams.regularizationRate = reg;
                             passedParams.validationSet = TestDatasetSplit;
                             passedParams.batchSize = 50;
-                            passedParams.MEE = true;
+
 
 
 
                             var learningCurve = br.Train(passedParams);
-                            */
-
-                             Adam br = new Adam();
-
-                             //Calling the Train method of the trainer with the desired parameters
-                             //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
-                             //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.RegularizationRates.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
-                             AdamParams passedParams = new AdamParams();
-                             passedParams.network = n;
-                             passedParams.trainingSet = TrainDataset;
-                             passedParams.learningRate = lr;
-                             passedParams.numberOfEpochs = 10000;
-                             passedParams.shuffle = true;
-                             passedParams.debug = n.Debug;
-                             passedParams.regularization = Regularizations.L2;
-                             passedParams.regularizationRate = reg;
-                             passedParams.validationSet = TestDatasetSplit;
-                             passedParams.batchSize = 50;
 
 
-
-
-                             var learningCurve = br.Train(passedParams);
-
-                             
 
 
                             ////the training loop
@@ -208,8 +206,8 @@ namespace AA1_CUP
                             AA1_MLP.Utilities.ModelManager.SaveNetowrk(n, "models/" + pre + "_model.AA1");
                             // var n = AA1_MLP.Utilities.ModelManager.LoadNetwork("model.AA1");
 
-                            double MEE = 0;
-                            var log = ModelManager.TesterCUPRegression(TestDatasetSplit, n, out MEE);
+                            double MEE = 0,MSE=0;
+                            var log = ModelManager.TesterCUPRegression(TestDatasetSplit, n, out MEE, out  MSE);
 
                             //reporting the scatter plot of the output against the actual predictions on the held out dataset split
                             File.WriteAllText("scatters/" + pre + "scatter.txt", string.Join("\n", log.Select(s => string.Join(",", s))));

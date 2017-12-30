@@ -18,7 +18,10 @@ namespace AA1_CUP
     {
         static void Main(string[] args)
         {
-            Screening.Screen();
+            //Loading and parsing cup dataset
+            CupDataManager dm = new CupDataManager();
+            DataSet wholeSet = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 10, 2);
+            new KFoldValidation().Screen(wholeSet,10);
 
 
             //Loading and parsing cup dataset

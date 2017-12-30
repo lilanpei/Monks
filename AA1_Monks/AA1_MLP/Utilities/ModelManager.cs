@@ -56,7 +56,7 @@ namespace AA1_MLP.Utilities
             for (int i = 0; i < testSet.Inputs.RowCount; i++)
             {
                 var o = n.Predict(testSet.Inputs.Row(i));
-                predictions.Add(new double[] { i+1, o[0], o[1] });
+                predictions.Add(new double[] { i + 1, o[0], o[1] });
 
             }
             return predictions;
@@ -68,19 +68,20 @@ namespace AA1_MLP.Utilities
         /// <param name="n"></param>
         /// <param name="MEE"></param>
         /// <returns></returns>
-        public static List<double[]> TesterCUPRegression(DataSet testSet, Network n, out double MEE)
+        public static List<double[]> TesterCUPRegression(DataSet testSet, IModel n, out double MEE, out double MSE)
         {
             List<double[]> predictionsVSActuals = new List<double[]>();
             MEE = 0;
+            MSE = 0;
             for (int i = 0; i < testSet.Inputs.RowCount; i++)
             {
                 var o = n.Predict(testSet.Inputs.Row(i));
                 predictionsVSActuals.Add(new double[] { o[0], o[1], testSet.Labels.Row(i)[0], testSet.Labels.Row(i)[1] });
                 var loss = ((testSet.Labels.Row(i) - o).PointwiseMultiply(testSet.Labels.Row(i) - o)).Sum();
                 MEE += Math.Sqrt(loss);
-
+                MSE += loss;
             }
-
+            MSE /= testSet.Labels.RowCount;
             MEE /= testSet.Labels.RowCount;
             return predictionsVSActuals;
 
