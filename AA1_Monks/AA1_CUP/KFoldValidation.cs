@@ -44,7 +44,7 @@ namespace AA1_CUP
 
             AdamParams passedParams = new AdamParams();
             IOptimizer trainer = new Adam();
-            passedParams.numberOfEpochs = 100;
+            passedParams.numberOfEpochs = 10000;
             passedParams.batchSize = 10;
 
             for (int idxmo = 0; idxmo < momentums.Count; idxmo++)
