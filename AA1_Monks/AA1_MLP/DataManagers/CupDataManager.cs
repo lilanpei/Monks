@@ -12,7 +12,7 @@ namespace AA1_MLP.DataManagers
 {
     public class CupDataManager : IDataManager
     {
-        public override AA1_MLP.Entities.DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null, bool reportOsutput = true)
+        public override AA1_MLP.Entities.DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null, bool reportOsutput = true, bool permute = false, int? seed = null)
         {
 
             string l;

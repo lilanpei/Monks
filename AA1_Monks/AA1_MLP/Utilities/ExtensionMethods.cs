@@ -2,12 +2,12 @@
 using System;
 using System.Collections.Generic;
 
-namespace CustomExtensionMethods
+namespace AA1_MLP.CustomExtensionMethods
 {
     /// <summary>
     /// Some extension methods we needed to provide for the Math.NET Library
     /// </summary>
-    static class ExtensionMethods
+    public static class ExtensionMethods
     {
         private static Random rng = new Random();
 
@@ -16,8 +16,13 @@ namespace CustomExtensionMethods
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="list"></param>
-        public static void Shuffle<T>(this IList<T> list)
+        public static void Shuffle<T>(this IList<T> list, int? seed=null)
         {
+            if (seed!=null)
+            {
+                rng = new Random((int)seed);
+            }
+
             int n = list.Count;
             while (n > 1)
             {
@@ -28,7 +33,7 @@ namespace CustomExtensionMethods
                 list[n] = value;
             }
         }
-        
+
         public static Matrix<double> Mtrx2Vecmultiply(this Matrix<double> lhs, Vector<double> rhs)
         {
             var mul = lhs * rhs;

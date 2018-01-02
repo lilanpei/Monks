@@ -20,8 +20,8 @@ namespace AA1_CUP
         {
             //Loading and parsing cup dataset
             CupDataManager dm = new CupDataManager();
-            DataSet wholeSet = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 10, 2);
-            new KFoldValidation().Screen(wholeSet,10);
+            DataSet wholeSet = dm.LoadData(Properties.Settings.Default.TrainingSetLocation, 10, 2, permute: true, seed: 1);
+            new KFoldValidation().Screen(wholeSet, 5);
 
 
             //Loading and parsing cup dataset

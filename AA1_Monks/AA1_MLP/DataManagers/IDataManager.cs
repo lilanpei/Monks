@@ -20,6 +20,6 @@ namespace AA1_MLP.DataManager
         /// <param name="outputLength"></param>
         /// <param name="trainingNumberOfExamples"></param>
         /// <returns></returns>
-        abstract public DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null, bool reportOsutput = true);
+        abstract public DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null, bool reportOsutput = true, bool permute = false, int? seed = null);
     }
 }

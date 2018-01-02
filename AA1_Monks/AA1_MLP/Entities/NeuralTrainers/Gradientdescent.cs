@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using CustomExtensionMethods;
+using AA1_MLP.CustomExtensionMethods;
 using MathNet.Numerics.LinearAlgebra;
 using AA1_MLP.Enums;
 using AA1_MLP.Entities.TrainersParams;

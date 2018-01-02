@@ -16,6 +16,17 @@ namespace AA1_CUP
     /// <summary>
     /// For screening with a k fold validation
     /// </summary>
+    /// 
+    /*
+      After conducting a few experiments with k-fold and no regularization, 
+     * we found that the runs are diverging at very different number of epochs which made it difficult to set a unified criterion for early
+     * stopping or decide the last number of epochs for the training on the whole dataset
+     * we decided to utilize regularization + a standard stopping criterion [no improvement in the loss anymore, could be examined easily from the learning curve of the runs] to decide the final number of epochs
+     *
+      
+     
+     
+     */
     public class KFoldValidation : IScreening
     {
 
@@ -38,9 +49,9 @@ namespace AA1_CUP
             }
             Directory.CreateDirectory(reportsDirectory);
 
-            List<double> momentums = new List<double> { 0 };
-            List<double> learningRates = new List<double> { 0.001, 0.01, 0.1 };
-            List<double> regularizationRates = new List<double> { 0, 0.01, 0.001 };
+            List<double> momentums = new List<double> { 0/*0.5,0.7,0.9*/ };
+            List<double> learningRates = new List<double> {  0.001/*,0.01, 0.1*/ };
+            List<double> regularizationRates = new List<double> { 0.01/*,0, 0.001*/ };
 
             AdamParams passedParams = new AdamParams();
             IOptimizer trainer = new Adam();
@@ -49,8 +60,8 @@ namespace AA1_CUP
 
             for (int idxmo = 0; idxmo < momentums.Count; idxmo++)
                 for (int idxLR = 0; idxLR < learningRates.Count; idxLR++)
-                    for (int idxReg = 0; idxReg < momentums.Count; idxReg++)
-                        for (int nh = 50; nh <= 100; nh += 10)
+                    for (int idxReg = 0; idxReg < regularizationRates.Count; idxReg++)
+                        for (int nh = 100; nh >= 50; nh -= 10)
                         {
 
 

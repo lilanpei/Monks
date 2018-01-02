@@ -14,7 +14,7 @@ namespace AA1_MLP.DataManager
     public class MonksDataManager : IDataManager
     {
 
-        public override DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null, bool reportOut = true)
+        public override DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null, bool reportOut = true, bool permute = false, int? seed = null)
         {
 
             string l;
