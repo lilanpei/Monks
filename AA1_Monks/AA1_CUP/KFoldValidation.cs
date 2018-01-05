@@ -49,19 +49,21 @@ namespace AA1_CUP
             }
             Directory.CreateDirectory(reportsDirectory);
 
-            List<double> momentums = new List<double> { 0/*0.5,0.7,0.9*/ };
+            List<double> momentums = new List<double> { 0.5/*0.5,0.7,0.9*/ };
             List<double> learningRates = new List<double> {  0.001/*,0.01, 0.1*/ };
             List<double> regularizationRates = new List<double> { 0.01/*,0, 0.001*/ };
 
-            AdamParams passedParams = new AdamParams();
-            IOptimizer trainer = new Adam();
+            GradientDescentParams passedParams = new GradientDescentParams();
+            IOptimizer trainer = new Gradientdescent();
+            //AdamParams passedParams = new AdamParams();
+            //IOptimizer trainer = new Adam();
             passedParams.numberOfEpochs = 10000;
             passedParams.batchSize = 10;
 
             for (int idxmo = 0; idxmo < momentums.Count; idxmo++)
                 for (int idxLR = 0; idxLR < learningRates.Count; idxLR++)
                     for (int idxReg = 0; idxReg < regularizationRates.Count; idxReg++)
-                        for (int nh = 100; nh >= 50; nh -= 10)
+                        for (int nh = 50; nh >= 10; nh -= 10)
                         {
 
 
@@ -89,6 +91,12 @@ namespace AA1_CUP
                             passedParams.regularizationRate = regularizationRates[idxReg];
                             passedParams.network = n;
 
+                            passedParams.nestrov = true;
+                            passedParams.momentum = momentums[idxmo];
+                            passedParams.resilient = false;
+                            passedParams.resilientUpdateAccelerationRate = 0.3;
+                            passedParams.resilientUpdateSlowDownRate = 0.1;
+ 
 
                             RunKFoldWithSetOfParams(wholeSet, k, passedParams, trainer, n, reportsDirectory);
 
