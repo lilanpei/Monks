@@ -55,12 +55,12 @@ namespace MLPTestDemo
 
 
             //**Creating a backpropagation trainer
-              var learningCurve = TrainWithSGD(n, ds, dt);
+              //var learningCurve = TrainWithSGD(n, ds, dt);
 
 
             // creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
-            //LinearModel model = new LinearModel();
-            //var learningCurve = SolveWithLinearRegression(ds, dt, model);
+            LinearModel model = new LinearModel();
+            var learningCurve = SolveWithLinearRegression(ds, dt, model);
 
             //LLS with normal equations solution
             //var tp = new TrainerParams();
@@ -90,7 +90,7 @@ namespace MLPTestDemo
             //CAUTION!!!****************$$$$$$$$$$$$$$$$$$$$$-----------------###############                                       
             //This uses only the network for testing, neeeeeed tooooo wrrrriiiitttteeee one for Linear Least Squares uhhhhhhhhhhhhhh
             //Testing the model and outputing the confusion matrix
-            AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, n, 0.5, Properties.Settings.Default.TestReportLocation);
+            AA1_MLP.Utilities.ModelManager.TesterMonkClassification(dt, model, 0.5, Properties.Settings.Default.TestReportLocation);
 
 
 

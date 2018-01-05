@@ -16,7 +16,7 @@ namespace AA1_MLP.Entities.TrainersParams
         public int? batchSize = null;
         public double regularizationRate = 0;
         public Regularizations regularization = Regularizations.None;
-
+        public int NumberOfHiddenUnits = 0;
 
 
 

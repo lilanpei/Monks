@@ -49,67 +49,45 @@ namespace AA1_CUP
             }
             Directory.CreateDirectory(reportsDirectory);
 
-            List<double> momentums = new List<double> { 0.5/*0.5,0.7,0.9*/ };
-            List<double> learningRates = new List<double> {  0.001/*,0.01, 0.1*/ };
-            List<double> regularizationRates = new List<double> { 0.01/*,0, 0.001*/ };
+            List<double> momentums = new List<double> { 0/*0.5,0.7,0.9*/ };
+            List<double> learningRates = new List<double> { 0.001, 0.005,0.01 };
+            List<double> regularizationRates = new List<double> { 0, 0.001, 0.01 };
 
-            GradientDescentParams passedParams = new GradientDescentParams();
-            IOptimizer trainer = new Gradientdescent();
-            //AdamParams passedParams = new AdamParams();
-            //IOptimizer trainer = new Adam();
+            //GradientDescentParams passedParams = new GradientDescentParams();
+            //IOptimizer trainer = new Gradientdescent();
+            AdamParams passedParams = new AdamParams();
+            IOptimizer trainer = new Adam();
             passedParams.numberOfEpochs = 10000;
             passedParams.batchSize = 10;
-
-            for (int idxmo = 0; idxmo < momentums.Count; idxmo++)
-                for (int idxLR = 0; idxLR < learningRates.Count; idxLR++)
-                    for (int idxReg = 0; idxReg < regularizationRates.Count; idxReg++)
-                        for (int nh = 50; nh >= 10; nh -= 10)
+            for (int nh = 100; nh >= 60; nh -= 10)
+                for (int idxmo = 0; idxmo < momentums.Count; idxmo++)
+                    for (int idxLR = 0; idxLR < learningRates.Count; idxLR++)
+                        for (int idxReg = 0; idxReg < regularizationRates.Count; idxReg++)
                         {
-
-
-
-
-
-
-                            //building the architecture
-                            Network n = new Network(new List<Layer>() {
-                     new Layer(new ActivationIdentity(),true,10),
-                     new Layer(new ActivationTanh(),true,nh),
-                  //   new Layer(new ActivationLeakyRelu(),true,40),
-
-
-                     new Layer(new ActivationIdentity(),false,2),
-                     }, false, AA1_MLP.Enums.WeightsInitialization.Grot);
-
-
-
-
-
 
                             passedParams.learningRate = learningRates[idxLR];
                             passedParams.regularization = Regularizations.L2;
                             passedParams.regularizationRate = regularizationRates[idxReg];
-                            passedParams.network = n;
 
-                            passedParams.nestrov = true;
-                            passedParams.momentum = momentums[idxmo];
-                            passedParams.resilient = false;
-                            passedParams.resilientUpdateAccelerationRate = 0.3;
-                            passedParams.resilientUpdateSlowDownRate = 0.1;
- 
+                            //passedParams.nestrov = true;
+                            //passedParams.momentum = momentums[idxmo];
+                            //passedParams.resilient = false;
+                            //passedParams.resilientUpdateAccelerationRate = 0.3;
+                            //passedParams.resilientUpdateSlowDownRate = 0.1;
+                            passedParams.NumberOfHiddenUnits = nh;
 
-                            RunKFoldWithSetOfParams(wholeSet, k, passedParams, trainer, n, reportsDirectory);
+                            RunKFoldWithSetOfParams(wholeSet, k, passedParams, trainer, reportsDirectory);
 
 
                         }
 
         }
 
-        private void RunKFoldWithSetOfParams(AA1_MLP.Entities.DataSet wholeSet, int k, INeuralTrainerParams passedParams, IOptimizer trainer, Network n, string reportsPath)
+        private void RunKFoldWithSetOfParams(AA1_MLP.Entities.DataSet wholeSet, int k, INeuralTrainerParams passedParams, IOptimizer trainer, string reportsPath)
         {
 
 
-            string kRunFolderName = string.Format("hdn{0}_k{1}_lr{2}_reg{3}", passedParams.network.Layers[1].NumberOfNeurons, k, passedParams.learningRate, passedParams.regularizationRate);
+            string kRunFolderName = string.Format("hdn{0}_k{1}_lr{2}_reg{3}", passedParams.NumberOfHiddenUnits, k, passedParams.learningRate, passedParams.regularizationRate);
             string KRunfolderPath = Path.Combine(reportsPath, kRunFolderName);
 
             if (passedParams is GradientDescentParams)
@@ -163,7 +141,11 @@ namespace AA1_CUP
             Console.WriteLine("Run number:{0}", 0);
             passedParams.trainingSet = TrainDataset;
             passedParams.validationSet = ValidationSplit;
-            var lc = RunExperiment(trainer, passedParams, n, out  MEE, out  MSE);
+
+
+
+
+            var lc = RunExperiment(trainer, passedParams, out  MEE, out  MSE);
             File.WriteAllText(Path.Combine(KRunfolderPath, "0_learningCurve.txt"), string.Join("\n", lc.Select(s => string.Join(",", s))));
 
             avgMSE += MSE;
@@ -187,7 +169,7 @@ namespace AA1_CUP
              labels: wholeSet.Labels.SubMatrix(idxdataFold * sizeOfDataFold, sizeOfDataFold, 0, wholeSet.Labels.ColumnCount));
                 passedParams.trainingSet = TrainDataset;
                 passedParams.validationSet = ValidationSplit;
-                lc = RunExperiment(trainer, passedParams, n, out  MEE, out  MSE);
+                lc = RunExperiment(trainer, passedParams, out  MEE, out  MSE);
                 File.WriteAllText(Path.Combine(KRunfolderPath, idxdataFold + "_learningCurve.txt"), string.Join("\n", lc.Select(s => string.Join(",", s))));
 
                 avgMSE += MSE;
@@ -210,7 +192,7 @@ namespace AA1_CUP
 
             passedParams.trainingSet = TrainDataset;
             passedParams.validationSet = ValidationSplit;
-            lc = RunExperiment(trainer, passedParams, n, out  MEE, out  MSE);
+            lc = RunExperiment(trainer, passedParams, out  MEE, out  MSE);
             File.WriteAllText(Path.Combine(KRunfolderPath, (k - 1) + "_learningCurve.txt"), string.Join("\n", lc.Select(s => string.Join(",", s))));
 
             avgMSE += MSE;
@@ -222,8 +204,19 @@ namespace AA1_CUP
             File.AppendAllLines(Path.Combine(reportsPath, "avgMSEs"), new string[] { string.Format("{0},{1}", kRunFolderName, avgMSE) });
         }
 
-        public List<double[]> RunExperiment(IOptimizer optimizer, INeuralTrainerParams passedParams, IModel n, out double MEE, out double MSE)
+        public List<double[]> RunExperiment(IOptimizer optimizer, INeuralTrainerParams passedParams, out double MEE, out double MSE)
         {
+
+            //building the architecture
+            Network n = new Network(new List<Layer>() {
+                     new Layer(new ActivationIdentity(),true,10),
+                     new Layer(new ActivationTanh(),true,passedParams.NumberOfHiddenUnits),
+                  //   new Layer(new ActivationLeakyRelu(),true,40),
+
+
+                     new Layer(new ActivationIdentity(),false,2),
+                     }, false, AA1_MLP.Enums.WeightsInitialization.Grot);
+            passedParams.network = n;
             List<double[]> learningCurve = optimizer.Train(passedParams);
             MEE = 0;
             MSE = 0;

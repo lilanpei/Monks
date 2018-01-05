@@ -1,0 +1,23 @@
+https://machinelearningmastery.com/adam-optimization-algorithm-for-deep-learning/
+
+http://www.cs.toronto.edu/~fritz/absps/momentum.pdf
+
+http://cs231n.github.io/neural-networks-3/
+
+
+The MONK's Problems
+A Performance Comparison of Dierent Learning Algorithms
+S.B. Thrun, J. Bala, E. Bloedorn, I. Bratko, B. Cestnik, J. Cheng, K. De Jong, S. Dzeroski,
+S.E. Fahlman, D. Fisher, R. Hamann, K. Kaufman, S. Keller, I. Kononenko, J. Kreuziger, R.S.
+Michalski, T. Mitchell, P. Pachowicz, Y. Reich H. Vafaie, W. Van de Welde, W. Wenzel, J. Wnek,
+and J. Zhang
+
+
+
+-----
+Grid search for parameters:
+
+
+
+
+
