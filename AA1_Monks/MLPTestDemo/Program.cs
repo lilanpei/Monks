@@ -34,7 +34,7 @@ namespace MLPTestDemo
                 new Layer(new ActivationSigmoid(),true,3),
 
                 new Layer(new ActivationSigmoid(),false,1),
-                }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
+                }, false, AA1_MLP.Enums.WeightsInitialization.He);
 
 
             //loading monks Dataset and testing datasets

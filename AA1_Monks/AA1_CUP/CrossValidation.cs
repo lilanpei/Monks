@@ -119,7 +119,7 @@ namespace AA1_CUP
 
 
                      new Layer(new ActivationIdentity(),false,2),
-                     }, false, AA1_MLP.Enums.WeightsInitialization.Grot);
+                     }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
 
                             /*try
                             {*/

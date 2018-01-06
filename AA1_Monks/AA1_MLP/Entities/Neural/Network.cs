@@ -22,8 +22,8 @@ namespace AA1_MLP.Entities
         /// </summary>
         /// <param name="_Layers">a list of layers each specifying its number of neurons, bias and activation function for the neurons</param>
         /// <param name="debug">set to true, will print debug messages and will test a small network archietecture</param>
-        /// <param name="weightsInitMethod">How the weights should be instantiated, Xavier by default or Uniform </param>
-        public Network(List<Layer> _Layers, bool debug = false, Enums.WeightsInitialization weightsInitMethod = Enums.WeightsInitialization.Xavier)
+        /// <param name="weightsInitMethod">How the weights should be instantiated, He by default or Uniform </param>
+        public Network(List<Layer> _Layers, bool debug = false, Enums.WeightsInitialization weightsInitMethod = Enums.WeightsInitialization.He)
         {
             Debug = debug;
             Weights = new List<Matrix<double>>();
@@ -58,14 +58,14 @@ namespace AA1_MLP.Entities
 
                         Weights.Add(d * CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new ContinuousUniform(-0.7, 0.7)));
                     }
-                    else if (weightsInitMethod == Enums.WeightsInitialization.Xavier)
+                    else if (weightsInitMethod == Enums.WeightsInitialization.He)
                     {
                         var d = 2f / (Layers[i].NumberOfNeurons);
 
                         Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, Math.Sqrt(d), new Random(1))));
 
                     }
-                    else if (weightsInitMethod == Enums.WeightsInitialization.Grot)
+                    else if (weightsInitMethod == Enums.WeightsInitialization.Xavier)
                     {
                         var d =(Layers[i].NumberOfNeurons + Layers[i + 1].NumberOfNeurons);
 

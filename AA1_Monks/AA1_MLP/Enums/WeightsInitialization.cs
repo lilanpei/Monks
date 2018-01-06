@@ -11,8 +11,8 @@ namespace AA1_MLP.Enums
     /// </summary>
     public enum WeightsInitialization
     {
-        Xavier,
+        He,
         Uniform,
-        Grot
+        Xavier
     }
 }

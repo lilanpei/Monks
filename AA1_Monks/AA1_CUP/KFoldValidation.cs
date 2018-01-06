@@ -57,7 +57,7 @@ namespace AA1_CUP
             //IOptimizer trainer = new Gradientdescent();
             AdamParams passedParams = new AdamParams();
             IOptimizer trainer = new Adam();
-            passedParams.numberOfEpochs = 10000;
+            passedParams.numberOfEpochs = 5000;
             passedParams.batchSize = 10;
             for (int nh = 100; nh >= 60; nh -= 10)
                 for (int idxmo = 0; idxmo < momentums.Count; idxmo++)
@@ -215,7 +215,7 @@ namespace AA1_CUP
 
 
                      new Layer(new ActivationIdentity(),false,2),
-                     }, false, AA1_MLP.Enums.WeightsInitialization.Grot);
+                     }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
             passedParams.network = n;
             List<double[]> learningCurve = optimizer.Train(passedParams);
             MEE = 0;
