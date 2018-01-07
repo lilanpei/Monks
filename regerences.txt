@@ -4,6 +4,15 @@ http://www.cs.toronto.edu/~fritz/absps/momentum.pdf
 
 http://cs231n.github.io/neural-networks-3/
 
+Adam formula for check
+https://github.com/bchretien/tensorflow/blob/master/tensorflow/python/training/adam_test.py#L8
+
+
+xavier
+http://proceedings.mlr.press/v9/glorot10a/glorot10a.pdf
+
+He
+https://www.cv-foundation.org/openaccess/content_iccv_2015/papers/He_Delving_Deep_into_ICCV_2015_paper.pdf
 
 The MONK's Problems
 A Performance Comparison of Dierent Learning Algorithms

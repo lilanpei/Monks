@@ -24,6 +24,47 @@ namespace MLPTestDemo
 
         static void Main(string[] args)
         {
+            // MonksTesting();
+            CupTesting();
+
+        }
+
+        private static void CupTesting()
+        {
+            CupDataManager dm = new CupDataManager();
+            DataSet trainset = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", 10, 2);
+            DataSet testset = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt", 10, 2);
+
+            for (int idxdataFold = 0; idxdataFold < trainset.Inputs.ColumnCount; idxdataFold++)
+            {
+                double mean = trainset.Inputs.Column(idxdataFold).Average();
+                double std = Math.Sqrt((trainset.Inputs.Column(idxdataFold) - mean).PointwisePower(2).Sum() / trainset.Inputs.Column(idxdataFold).Count);
+                trainset.Inputs.SetColumn(idxdataFold, (trainset.Inputs.Column(idxdataFold) - mean) / std);
+
+
+            }
+
+            for (int idxdataFold = 0; idxdataFold < testset.Inputs.ColumnCount; idxdataFold++)
+            {
+                double mean = testset.Inputs.Column(idxdataFold).Average();
+                double std = Math.Sqrt((testset.Inputs.Column(idxdataFold) - mean).PointwisePower(2).Sum() / testset.Inputs.Column(idxdataFold).Count);
+                testset.Inputs.SetColumn(idxdataFold, (testset.Inputs.Column(idxdataFold) - mean) / std);
+
+
+            }
+
+            LinearModel model = new LinearModel();
+
+            //**trying SVD
+            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model };
+            passedParams.trainingSet = trainset;
+            passedParams.validationSet = testset;
+            var learningCurve = new LLSSVD().Train(passedParams);
+
+        }
+
+        private static void MonksTesting()
+        {
             //path where the trained model shall be saved in or loaded from
             string path2SaveModel = Properties.Settings.Default.path2SaveModel;
 
@@ -55,7 +96,7 @@ namespace MLPTestDemo
 
 
             //**Creating a backpropagation trainer
-              //var learningCurve = TrainWithSGD(n, ds, dt);
+            //var learningCurve = TrainWithSGD(n, ds, dt);
 
 
             // creating a linear model and training it with linear regression, need to move the model outside of the trainer!!!!
@@ -75,7 +116,7 @@ namespace MLPTestDemo
             //var learningCurve = new LLSNormal().Train(passedParams);
 
             //creates an ADAM trainer
-             //var learningCurve = TrainWithAdam(n, ds, dt);
+            //var learningCurve = TrainWithAdam(n, ds, dt);
 
             //writing the learning curve trainingdataWithBias to desk (ugly for memory, but simple)
             File.WriteAllText(Properties.Settings.Default.LearningCurveLocation, string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
@@ -103,8 +144,6 @@ namespace MLPTestDemo
             //    file.WriteLine(string.Format("{0},{1},{2}", batchIndex, TprFpr[0], TprFpr[1]));
             //}
             //file.Close();
-
-
         }
 
         private static List<double[]> TrainWithSGD(Network n, DataSet ds, DataSet dt)

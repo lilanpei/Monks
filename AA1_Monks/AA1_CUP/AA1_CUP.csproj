@@ -54,7 +54,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="Screening.cs" />
+    <Compile Include="CrossValidation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
