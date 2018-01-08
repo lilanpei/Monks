@@ -21,6 +21,7 @@ namespace AA1_MLP.Entities.Regression
         public override List<double[]> Train(TrainersParams.TrainerParams trainParams)
         {
             LinearLeastSquaresParams passedParams = (LinearLeastSquaresParams)trainParams;
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             passedParams.model.Degree = passedParams.degree;
             //should make the bias a passed param?
             passedParams.model.bias = true;
@@ -67,7 +68,7 @@ namespace AA1_MLP.Entities.Regression
             }
 
 
-            passedParams.model.Weights = CreateMatrix.Random<double>(numberOfDataColumns, 1, new Normal(0, 1));
+            passedParams.model.Weights = CreateMatrix.Random<double>(numberOfDataColumns, trainParams.trainingSet.Labels.ColumnCount, new Normal(0, 1));
 
 
             List<double[]> lossHistory = new List<double[]>();
@@ -93,11 +94,14 @@ namespace AA1_MLP.Entities.Regression
                 var cost = CostFunction(trainingdataWithBias, trainParams.trainingSet.Labels, passedParams.model.Weights);
                 var valCost = CostFunction(validationdataWithBias, trainParams.validationSet.Labels, passedParams.model.Weights);
 
-                Console.WriteLine("iteration:{0},{1},{2}", i, cost, valCost);
+             //   Console.WriteLine("iteration:{0},{1},{2}", i, cost, valCost);
                 lossHistory.Add(new double[] { cost, valCost });
             }
 
-
+            Console.WriteLine("norm of residuals:{0}", (trainParams.validationSet.Labels - validationdataWithBias.Multiply(passedParams.model.Weights)).PointwisePower(2).ColumnSums().PointwiseSqrt());
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine("elapsed Time:{0} ms", elapsedMs);
             return lossHistory;
         }
 

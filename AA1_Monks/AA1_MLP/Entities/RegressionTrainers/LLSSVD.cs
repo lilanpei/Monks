@@ -22,13 +22,13 @@ namespace AA1_MLP.Entities.RegressionTrainers
             int r = trainParams.trainingSet.Inputs.Rank();
 
 
-/*            while (r < trainParams.trainingSet.Inputs.ColumnCount && svd.S.At(r) >= Math.Max(trainParams.trainingSet.Inputs.RowCount, trainParams.trainingSet.Inputs.ColumnCount) * passedParams.eps * svd.S[0])
-                r++;*/
+            /*            while (r < trainParams.trainingSet.Inputs.ColumnCount && svd.S.At(r) >= Math.Max(trainParams.trainingSet.Inputs.RowCount, trainParams.trainingSet.Inputs.ColumnCount) * passedParams.eps * svd.S[0])
+                            r++;*/
 
 
-         //   Console.WriteLine("Rank r is:{0}", r);
+            //   Console.WriteLine("Rank r is:{0}", r);
             var d = svd.U.Transpose().Multiply(trainParams.trainingSet.Labels);
-         //   var temp = CreateMatrix.Dense<double>(svd.VT.ColumnCount, trainParams.trainingSet.Labels.ColumnCount);
+            //   var temp = CreateMatrix.Dense<double>(svd.VT.ColumnCount, trainParams.trainingSet.Labels.ColumnCount);
             //temp.SetSubMatrix(0, 0, d.SubMatrix(0, r, 0, trainParams.trainingSet.Labels.ColumnCount).Column(0).PointwiseDivide(svd.S.SubVector(0, r)).ToRowMatrix().Transpose());
             var sbmtrx = (d.SubMatrix(0, r, 0, trainParams.trainingSet.Labels.ColumnCount));
             sbmtrx.SetColumn(0, sbmtrx.Column(0).PointwiseDivide(svd.S.SubVector(0, r)));
@@ -51,27 +51,29 @@ namespace AA1_MLP.Entities.RegressionTrainers
 
             var cost = CostFunction(trainParams.trainingSet.Inputs, trainParams.trainingSet.Labels, passedParams.model.Weights);
             var valCost = CostFunction(trainParams.validationSet.Inputs, trainParams.validationSet.Labels, passedParams.model.Weights);
-            Console.WriteLine("trainCost:{0},ValCost:{1}", cost, valCost);
-            Console.WriteLine(Score(trainParams.validationSet.Inputs, trainParams.validationSet.Labels, passedParams.model.Weights));
-            return new List<double[]> { { new double[] { cost, valCost } } };
+         //   Console.WriteLine("trainCost:{0},ValCost:{1}", cost, valCost);
+            Console.WriteLine("norm of residuals:{0}", (trainParams.validationSet.Labels - trainParams.validationSet.Inputs.Multiply(passedParams.model.Weights)).PointwisePower(2).ColumnSums().PointwiseSqrt());
+            return new List<double[]> { { new double[] { cost[0], cost[1], valCost[0], valCost[1] } } };
         }
 
-        double Score(Matrix<double> data, Matrix<double> targets, Matrix<double> weights)
+        Vector<double> Score(Matrix<double> data, Matrix<double> targets, Matrix<double> weights)
         {
-            Vector<double> u , v ;
-            u = (targets - data.Multiply(weights)).PointwisePower(2).ColumnSums();
+            Vector<double> u, v;
+            u = (targets - data.Multiply(weights)).PointwisePower(2).ColumnSums().PointwiseSqrt();
+           /* var means = targets.ColumnSums() / targets.RowCount;
             var firstmean = targets.Column(0).Sum() / targets.Column(0).Count;
             var secondmean = targets.Column(1).Sum() / targets.Column(1).Count;
-
-            v =CreateVector.Dense<double>( new double[]{ 
+            targets.columns
+            v = ((targets - means.ToRowMatrix()).PointwisePower(2)).ColumnSums();
+            v = CreateVector.Dense<double>(new double[]{ 
                 (targets.Column(0) - firstmean).PointwisePower(2).Sum() , (targets.Column(1) - secondmean).PointwisePower(2).Sum()
-            });
-            return (1 - u.PointwiseDivide( v)).Average();
+            });*/
+            return u;//1 - (u.PointwiseDivide(v));
         }
-        double CostFunction(Matrix<double> data, Matrix<double> targets, Matrix<double> weights)
+        Vector<double> CostFunction(Matrix<double> data, Matrix<double> targets, Matrix<double> weights)
         {
 
-            return ((data.Multiply(weights) - targets).PointwisePower(2).RowSums()/  (2 * targets.RowCount)).Average();//(||Ax-b||^2)/(2n)
+            return ((data.Multiply(weights) - targets).PointwisePower(2).ColumnSums() / (2 * targets.RowCount));//(||Ax-b||^2)/(2n)
 
         }
     }

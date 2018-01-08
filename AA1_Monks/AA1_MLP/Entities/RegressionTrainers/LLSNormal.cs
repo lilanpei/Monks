@@ -17,6 +17,7 @@ namespace AA1_MLP.Entities.RegressionTrainers
         public override List<double[]> Train(TrainersParams.TrainerParams trainParams)
         {
             LinearLeastSquaresParams passedParams = (LinearLeastSquaresParams)trainParams;
+            var watch = System.Diagnostics.Stopwatch.StartNew();
 
             //need to check if A has linearly independent rows or columns to properly use the pseudo inverse otherwise we might have a problem!
 
@@ -26,7 +27,11 @@ namespace AA1_MLP.Entities.RegressionTrainers
 
             var cost = CostFunction(trainParams.trainingSet.Inputs, trainParams.trainingSet.Labels, passedParams.model.Weights);
             var valCost = CostFunction(trainParams.validationSet.Inputs, trainParams.validationSet.Labels, passedParams.model.Weights);
-            Console.WriteLine("trainCost:{0},ValCost:{1}", cost, valCost);
+           // Console.WriteLine("trainCost:{0},ValCost:{1}", cost, valCost);
+            Console.WriteLine("norm of residuals:{0}", (trainParams.validationSet.Labels - trainParams.validationSet.Inputs.Multiply(passedParams.model.Weights)).PointwisePower(2).ColumnSums().PointwiseSqrt());
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine("elapsed Time:{0} ms", elapsedMs);
             return new List<double[]> { { new double[] { cost, valCost } } };
         }
 

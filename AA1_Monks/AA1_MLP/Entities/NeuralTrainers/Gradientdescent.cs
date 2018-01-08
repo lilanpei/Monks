@@ -19,7 +19,6 @@ namespace AA1_MLP.Entities.Trainers
         public override List<double[]> Train(TrainerParams trainParams)
         {
             GradientDescentParams passedParams = (GradientDescentParams)trainParams;
-
             if (passedParams.resilient)
             {
                 passedParams.learningRate = 1;
