@@ -92,7 +92,7 @@ namespace AA1_CUP
 
             if (passedParams is GradientDescentParams)
             {
-                string.Format("{0}_mo{1}", passedParams, ((GradientDescentParams)passedParams).momentum);
+                KRunfolderPath = string.Format("{0}_mo{1}", KRunfolderPath, ((GradientDescentParams)passedParams).momentum);
             }
 
             if (Directory.Exists(KRunfolderPath))
