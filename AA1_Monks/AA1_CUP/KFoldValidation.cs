@@ -42,24 +42,24 @@ namespace AA1_CUP
             //n, ds, learningRate: .3, numberOfEpochs: 200, shuffle: false, debug: n.Debug, nestrov:false, momentum:0.9, resilient: false, resilientUpdateAccelerationRate: 0.3,
             //resilientUpdateSlowDownRate: 0.1, regularization: AA1_MLP.Enums.RegularizationRates.L2, regularizationRate: 0.001, validationSet: dt, batchSize: 7
 
-            string reportsDirectory = "KFoldsReports";
+            string reportsDirectory = "SGDKFoldsReports";
             if (Directory.Exists(reportsDirectory))
             {
                 Directory.Delete(reportsDirectory, true);
             }
             Directory.CreateDirectory(reportsDirectory);
 
-            List<double> momentums = new List<double> { 0/*0.5,0.7,0.9*/ };
-            List<double> learningRates = new List<double> { 0.001, 0.005,0.01 };
-            List<double> regularizationRates = new List<double> { 0, 0.001, 0.01 };
+            List<double> momentums = new List<double> { 0, 0.5 };
+            List<double> learningRates = new List<double> { 0.005, 0.01 };
+            List<double> regularizationRates = new List<double> { 0, 0.001 };
 
-            //GradientDescentParams passedParams = new GradientDescentParams();
-            //IOptimizer trainer = new Gradientdescent();
-            AdamParams passedParams = new AdamParams();
-            IOptimizer trainer = new Adam();
+            GradientDescentParams passedParams = new GradientDescentParams();
+            IOptimizer trainer = new Gradientdescent();
+            //AdamParams passedParams = new AdamParams();
+            //IOptimizer trainer = new Adam();
             passedParams.numberOfEpochs = 5000;
             passedParams.batchSize = 10;
-            for (int nh = 100; nh >= 60; nh -= 10)
+            for (int nh = 100; nh >= 10; nh -= 20)
                 for (int idxmo = 0; idxmo < momentums.Count; idxmo++)
                     for (int idxLR = 0; idxLR < learningRates.Count; idxLR++)
                         for (int idxReg = 0; idxReg < regularizationRates.Count; idxReg++)
@@ -69,11 +69,11 @@ namespace AA1_CUP
                             passedParams.regularization = Regularizations.L2;
                             passedParams.regularizationRate = regularizationRates[idxReg];
 
-                            //passedParams.nestrov = true;
-                            //passedParams.momentum = momentums[idxmo];
-                            //passedParams.resilient = false;
-                            //passedParams.resilientUpdateAccelerationRate = 0.3;
-                            //passedParams.resilientUpdateSlowDownRate = 0.1;
+                            passedParams.nestrov = true;
+                            passedParams.momentum = momentums[idxmo];
+                            passedParams.resilient = false;
+                            passedParams.resilientUpdateAccelerationRate = 0.3;
+                            passedParams.resilientUpdateSlowDownRate = 0.1;
                             passedParams.NumberOfHiddenUnits = nh;
 
                             RunKFoldWithSetOfParams(wholeSet, k, passedParams, trainer, reportsDirectory);
@@ -92,7 +92,7 @@ namespace AA1_CUP
 
             if (passedParams is GradientDescentParams)
             {
-                string.Format("{0}_mo{1}", passedParams, ((GradientDescentParams)passedParams).momentum);
+                KRunfolderPath = string.Format("{0}_mo{1}", KRunfolderPath, ((GradientDescentParams)passedParams).momentum);
             }
 
             if (Directory.Exists(KRunfolderPath))
