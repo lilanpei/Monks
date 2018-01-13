@@ -25,15 +25,14 @@ namespace MLPTestDemo
         static void Main(string[] args)
         {
             // MonksTesting();
-            CupTesting();
-
+            CupTestingLLS("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", "D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt");
         }
 
-        private static void CupTesting()
+        private static void CupTestingLLS(string trainsetpath, string testsetpath)
         {
             CupDataManager dm = new CupDataManager();
-            DataSet trainset = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", 10, 2);
-            DataSet testset = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt", 10, 2);
+            DataSet trainset = dm.LoadData(trainsetpath, 10, 2);
+            DataSet testset = dm.LoadData(testsetpath, 10, 2);
 
             for (int idxdataFold = 0; idxdataFold < trainset.Inputs.ColumnCount; idxdataFold++)
             {
@@ -56,10 +55,15 @@ namespace MLPTestDemo
             LinearModel model = new LinearModel();
 
             //**trying SVD
-            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model };
+            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model, numOfIterations=1000,learningRate=0.1,degree=1 };
             passedParams.trainingSet = trainset;
             passedParams.validationSet = testset;
-            var learningCurve = new LLSSVD().Train(passedParams);
+            Console.WriteLine("SVD solution:");
+            var svdlearningCurve = new LLSSVD().Train(passedParams);
+            Console.WriteLine("Normal Equations Solution:");
+            var normallearningCurve = new LLSNormal().Train(passedParams);
+            Console.WriteLine("GD  Solution:");
+            var gdlearningCurve = new LLSGradientDescent().Train(passedParams);
 
         }
 
