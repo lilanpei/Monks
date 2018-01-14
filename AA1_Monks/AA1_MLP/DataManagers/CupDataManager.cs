@@ -12,7 +12,7 @@ namespace AA1_MLP.DataManagers
 {
     public class CupDataManager : IDataManager
     {
-        public override AA1_MLP.Entities.DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int? numberOfExamples = null, bool reportOsutput = true, bool permute = false, int? seed = null)
+        public override AA1_MLP.Entities.DataSet LoadData(string datasetLocation, int featureVectorLength, int outputLength = 1, int skip=0,bool Normalize = false, bool standardize=false, int? numberOfExamples = null, bool reportOsutput = true, bool permute = false, int? seed = null)
         {
 
             string l;
@@ -29,20 +29,20 @@ namespace AA1_MLP.DataManagers
                     var line = l.Split(',');
                     if (i == 0)
                     {
-                        input.SetRow(i, line.Take(featureVectorLength).Select(s => double.Parse(s, CultureInfo.InvariantCulture)).ToArray());
+                        input.SetRow(i, line.Skip(skip).Take(featureVectorLength).Select(s => double.Parse(s, CultureInfo.InvariantCulture)).ToArray());
                         if (reportOsutput)
                         {
-                            output.SetRow(i, line.Skip(featureVectorLength).Select(s => double.Parse(s, CultureInfo.InvariantCulture)).ToArray());
+                            output.SetRow(i, line.Skip(featureVectorLength+skip).Select(s => double.Parse(s, CultureInfo.InvariantCulture)).ToArray());
                         }
 
 
                     }
                     else
                     {
-                        input = input.InsertRow(i, CreateVector.Dense(line.Take(featureVectorLength).Select(s => double.Parse(s)).ToArray()));
+                        input = input.InsertRow(i, CreateVector.Dense(line.Skip(skip).Take(featureVectorLength).Select(s => double.Parse(s)).ToArray()));
                         if (reportOsutput)
                         {
-                            output = output.InsertRow(i, CreateVector.Dense(line.Skip(featureVectorLength).Select(s => double.Parse(s)).ToArray()));
+                            output = output.InsertRow(i, CreateVector.Dense(line.Skip(featureVectorLength+skip).Select(s => double.Parse(s)).ToArray()));
                         }
                     }
                     i++;
@@ -66,8 +66,27 @@ namespace AA1_MLP.DataManagers
 
 
 
-            DataSet trainingSet = new DataSet(input.NormalizeColumns(2.0), output);
+            // DataSet trainingSet = new DataSet(input.NormalizeColumns(2.0), output);
+            DataSet trainingSet = new DataSet(Normalize ? input.NormalizeColumns(2.0) : input, output);
+            if (standardize)
+            {
+                StandardizeData(trainingSet);
+                
+            }
             return trainingSet;
         }
+
+        private static void StandardizeData(DataSet trainDS)
+        {
+            for (int idxdataFold = 0; idxdataFold < trainDS.Inputs.ColumnCount; idxdataFold++)
+            {
+                double mean = trainDS.Inputs.Column(idxdataFold).Average();
+                double std = Math.Sqrt((trainDS.Inputs.Column(idxdataFold) - mean).PointwisePower(2).Sum() / trainDS.Inputs.Column(idxdataFold).Count);
+                trainDS.Inputs.SetColumn(idxdataFold, (trainDS.Inputs.Column(idxdataFold) - mean) / std);
+
+
+            }
+        }
+
     }
 }

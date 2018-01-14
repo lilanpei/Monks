@@ -1,5 +1,6 @@
 ﻿using AA1_MLP.Entities.Trainers;
 using AA1_MLP.Entities.TrainersParams;
+using AA1_MLP.Utilities;
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics.LinearAlgebra;
 using System;
@@ -27,8 +28,10 @@ namespace AA1_MLP.Entities.RegressionTrainers
 
             var cost = CostFunction(trainParams.trainingSet.Inputs, trainParams.trainingSet.Labels, passedParams.model.Weights);
             var valCost = CostFunction(trainParams.validationSet.Inputs, trainParams.validationSet.Labels, passedParams.model.Weights);
-           // Console.WriteLine("trainCost:{0},ValCost:{1}", cost, valCost);
-            Console.WriteLine("norm of residuals:{0}", (trainParams.validationSet.Labels - trainParams.validationSet.Inputs.Multiply(passedParams.model.Weights)).PointwisePower(2).ColumnSums().PointwiseSqrt());
+            var valMEE = MEE(trainParams.validationSet.Inputs, trainParams.validationSet.Labels, passedParams.model.Weights);
+            Console.WriteLine("vaLMEE:{0},ValCost:{1}", valMEE, valCost);
+
+            //  Console.WriteLine("norm of residuals:{0}", (trainParams.validationSet.Labels - trainParams.validationSet.Inputs.Multiply(passedParams.model.Weights)).PointwisePower(2).ColumnSums().PointwiseSqrt());
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
             Console.WriteLine("elapsed Time:{0} ms", elapsedMs);
@@ -39,6 +42,15 @@ namespace AA1_MLP.Entities.RegressionTrainers
         {
 
             return (data.Multiply(weights) - targets).PointwisePower(2).RowSums().Sum() / (2 * targets.RowCount);//(||Ax-b||^2)/(2n)
+
+        }
+
+       
+
+        double MEE(Matrix<double> data, Matrix<double> targets, Matrix<double> weights)
+        {
+
+            return (data.Multiply(weights) - targets).PointwisePower(2).RowSums().PointwiseSqrt().Sum() / (targets.RowCount);//Sum(sqrt(||Ax-b||^2))/(n)
 
         }
 

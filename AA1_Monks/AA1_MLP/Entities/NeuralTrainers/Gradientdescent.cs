@@ -21,7 +21,7 @@ namespace AA1_MLP.Entities.Trainers
             GradientDescentParams passedParams = (GradientDescentParams)trainParams;
             if (passedParams.resilient)
             {
-                passedParams.learningRate = 1;
+               // passedParams.learningRate = 1;
 
             }
             //int valSplitSize = 0;

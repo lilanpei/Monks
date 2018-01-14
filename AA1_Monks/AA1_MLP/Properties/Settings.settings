@@ -5,5 +5,8 @@
     <Setting Name="TrainingSetLocation" Type="System.String" Scope="User">
       <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-4\AA1 - PROJ\MONKS-DATASETS\dataset1train</Value>
     </Setting>
+    <Setting Name="TestSetLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\dropbox\Dropbox\Master Course\SEM-4\AA1 - PROJ\MONKS-DATASETS\dataset1test</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

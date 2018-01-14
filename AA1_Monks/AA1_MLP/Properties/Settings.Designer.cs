@@ -34,5 +34,17 @@ namespace AA1_MLP.Properties {
                 this["TrainingSetLocation"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-4\\AA1 - PROJ\\MONKS-DATASETS\\dataset1test")]
+        public string TestSetLocation {
+            get {
+                return ((string)(this["TestSetLocation"]));
+            }
+            set {
+                this["TestSetLocation"] = value;
+            }
+        }
     }
 }

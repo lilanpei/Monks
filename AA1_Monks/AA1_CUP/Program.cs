@@ -39,32 +39,32 @@ namespace AA1_CUP
 
 
             AA1_MLP.DataManagers.CupDataManager dm = new AA1_MLP.DataManagers.CupDataManager();
-            DataSet trainDS = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", 10, 2);
-            DataSet testDS = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt", 10, 2);
+            DataSet trainDS = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", 10, 2, standardize: true);
+            DataSet testDS = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt", 10, 2, standardize: true);
 
-
-            StandardizeData(trainDS);
-            StandardizeData(testDS);
 
 
 
             /*AdamParams passedParams = new AdamParams();
             IOptimizer trainer = new Adam();*/
-             GradientDescentParams passedParams = new GradientDescentParams();
-             Gradientdescent trainer = new Gradientdescent();
-            passedParams.numberOfEpochs = 30000;
+            GradientDescentParams passedParams = new GradientDescentParams();
+            Gradientdescent trainer = new Gradientdescent();
+            passedParams.numberOfEpochs = 5000;
             passedParams.batchSize = 10;
             passedParams.trainingSet = trainDS;
             passedParams.validationSet = testDS;
-            passedParams.learningRate = 0.01;
+            passedParams.learningRate = 0.001;
             passedParams.regularization = Regularizations.L2;
             passedParams.regularizationRate = 0.001;
-            passedParams.nestrov = false;
-            passedParams.momentum = 0.5;
-            passedParams.NumberOfHiddenUnits = 80;
+            passedParams.nestrov = true;
+            passedParams.resilient = false;
+            passedParams.resilientUpdateAccelerationRate = 2;
+            passedParams.resilientUpdateSlowDownRate = 0.5;
 
-            LastTrain(testDS, passedParams, trainer, "80_final_standardized_sgdNOnestrov_hdn");
-           
+            passedParams.momentum = 0.5;
+            passedParams.NumberOfHiddenUnits = 100;
+
+            LastTrain(testDS, passedParams, trainer, "5kitr_mo0.5_100_final_sgdnestrov_hdn");
 
 
 
@@ -98,7 +98,7 @@ namespace AA1_CUP
             }
         }
 
-        private static void LastTrain(DataSet testDS, INeuralTrainerParams passedParams, IOptimizer trainer,string prefix)
+        private static void LastTrain(DataSet testDS, INeuralTrainerParams passedParams, IOptimizer trainer, string prefix)
         {
 
             string path = prefix + passedParams.NumberOfHiddenUnits + "_lr" + passedParams.learningRate + "_reg" + passedParams.regularizationRate;
@@ -112,7 +112,11 @@ namespace AA1_CUP
                      new Layer(new ActivationIdentity(),false,2),
                      }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
             passedParams.network = n;
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             List<double[]> learningCurve = trainer.Train(passedParams);
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine("elapsed Time:{0} ms", elapsedMs);
             double MEE = 0;
             double MSE = 0;
 
@@ -121,7 +125,7 @@ namespace AA1_CUP
             File.WriteAllText(path + ".txt", string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
             File.AppendAllText(path + ".txt", "\nMEE:" + MEE + "MSE:" + MSE);
             File.WriteAllText(path + "predVsActual.txt", string.Join("\n", log.Select(s => string.Join(",", s))));
-            
+
 
             ModelManager.SaveNetowrk(n, path + ".n");
 

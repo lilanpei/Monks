@@ -25,8 +25,7 @@ namespace MLPTestDemo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\Machine Learning by Stanford University" +
-            "\\machine-learning-ex1\\ex1\\ex1data1.txt")]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\Monk\\MONKS-DATASETS\\dataset1train")]
         public string TrainingSetLocation {
             get {
                 return ((string)(this["TrainingSetLocation"]));
@@ -38,8 +37,7 @@ namespace MLPTestDemo.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\Machine Learning by Stanford University" +
-            "\\machine-learning-ex1\\ex1\\ex1data1.txt")]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\Monk\\MONKS-DATASETS\\dataset1test")]
         public string TestSetLocation {
             get {
                 return ((string)(this["TestSetLocation"]));

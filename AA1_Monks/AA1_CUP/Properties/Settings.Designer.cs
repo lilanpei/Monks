@@ -25,31 +25,6 @@ namespace AA1_CUP.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\Cup\\data-AA1-2016-CUP-v1\\LOC-OSM2-TR.cs" +
-            "v")]
-        public string TrainingSetLocation {
-            get {
-                return ((string)(this["TrainingSetLocation"]));
-            }
-            set {
-                this["TrainingSetLocation"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string TestSetLocation {
-            get {
-                return ((string)(this["TestSetLocation"]));
-            }
-            set {
-                this["TestSetLocation"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string path2SaveModel {
             get {
@@ -57,18 +32,6 @@ namespace AA1_CUP.Properties {
             }
             set {
                 this["path2SaveModel"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LearningCurveLocation {
-            get {
-                return ((string)(this["LearningCurveLocation"]));
-            }
-            set {
-                this["LearningCurveLocation"] = value;
             }
         }
         
@@ -105,6 +68,44 @@ namespace AA1_CUP.Properties {
             }
             set {
                 this["path2LoadModel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\ML-17-PRJ lecture  pack" +
+            "age-20171225\\ML-CUP17-TS.csv")]
+        public string TestSetLocation {
+            get {
+                return ((string)(this["TestSetLocation"]));
+            }
+            set {
+                this["TestSetLocation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\ML-17-PRJ lecture  pack" +
+            "age-20171225\\ML-CUP17-TR.csv")]
+        public string TrainingSetLocation {
+            get {
+                return ((string)(this["TrainingSetLocation"]));
+            }
+            set {
+                this["TrainingSetLocation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("learningCurve.txt")]
+        public string LearningCurveLocation {
+            get {
+                return ((string)(this["LearningCurveLocation"]));
+            }
+            set {
+                this["LearningCurveLocation"] = value;
             }
         }
     }

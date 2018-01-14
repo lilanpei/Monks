@@ -1,0 +1,72 @@
+******** ML-2017 CUP ************
+
+November 2017   data sets v1
+
+
+Information:
+
+-) See  Slides of ML-2017 Lecture for the project (with motivation, input format, report hints and rules)
+
+-) In particular consider that the evaluation is computed according to the Mean Euclidean Error 
+MEE = (1/N) * sum_p^N(sqrt((output_p,x - target_p,x)^2 + (output_p,y -target_p,y)^2)), 
+where N is the number of patterns, p the pattern.
+
+-) Data includes Training set (ML-CUP17-TR.csv) and corresponding Blind Test Set (ML-CUP17-TS.csv)
+   Input format: see file prologue.
+
+
+-) Submission Rules:
+
+- Participation is initially restricted to students of ML course 2017 - University of Pisa.
+All participants with their submission agree to the disclosure and publication of their name, results with preliminary and final ranking. 
+
+
+- Prepare 1 file in standard text format (comma separated values)
+
+team-name_ML-CUP17-TS.csv  
+
+Format of   team-name_ML-CUP17-TS.csv   file:
+
+<begin example file format>
+
+# name of the candidates
+# nickname of the team (max 8-10 char) for the results page on the web
+# name of the  data set (ML-CUP17) - ML 2017 CUP v1
+# date
+
+Table with 315 rows, 3 columns (comma separated values)
+
+Each row is:
+id,output_x,output_y
+(outputs are real valued localization estimations on the X and Y axis, respectively)
+
+<end example file format>
+
+- A template for the csv file to be delivered is provided in: 
+output_template_example-with-random-output-ML-CUP17-TS.csv (which is filled with random-output values for demo)
+
+- Prepare Code package and Report (see Project Lecture slide: please follow general tips, rules and FAQ  
+  for the Report therein, including the provided report template file).
+
+- Prepare short abstract (5 lines) with method and validation descriptions:
+file name:  team-name_abstract.txt
+
+- Send 1 file csv and 1 abstract file txt (plus the Code package and the Report) to:  micheli@di.unipi.it
+  Dealine: see the lecture 1 and the Project Lecture for the exam rules (on the project part).
+  EMail Subject: [ML-2017] Report by Mario Rossi …
+  Include your name(s) & email contact information in the main text 
+
+- General deadline (and final results): September 2018 
+
+---
+
+The competition is conducted purely for academic purposes and should not be exploited commercially.
+
+ML-CUP17 CREDITS:  
+Computational Intelligence and Machine Learning (CIML) group - Pisa
+Claudio Gallicchio, Alessio Micheli 2017
+Universita` di Pisa - Dipartimento di Informatica
+Largo Bruno Pontecorvo 3, 56127 Pisa, ITALY
+
+
+***************

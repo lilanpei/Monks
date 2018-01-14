@@ -98,10 +98,12 @@ namespace AA1_MLP.Entities.Regression
                 lossHistory.Add(new double[] { cost, valCost });
             }
 
-            Console.WriteLine("norm of residuals:{0}", (trainParams.validationSet.Labels - validationdataWithBias.Multiply(passedParams.model.Weights)).PointwisePower(2).ColumnSums().PointwiseSqrt());
+          //  Console.WriteLine("norm of residuals:{0}", (trainParams.validationSet.Labels - validationdataWithBias.Multiply(passedParams.model.Weights)).PointwisePower(2).ColumnSums().PointwiseSqrt());
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
             Console.WriteLine("elapsed Time:{0} ms", elapsedMs);
+            var valMEE = MEE(validationdataWithBias, trainParams.validationSet.Labels, passedParams.model.Weights);
+            Console.WriteLine("vaLMEE:{0},ValCost:{1}", valMEE, lossHistory.Last().Last());
             return lossHistory;
         }
 
@@ -112,5 +114,11 @@ namespace AA1_MLP.Entities.Regression
 
         }
 
+        double MEE(Matrix<double> data, Matrix<double> targets, Matrix<double> weights)
+        {
+
+            return (data.Multiply(weights) - targets).PointwisePower(2).RowSums().PointwiseSqrt().Sum() / (targets.RowCount);//Sum(sqrt(||Ax-b||^2))/(n)
+
+        }
     }
 }

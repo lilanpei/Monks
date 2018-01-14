@@ -14,6 +14,7 @@ using AA1_MLP.Entities.Regression;
 using AA1_MLP.Entities.RegressionTrainers;
 using AA1_MLP.Entities.Linear;
 using AA1_MLP.DataManagers;
+using AA1_MLP.Utilities;
 namespace MLPTestDemo
 {
     /// <summary>
@@ -25,37 +26,86 @@ namespace MLPTestDemo
         static void Main(string[] args)
         {
             // MonksTesting();
-            CupTestingLLS("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", "D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt");
-        }
 
+
+            //TrainAndPRoduceFinalResult();
+            // CupTestingLLS("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", "D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt");
+        }
+        /// <summary>
+        /// For outputting the final cup results
+        /// </summary>
+        private static void TrainAndPRoduceFinalResult()
+        {
+            AA1_MLP.DataManagers.CupDataManager dm = new AA1_MLP.DataManagers.CupDataManager();
+            DataSet trainDS = dm.LoadData(@"D:\dropbox\Dropbox\Master Course\SEM-3\ML\CM_CUP_Datasets\ML-17-PRJ lecture  package-20171225\ML-CUP17-TR.csv", 10, 2, skip: 1, standardize: true);
+            DataSet FinalTestDS = dm.LoadData(@"D:\dropbox\Dropbox\Master Course\SEM-3\ML\CM_CUP_Datasets\ML-17-PRJ lecture  package-20171225\ML-CUP17-TS.csv", 10, skip: 1, reportOsutput: false, standardize: true);
+
+
+
+
+            /*AdamParams passedParams = new AdamParams();
+            IOptimizer trainer = new Adam();*/
+            GradientDescentParams passedParams = new GradientDescentParams();
+            Gradientdescent trainer = new Gradientdescent();
+            passedParams.numberOfEpochs = 5000;
+            passedParams.batchSize = 10;
+            passedParams.trainingSet = trainDS;
+            passedParams.learningRate = 0.001;
+            passedParams.regularization = Regularizations.L2;
+            passedParams.regularizationRate = 0.001;
+            passedParams.nestrov = true;
+            passedParams.resilient = false;
+            passedParams.resilientUpdateAccelerationRate = 2;
+            passedParams.resilientUpdateSlowDownRate = 0.5;
+
+            passedParams.momentum = 0.5;
+            passedParams.NumberOfHiddenUnits = 100;
+            passedParams.trueThreshold = null;
+
+            string path = "cupTrain" + passedParams.NumberOfHiddenUnits + "_lr" + passedParams.learningRate + "_reg" + passedParams.regularizationRate;
+            //building the architecture
+            Network n = new Network(new List<Layer>() {
+                     new Layer(new ActivationIdentity(),true,10),
+                     new Layer(new ActivationTanh(),true,passedParams.NumberOfHiddenUnits),
+                  //   new Layer(new ActivationLeakyRelu(),true,40),
+
+
+                     new Layer(new ActivationIdentity(),false,2),
+                     }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
+            passedParams.network = n;
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            List<double[]> learningCurve = trainer.Train(passedParams);
+            watch.Stop();
+            var elapsedMs = watch.ElapsedMilliseconds;
+            Console.WriteLine("elapsed Time:{0} ms", elapsedMs);
+
+
+
+            File.WriteAllText(path + ".txt", string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
+
+
+            ModelManager.SaveNetowrk(n, path + ".n");
+
+            var predictions = ModelManager.GeneratorCUP(FinalTestDS, n);
+            File.WriteAllText("OMG_LOC-OSM2-TS.txt", string.Join("\n", predictions.Select(s => string.Join(",", s))));
+        }
+        /// <summary>
+        /// For outputting the LLS solution results
+        /// </summary>
+        /// <param name="trainsetpath"></param>
+        /// <param name="testsetpath"></param>
         private static void CupTestingLLS(string trainsetpath, string testsetpath)
         {
             CupDataManager dm = new CupDataManager();
-            DataSet trainset = dm.LoadData(trainsetpath, 10, 2);
-            DataSet testset = dm.LoadData(testsetpath, 10, 2);
-
-            for (int idxdataFold = 0; idxdataFold < trainset.Inputs.ColumnCount; idxdataFold++)
-            {
-                double mean = trainset.Inputs.Column(idxdataFold).Average();
-                double std = Math.Sqrt((trainset.Inputs.Column(idxdataFold) - mean).PointwisePower(2).Sum() / trainset.Inputs.Column(idxdataFold).Count);
-                trainset.Inputs.SetColumn(idxdataFold, (trainset.Inputs.Column(idxdataFold) - mean) / std);
+            DataSet trainset = dm.LoadData(trainsetpath, 10, 2, standardize: true);
+            DataSet testset = dm.LoadData(testsetpath, 10, 2, standardize: true);
 
 
-            }
-
-            for (int idxdataFold = 0; idxdataFold < testset.Inputs.ColumnCount; idxdataFold++)
-            {
-                double mean = testset.Inputs.Column(idxdataFold).Average();
-                double std = Math.Sqrt((testset.Inputs.Column(idxdataFold) - mean).PointwisePower(2).Sum() / testset.Inputs.Column(idxdataFold).Count);
-                testset.Inputs.SetColumn(idxdataFold, (testset.Inputs.Column(idxdataFold) - mean) / std);
-
-
-            }
 
             LinearModel model = new LinearModel();
 
             //**trying SVD
-            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model, numOfIterations=1000,learningRate=0.1,degree=1 };
+            LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model, numOfIterations = 5000, learningRate = 0.1, degree = 1 };
             passedParams.trainingSet = trainset;
             passedParams.validationSet = testset;
             Console.WriteLine("SVD solution:");
