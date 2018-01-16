@@ -23,8 +23,10 @@ namespace AA1_MLP.Entities
         /// <param name="_Layers">a list of layers each specifying its number of neurons, bias and activation function for the neurons</param>
         /// <param name="debug">set to true, will print debug messages and will test a small network archietecture</param>
         /// <param name="weightsInitMethod">How the weights should be instantiated, He by default or Uniform </param>
-        public Network(List<Layer> _Layers, bool debug = false, Enums.WeightsInitialization weightsInitMethod = Enums.WeightsInitialization.He)
+        public Network(List<Layer> _Layers, bool debug = false, Enums.WeightsInitialization weightsInitMethod = Enums.WeightsInitialization.Xavier, int? seed = null)
         {
+            Random rand = seed == null ? new Random() : new Random((int)seed);
+
             Debug = debug;
             Weights = new List<Matrix<double>>();
             Layers = _Layers;
@@ -62,20 +64,20 @@ namespace AA1_MLP.Entities
                     {
                         var d = 2f / (Layers[i].NumberOfNeurons);
 
-                        Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, Math.Sqrt(d), new Random(1))));
+                        Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, Math.Sqrt(d), rand)));
 
                     }
                     else if (weightsInitMethod == Enums.WeightsInitialization.Xavier)
                     {
-                        var d =(Layers[i].NumberOfNeurons + Layers[i + 1].NumberOfNeurons);
+                        var d = (Layers[i].NumberOfNeurons + Layers[i + 1].NumberOfNeurons);
 
-                        Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, Math.Sqrt(d), new Random())));
+                        Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, Math.Sqrt(d), rand)));
                     }
 
                     else if (weightsInitMethod == Enums.WeightsInitialization.Normal)
                     {
 
-                        Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, Math.Sqrt(1), new Random())));
+                        Weights.Add(CreateMatrix.Random<double>(Layers[i].NumberOfNeurons + (Layers[i].Bias ? 1 : 0), Layers[i + 1].NumberOfNeurons, new Normal(0, Math.Sqrt(1), rand)));
                     }
                     if (Debug)
                     {

@@ -29,7 +29,7 @@ namespace MLPTestDemo
 
 
             //TrainAndPRoduceFinalResult();
-            CupTestingLLS("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", "D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt");
+            //  CupTestingLLS("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", "D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt");
 
             //proving non-convexity:
 
