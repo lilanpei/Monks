@@ -13,6 +13,7 @@ namespace AA1_MLP.Enums
     {
         He,
         Uniform,
-        Xavier
+        Xavier,
+        Normal
     }
 }

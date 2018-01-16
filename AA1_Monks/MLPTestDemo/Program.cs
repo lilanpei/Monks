@@ -29,7 +29,95 @@ namespace MLPTestDemo
 
 
             //TrainAndPRoduceFinalResult();
-            // CupTestingLLS("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", "D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt");
+            CupTestingLLS("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", "D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt");
+
+            //proving non-convexity:
+
+            //  CheckConvexity();
+
+            /*
+                Solution:
+                1- randomly pick a weight to play with [maybe start with the hidden layer? it should be more fun :D?]
+             */
+
+            /* 
+               2- for that weight, change its value in a range [-1 to 1] maybe? or perhaps we define a range based on the weights values in the whole layer or maybe better, a range around the weights value?
+               3- for each value change for the picked weight, computer the corresponding cost function
+               4- enjoy the plots and redo for more weights
+            */
+        }
+
+        private static void CheckConvexity()
+        {
+            AA1_MLP.DataManagers.CupDataManager dm = new AA1_MLP.DataManagers.CupDataManager();
+            DataSet trainDS = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", 10, 2, standardize: true);
+
+            var nOriginal = //ModelManager.LoadNetwork(@"C:\Users\ahmad\Documents\monks\Monks\5kitr_mo0.5_100_final_sgdnestrov_hdn100_lr0.001_reg0.001.n");
+            new Network(new List<Layer>() {
+                     new Layer(new ActivationIdentity(),true,10),
+                     new Layer(new ActivationTanh(),true,100),
+                  //   new Layer(new ActivationLeakyRelu(),true,40),
+
+
+                     new Layer(new ActivationIdentity(),false,2),
+                     }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
+
+            for (int i = 0; i < 100; i++)
+            {
+                Console.WriteLine(i);
+
+                List<double[]> weightValVsCost = GeneratePlot(trainDS, nOriginal, -10, 10, 0.01);
+
+                File.WriteAllLines(@"xcurve" + i + ".txt", weightValVsCost.OrderBy(s => s[0]).Select(x => string.Join(",", x)).ToArray());
+            }
+            Console.WriteLine();
+
+        }
+
+        private static List<double[]> GeneratePlot(DataSet trainDS, Network nOriginal, double start, double end, double step)
+        {
+
+
+            //building the architecture
+            Network n = new Network(new List<Layer>() {
+                     new Layer(new ActivationIdentity(),true,10),
+                     new Layer(new ActivationTanh(),true,100),
+                  //   new Layer(new ActivationLeakyRelu(),true,40),
+
+
+                     new Layer(new ActivationIdentity(),false,2),
+                     }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
+
+
+            Network nRand = new Network(new List<Layer>() {
+                     new Layer(new ActivationIdentity(),true,10),
+                     new Layer(new ActivationTanh(),true,100),
+                  //   new Layer(new ActivationLeakyRelu(),true,40),
+
+
+                     new Layer(new ActivationIdentity(),false,2),
+                     }, false, AA1_MLP.Enums.WeightsInitialization.Normal);
+
+
+
+
+
+            double MSE = 0, MEE = 0;
+            List<double[]> weightValVsCost = new List<double[]>();
+            for (double i = start; i <= end; i += step)
+            {
+                for (int layerIdx = 0; layerIdx < n.Weights.Count; layerIdx++)
+                {
+                    n.Weights[layerIdx] = nOriginal.Weights[layerIdx] + (i * nRand.Weights[layerIdx]);
+
+                }
+
+
+
+                var log = ModelManager.TesterCUPRegression(trainDS, n, out MEE, out  MSE);
+                weightValVsCost.Add(new double[] { i, MSE });
+            }
+            return weightValVsCost;
         }
         /// <summary>
         /// For outputting the final cup results
@@ -102,7 +190,7 @@ namespace MLPTestDemo
 
 
 
-            LinearModel model = new LinearModel();
+            LinearModel model = new LinearModel { bias = true };
 
             //**trying SVD
             LinearLeastSquaresParams passedParams = new LinearLeastSquaresParams { model = model, numOfIterations = 5000, learningRate = 0.1, degree = 1 };

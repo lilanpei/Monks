@@ -24,7 +24,7 @@ namespace AA1_MLP.Entities.Regression
             var watch = System.Diagnostics.Stopwatch.StartNew();
             passedParams.model.Degree = passedParams.degree;
             //should make the bias a passed param?
-            passedParams.model.bias = true;
+            //  passedParams.model.bias = true;
             int trainingNumberOfExamples = trainParams.trainingSet.Labels.RowCount;
             int numberOfDataColumns = passedParams.degree > 1 ? 1 + passedParams.degree * trainParams.trainingSet.Inputs.ColumnCount : 1 + trainParams.trainingSet.Inputs.ColumnCount;//+1 for the bias
 
@@ -37,7 +37,7 @@ namespace AA1_MLP.Entities.Regression
             for (int i = 0; i < trainParams.trainingSet.Inputs.RowCount; i++)
             {
                 double[] row = new double[numberOfDataColumns];
-                row[0] = 1;
+                row[0] = passedParams.model.bias ? 1 : 0;
                 for (int j = 1; j <= trainParams.trainingSet.Inputs.ColumnCount; j++)
                 {
                     row[j] = trainParams.trainingSet.Inputs[i, j - 1];//j starts from one because we set the first element on its own, but the training set requires it to count from 0, so the -1 in the indexer
@@ -94,11 +94,11 @@ namespace AA1_MLP.Entities.Regression
                 var cost = CostFunction(trainingdataWithBias, trainParams.trainingSet.Labels, passedParams.model.Weights);
                 var valCost = CostFunction(validationdataWithBias, trainParams.validationSet.Labels, passedParams.model.Weights);
 
-             //   Console.WriteLine("iteration:{0},{1},{2}", i, cost, valCost);
+                //   Console.WriteLine("iteration:{0},{1},{2}", i, cost, valCost);
                 lossHistory.Add(new double[] { cost, valCost });
             }
 
-          //  Console.WriteLine("norm of residuals:{0}", (trainParams.validationSet.Labels - validationdataWithBias.Multiply(passedParams.model.Weights)).PointwisePower(2).ColumnSums().PointwiseSqrt());
+            //  Console.WriteLine("norm of residuals:{0}", (trainParams.validationSet.Labels - validationdataWithBias.Multiply(passedParams.model.Weights)).PointwisePower(2).ColumnSums().PointwiseSqrt());
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
             Console.WriteLine("elapsed Time:{0} ms", elapsedMs);
