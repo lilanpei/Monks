@@ -19,11 +19,11 @@ namespace AA1_MLP.Entities.Trainers
         public override List<double[]> Train(TrainerParams trainParams)
         {
             GradientDescentParams passedParams = (GradientDescentParams)trainParams;
-            if (passedParams.resilient)
+           /* if (passedParams.resilient)
             {
                 // passedParams.learningRate = 1;
 
-            }
+            }*/
             //int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
             List<int> trainingSetIndices = Enumerable.Range(0, passedParams.trainingSet.Labels.RowCount).ToList();
@@ -296,7 +296,6 @@ namespace AA1_MLP.Entities.Trainers
                 if (previousWeightsUpdate != null)
                 {
 
-                    //mu * v - learning_rate * dx_ahead
                     if (passedParams.regularization == Regularizations.L2)
                     {
 
@@ -320,53 +319,18 @@ namespace AA1_MLP.Entities.Trainers
                     }
                 }
 
-                //if (regularization != Regularizations.None)
-                //{
-                //    //network.Weights[y] = (((1 - resilientLearningRates * regularizationRate / (((int)batchesIndices.Row(batchIndex).At(1) - (int)batchesIndices.Row(batchIndex).At(0)) + 1))).PointwiseMultiply(network.Weights[y]) + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]));
-                //    //network.Weights[y] = 2 * regularizationRate * network.Weights[y] + resilientLearningRates.PointwiseMultiply(momentumUpdate + weightsUpdates[y]);
-                //    if (network.Layers[y].Bias)
-                //    {
-                //        Matrix<double> w = network.Weights[y].Clone();
-                //        w.ClearRow(w.RowCount - 1);
-                //        finalUpdate = /*resilientLearningRates.PointwiseMultiply*/((weightsUpdates[y] - 2 * regularizationRate * w)) + momentumUpdate;
-
-                //    }
-                //    else //no bias with regularization
-                //    {
-                //        if (nestrov) //no bias with regularization with nestrov
-                //        {
-
-                //            /*
-                //            v_prev = v # back this up
-                //            v = mu * v - learning_rate * dx # velocity update stays the same
-                //            x += -mu * v_prev + (1 + mu) * v # position update changes form*/
-
-                //            //momentumUpdate += momentum * previousWeightsUpdate[y] - learningRate * weightsUpdates[y];
-
-
-                //            finalUpdate = (1 + momentum) * momentumUpdate - momentum * previousWeightsUpdate[y];
-                //        }
-                //        else//no bias with regularization without nestrov
-                //        {
-                //            finalUpdate = /*resilientLearningRates.PointwiseMultiply*/((weightsUpdates[y] - 2 * regularizationRate * network.Weights[y])) + momentumUpdate;
-                //        }
-                //    }
-                //}
-                //else //no regularization
-
-
-
-
+             
                 if (passedParams.nestrov)
                 {
 
-
+                    
+                    finalUpdate = (1 + passedParams.momentum) * momentumUpdate[y] - passedParams.momentum * prev_v;
+                    momentumUpdate[y] = finalUpdate.Clone();
+                    //for check
                     //           var    v_prev = v # back this up
                     //            v = mu * v - learning_rate * dx # velocity update stays the same
 
                     //            x += -mu * v_prev + (1 + mu) * v # position update changes form*/
-                    finalUpdate = (1 + passedParams.momentum) * momentumUpdate[y] - passedParams.momentum * prev_v;
-                    momentumUpdate[y] = finalUpdate.Clone();
 
 
                 }

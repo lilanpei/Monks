@@ -221,15 +221,7 @@ namespace AA1_MLP.Entities.Trainers
 
 
 
-                        /*
-                          alpha_t = learningRate * np.sqrt(1 - beta2**t) / (1 - beta1**t)
-
-                          m_t = beta1 * m + (1 - beta1) * g_t
-                          v_t = beta2 * v + (1 - beta2) * g_t * g_t
-
-                          param_t = param - alpha_t * m_t / (np.sqrt(v_t) + epsilon)
-                         
-                         */
+                      
                         /*   passedParams.learningRate = passedParams.learningRate * Math.Sqrt(1 - Math.Pow(passedParams.beta2, adamUpdateStep)) / (1 - Math.Pow(passedParams.beta1, adamUpdateStep));
 
                            firstMoment[y] = passedParams.beta1 * prevFirstMoment[y] + (1 - passedParams.beta1) * (-1 * weightsUpdates[y]);
@@ -247,7 +239,15 @@ namespace AA1_MLP.Entities.Trainers
                         var finalUpdates = (passedParams.learningRate * mhat[y]).PointwiseDivide((vhat[y].PointwiseSqrt() + passedParams.epsilon));
                         passedParams.network.Weights[y] -= finalUpdates;
 
+                        /*  for check
+                        alpha_t = learningRate * np.sqrt(1 - beta2**t) / (1 - beta1**t)
 
+                        m_t = beta1 * m + (1 - beta1) * g_t
+                        v_t = beta2 * v + (1 - beta2) * g_t * g_t
+
+                        param_t = param - alpha_t * m_t / (np.sqrt(v_t) + epsilon)
+
+                       */
 
                         prevFirstMoment[y] = firstMoment[y].Clone();
                         prevSecondMoment[y] = secondMoment[y].Clone();
