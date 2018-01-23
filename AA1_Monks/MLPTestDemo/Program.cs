@@ -47,10 +47,10 @@ namespace MLPTestDemo
             */
         }
 
-        private static void CheckConvexity()
+        private static void CheckConvexity(string dsLocation = "D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt")
         {
             AA1_MLP.DataManagers.CupDataManager dm = new AA1_MLP.DataManagers.CupDataManager();
-            DataSet trainDS = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", 10, 2, standardize: true);
+            DataSet trainDS = dm.LoadData(dsLocation, 10, 2, standardize: true);
 
             var nOriginal = //ModelManager.LoadNetwork(@"C:\Users\ahmad\Documents\monks\Monks\5kitr_mo0.5_100_final_sgdnestrov_hdn100_lr0.001_reg0.001.n");
             new Network(new List<Layer>() {

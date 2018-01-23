@@ -296,8 +296,12 @@ namespace AA1_MLP.Entities.Trainers
 
 
                 learningCurve.Add(new double[] { iterationLoss, passedParams.validationSet != null ? validationError : 0, passedParams.trueThreshold != null ? trainingAccuracy : 0, passedParams.trueThreshold != null ? validationSetAccuracy : 0 });
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Epoch:{0} train loss:{1} - validation loss:{2}", epoch, iterationLoss, validationError);
+                if (passedParams.PrintLoss)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Epoch:{0} train loss:{1} - validation loss:{2}", epoch, iterationLoss, validationError);
+
+                }
 
 
                 Console.ResetColor();

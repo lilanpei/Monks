@@ -21,7 +21,7 @@ namespace AA1_MLP.Entities.Trainers
             GradientDescentParams passedParams = (GradientDescentParams)trainParams;
             if (passedParams.resilient)
             {
-               // passedParams.learningRate = 1;
+                // passedParams.learningRate = 1;
 
             }
             //int valSplitSize = 0;
@@ -166,9 +166,11 @@ namespace AA1_MLP.Entities.Trainers
 
 
                 learningCurve.Add(new double[] { epochLoss, passedParams.validationSet != null ? validationError : 0, passedParams.trueThreshold != null ? trainingAccuracy : 0, passedParams.trueThreshold != null ? validationSetAccuracy : 0 });
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("Epoch:{0} train loss:{1} - validation loss:{2}", epoch, epochLoss, validationError);
-
+                if (passedParams.PrintLoss)
+                {
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("Epoch:{0} train loss:{1} - validation loss:{2}", epoch, epochLoss, validationError);
+                }
                 if (passedParams.reduceLearningRate && epoch > 0 && passedParams.numberOfReductions > 0 && epoch % passedParams.learningRateReductionAfterEpochs == 0)
                 {
                     passedParams.learningRate *= passedParams.learningRateReduction;

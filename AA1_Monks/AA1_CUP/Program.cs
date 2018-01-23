@@ -39,18 +39,19 @@ namespace AA1_CUP
 
 
             AA1_MLP.DataManagers.CupDataManager dm = new AA1_MLP.DataManagers.CupDataManager();
-            DataSet trainDS = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttrain.txt", 10, 2, standardize: true);
-            DataSet testDS = dm.LoadData("D:\\dropbox\\Dropbox\\Master Course\\SEM-3\\ML\\CM_CUP_Datasets\\60percenttest.txt", 10, 2, standardize: true);
+            DataSet trainDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttrain.txt", 10, 2, standardize: true);
+            DataSet testDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttest.txt", 10, 2, standardize: true);
 
 
 
 
             /*AdamParams passedParams = new AdamParams();
             IOptimizer trainer = new Adam();*/
+          /*  Console.WriteLine("training SGD");
             GradientDescentParams passedParams = new GradientDescentParams();
             Gradientdescent trainer = new Gradientdescent();
-            passedParams.numberOfEpochs = 5000;
-            passedParams.batchSize = 10;
+            passedParams.numberOfEpochs = 10;
+            passedParams.batchSize = 50;
             passedParams.trainingSet = trainDS;
             passedParams.validationSet = testDS;
             passedParams.learningRate = 0.001;
@@ -60,11 +61,25 @@ namespace AA1_CUP
             passedParams.resilient = false;
             passedParams.resilientUpdateAccelerationRate = 2;
             passedParams.resilientUpdateSlowDownRate = 0.5;
-
+            
             passedParams.momentum = 0.5;
             passedParams.NumberOfHiddenUnits = 100;
 
-            LastTrain(testDS, passedParams, trainer, "5kitr_mo0.5_100_final_sgdnestrov_hdn");
+            LastTrain(testDS, passedParams, trainer, "BS50_10epochs_mo0.5_100_final_sgdnestrov_hdn", 1);*/
+            Console.WriteLine("Training Adam");
+            AdamParams adampassedParams = new AdamParams();
+            IOptimizer adamtrainer = new Adam();
+
+            adampassedParams.numberOfEpochs = 30000;
+            adampassedParams.batchSize = 50;
+            adampassedParams.trainingSet = trainDS;
+            adampassedParams.validationSet = testDS;
+            adampassedParams.learningRate = 0.001;
+            adampassedParams.regularization = Regularizations.L2;
+            adampassedParams.regularizationRate = 0.001;
+            adampassedParams.NumberOfHiddenUnits = 100;
+
+            LastTrain(testDS, adampassedParams, adamtrainer, "BS50_30kepochs_100_final_adam_hdn", 1);
 
 
 
@@ -98,7 +113,7 @@ namespace AA1_CUP
             }
         }
 
-        private static void LastTrain(DataSet testDS, INeuralTrainerParams passedParams, IOptimizer trainer, string prefix)
+        private static void LastTrain(DataSet testDS, INeuralTrainerParams passedParams, IOptimizer trainer, string prefix, int seed)
         {
 
             string path = prefix + passedParams.NumberOfHiddenUnits + "_lr" + passedParams.learningRate + "_reg" + passedParams.regularizationRate;
@@ -110,7 +125,7 @@ namespace AA1_CUP
 
 
                      new Layer(new ActivationIdentity(),false,2),
-                     }, false, AA1_MLP.Enums.WeightsInitialization.Xavier);
+                     }, false, AA1_MLP.Enums.WeightsInitialization.Xavier, seed);
             passedParams.network = n;
             var watch = System.Diagnostics.Stopwatch.StartNew();
             List<double[]> learningCurve = trainer.Train(passedParams);

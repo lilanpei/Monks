@@ -16,5 +16,6 @@ namespace AA1_MLP.Entities.TrainersParams
         public int learningRateReductionAfterEpochs = 1000;
         public int numberOfReductions = 2;
         public bool nestrov = false;
+
     }
 }

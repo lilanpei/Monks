@@ -17,6 +17,7 @@ namespace AA1_MLP.Entities.TrainersParams
         public double regularizationRate = 0;
         public Regularizations regularization = Regularizations.None;
         public int NumberOfHiddenUnits = 0;
+        public bool PrintLoss = false;
 
 
 
