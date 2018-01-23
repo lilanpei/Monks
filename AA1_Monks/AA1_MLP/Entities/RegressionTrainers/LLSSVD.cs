@@ -39,15 +39,7 @@ namespace AA1_MLP.Entities.RegressionTrainers
             var elapsedMs = watch.ElapsedMilliseconds;
             Console.WriteLine("elapsed Time:{0} ms", elapsedMs);
 
-            /*
-              var sbmtrx = (d.SubMatrix(0, r, 0, trainParams.trainingSet.Labels.ColumnCount));
-                sbmtrx.SetColumn(0,sbmtrx.Column(0).PointwiseDivide(svd.S.SubVector(0, r)));
-                sbmtrx.SetColumn(1, sbmtrx.Column(1).PointwiseDivide(svd.S.SubVector(0, r)));
-
-           // temp.SetSubMatrix(0, 0, sbmtrx.Transpose());
-             
-             */
-
+         
 
             var cost = CostFunction(trainParams.trainingSet.Inputs, trainParams.trainingSet.Labels, passedParams.model.Weights);
             var valMEE = MEE(trainParams.validationSet.Inputs, trainParams.validationSet.Labels, passedParams.model.Weights);
