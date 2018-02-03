@@ -12,7 +12,7 @@ namespace AA1_MLP.Entities.TrainersParams
         public bool shuffle = false;
         public bool debug = false;
         public DataSet validationSet = null;
-        public double? trueThreshold = 0.5;
+        public double? trueThreshold = null;
         public bool MEE = false;
 
     }

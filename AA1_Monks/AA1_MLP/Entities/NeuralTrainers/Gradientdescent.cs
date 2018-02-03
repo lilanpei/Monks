@@ -78,84 +78,13 @@ namespace AA1_MLP.Entities.Trainers
                 double epochLoss = 0;//will hold the average of the batches average losses, each batch contributes to this with its loss average =  batchloss/batchsize
 
 
-                for (int i = 0; i < batchesIndices.RowCount; i++)//for each batch
+                for (int batchIdx = 0; batchIdx < batchesIndices.RowCount; batchIdx++)//for each batch
                 {
-                    Dictionary<int, Matrix<double>> momentumUpdate = new Dictionary<int, Matrix<double>>();
-
-
-                    double batchLoss = 0;
-                    Dictionary<int, Matrix<double>> weightsUpdates = new Dictionary<int, Matrix<double>>();
-
-                    int numberOfBatchExamples = (((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0)) + 1);//not all batches have batchSize, unfortunately, the last one could be smaller
-                    var batchElementsIndices = Enumerable.Range((int)batchesIndices.Row(i).At(0), (int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1).ToList();
-                    if (passedParams.shuffle)
-                    {
-                        batchElementsIndices.Shuffle();
-                    }
-                    foreach (int k in batchElementsIndices)//for each elemnt in th batch
-                    {
-                        var nwOutput = passedParams.network.Predict(passedParams.trainingSet.Inputs.Row(k));
-                        // network.Layers[0].LayerActivationsSumInputs = Dataset.Inputs.Row(k);
-                        var label = passedParams.trainingSet.Labels.Row(k);
-                        //comute the loss 
-                        //batchLoss += ((label - nwOutput.Map(s => s >= 0.5 ? 1.0 : 0.0)).PointwiseMultiply(label - nwOutput.Map(s => s > 0.5 ? 1.0 : 0.0))).Sum();
-
-                        //TODO: get the loss computation out as a parameter to the function, so that the user can specify it freely
-                        var loss = ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
-                        batchLoss += passedParams.MEE ? Math.Sqrt(loss) : loss;
-
-
-                        var residual = label - nwOutput;
-
-                        if (passedParams.debug)
-                        {
-                            Console.WriteLine("Target:{0}", label);
-                            Console.WriteLine("Calculated:{0}", nwOutput);
-                            Console.WriteLine("Target-calculated (residual):{0}", residual);
-                        }
-
-                        residual = residual.Map(r => double.IsNaN(r) ? 0 : r);
-
-                        BackPropForExample(passedParams, momentumUpdate, weightsUpdates, residual);//weightsupdates will be set here
-
-                        if (passedParams.debug)
-                            Console.WriteLine("-------- Batch:{0} element:{1} end-----", i, k);
-                    }//per example in the batch
-
-
-                    if (passedParams.debug)
-                        Console.WriteLine("batch end");
-
-                    //EpochBatchesLosses.Add(new double[] { batchLoss / numberOfBatchExamples });
-                    // batchLoss /= (((int)batchesIndices.Row(batchIndex).At(1) - (int)batchesIndices.Row(batchIndex).At(0)) + 1);
-
-                    UpdateWeights(passedParams, previousWeightsUpdate, PreviousUpdateSigns, epoch, momentumUpdate, weightsUpdates, batchElementsIndices.Count);
-                    previousWeightsUpdate = ClonePrevWeightsUpdates(previousWeightsUpdate, weightsUpdates);
-                    epochLoss += batchLoss / ((int)batchesIndices.Row(i).At(1) - (int)batchesIndices.Row(i).At(0) + 1);
-                    if (passedParams.network.Debug)
-                        Console.WriteLine("Batch: {0} Error: {1}", i, batchLoss);
+                    PerformBatchComputations(passedParams, batchesIndices, ref previousWeightsUpdate, PreviousUpdateSigns, epoch, ref epochLoss, batchIdx);
                 }
-
-
                 epochLoss /= batchesIndices.RowCount;
 
-
-
-                // computing the test loss:
-                double validationError = 0;
-                if (passedParams.validationSet != null)
-                {
-                    for (int i = 0; i < testSetIndices.Count; i++)
-                    {
-                        var nwOutput = passedParams.network.Predict(test.Inputs.Row(i));
-                        var loss = ((test.Labels.Row(i) - nwOutput).PointwiseMultiply(test.Labels.Row(i) - nwOutput)).Sum();
-                        validationError += passedParams.MEE ? Math.Sqrt(loss) : loss;
-
-                    }
-                    validationError /= testSetIndices.Count;
-
-
-                }
+                double validationError = ComputeValidationLoss(passedParams, testSetIndices, test);
                 double trainingAccuracy = 0, validationSetAccuracy = 0;
 
                 if (passedParams.trueThreshold != null)
@@ -184,6 +113,91 @@ namespace AA1_MLP.Entities.Trainers
 
             }
             return learningCurve;
+        }
+
+        private static double ComputeValidationLoss(GradientDescentParams passedParams, List<int> testSetIndices, DataSet test)
+        {
+            // computing the test loss:
+            double validationError = 0;
+            if (passedParams.validationSet != null)
+            {
+                for (int i = 0; i < testSetIndices.Count; i++)
+                {
+                    var nwOutput = passedParams.network.Predict(test.Inputs.Row(i));
+                    var loss = ((test.Labels.Row(i) - nwOutput).PointwiseMultiply(test.Labels.Row(i) - nwOutput)).Sum();
+                    validationError += passedParams.MEE ? Math.Sqrt(loss) : loss;
+
+                }
+                validationError /= testSetIndices.Count;
+
+
+            }
+
+            return validationError;
+        }
+
+        private static void PerformBatchComputations(GradientDescentParams passedParams, Matrix<double> batchesIndices, ref Dictionary<int, Matrix<double>> previousWeightsUpdate, Dictionary<int, Matrix<double>> PreviousUpdateSigns, int epoch, ref double epochLoss, int batchIdx)
+        {
+            Dictionary<int, Matrix<double>> momentumUpdate = new Dictionary<int, Matrix<double>>();
+
+
+            double batchLoss = 0;
+            Dictionary<int, Matrix<double>> weightsUpdates = new Dictionary<int, Matrix<double>>();
+
+            int numberOfBatchExamples = (((int)batchesIndices.Row(batchIdx).At(1) - (int)batchesIndices.Row(batchIdx).At(0)) + 1);//not all batches have batchSize, unfortunately, the last one could be smaller
+            var batchElementsIndices = Enumerable.Range((int)batchesIndices.Row(batchIdx).At(0), (int)batchesIndices.Row(batchIdx).At(1) - (int)batchesIndices.Row(batchIdx).At(0) + 1).ToList();
+            if (passedParams.shuffle)
+            {
+                batchElementsIndices.Shuffle();
+            }
+            foreach (int k in batchElementsIndices)//for each elemnt in th batch
+            {
+                batchLoss = PerformExampleComputations(passedParams, batchIdx, momentumUpdate, batchLoss, weightsUpdates, k);
+            }//per example in the batch
+
+
+            if (passedParams.debug)
+                Console.WriteLine("batch end");
+
+            //EpochBatchesLosses.Add(new double[] { batchLoss / numberOfBatchExamples });
+            // batchLoss /= (((int)batchesIndices.Row(batchIndex).At(1) - (int)batchesIndices.Row(batchIndex).At(0)) + 1);
+
+            UpdateWeights(passedParams, previousWeightsUpdate, PreviousUpdateSigns, epoch, momentumUpdate, weightsUpdates, batchElementsIndices.Count);
+            previousWeightsUpdate = ClonePrevWeightsUpdates(previousWeightsUpdate, weightsUpdates);
+            epochLoss += batchLoss / ((int)batchesIndices.Row(batchIdx).At(1) - (int)batchesIndices.Row(batchIdx).At(0) + 1);
+            if (passedParams.network.Debug)
+                Console.WriteLine("Batch: {0} Error: {1}", batchIdx, batchLoss);
+        }
+
+        private static double PerformExampleComputations(GradientDescentParams passedParams, int batchIdx, Dictionary<int, Matrix<double>> momentumUpdate, double batchLoss, Dictionary<int, Matrix<double>> weightsUpdates, int k)
+        {
+            var nwOutput = passedParams.network.Predict(passedParams.trainingSet.Inputs.Row(k));
+            // network.Layers[0].LayerActivationsSumInputs = Dataset.Inputs.Row(k);
+            var label = passedParams.trainingSet.Labels.Row(k);
+            //comute the loss 
+            //batchLoss += ((label - nwOutput.Map(s => s >= 0.5 ? 1.0 : 0.0)).PointwiseMultiply(label - nwOutput.Map(s => s > 0.5 ? 1.0 : 0.0))).Sum();
+
+            //TODO: get the loss computation out as a parameter to the function, so that the user can specify it freely
+            var loss = ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
+            batchLoss += passedParams.MEE ? Math.Sqrt(loss) : loss;
+
+
+            var residual = label - nwOutput;
+
+            if (passedParams.debug)
+            {
+                Console.WriteLine("Target:{0}", label);
+                Console.WriteLine("Calculated:{0}", nwOutput);
+                Console.WriteLine("Target-calculated (residual):{0}", residual);
+            }
+
+            residual = residual.Map(r => double.IsNaN(r) ? 0 : r);
+
+            BackPropForExample(passedParams, momentumUpdate, weightsUpdates, residual);//weightsupdates will be set here
+
+            if (passedParams.debug)
+                Console.WriteLine("-------- Batch:{0} element:{1} end-----", batchIdx, k);
+            return batchLoss;
         }
 
         private static Dictionary<int, Matrix<double>> ClonePrevWeightsUpdates(Dictionary<int, Matrix<double>> previousWeightsUpdate, Dictionary<int, Matrix<double>> weightsUpdates)

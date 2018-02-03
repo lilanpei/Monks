@@ -52,7 +52,7 @@ namespace AA1_MLP.Entities.RegressionTrainers
 
         Vector<double> Score(Matrix<double> data, Matrix<double> targets, Matrix<double> weights)
         {
-            Vector<double> u, v;
+            Vector<double> u/*, v*/;
             u = (targets - data.Multiply(weights)).PointwisePower(2).ColumnSums().PointwiseSqrt();
            /* var means = targets.ColumnSums() / targets.RowCount;
             var firstmean = targets.Column(0).Sum() / targets.Column(0).Count;

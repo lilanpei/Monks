@@ -4,6 +4,7 @@ using AA1_MLP.Entities.Trainers;
 using AA1_MLP.Entities.TrainersParams;
 using AA1_MLP.Enums;
 using AA1_MLP.Utilities;
+using MathNet.Numerics.LinearAlgebra;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,20 +39,20 @@ namespace AA1_CUP
             //new KFoldValidation().ScreenAdam(wholeSet, 5, learningRates, regularizationRates, humberOfHiddenNeurons, 5000);
 
 
-            AA1_MLP.DataManagers.CupDataManager dm = new AA1_MLP.DataManagers.CupDataManager();
-            DataSet trainDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttrain.txt", 10, 2, standardize: true);
-            DataSet testDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttest.txt", 10, 2, standardize: true);
+            //ReportHowCloseWeightsAcquiredFromDifferentSeedsAre();
+
+
+             AA1_MLP.DataManagers.CupDataManager dm = new AA1_MLP.DataManagers.CupDataManager();
+             DataSet trainDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttrain.txt", 10, 2, standardize: true);
+             DataSet testDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttest.txt", 10, 2, standardize: true);
 
 
 
-
-            /*AdamParams passedParams = new AdamParams();
-            IOptimizer trainer = new Adam();*/
-          /*  Console.WriteLine("training SGD");
+            Console.WriteLine("training SGD");
             GradientDescentParams passedParams = new GradientDescentParams();
             Gradientdescent trainer = new Gradientdescent();
-            passedParams.numberOfEpochs = 10;
-            passedParams.batchSize = 50;
+            passedParams.numberOfEpochs = 100;
+            passedParams.batchSize = 10;
             passedParams.trainingSet = trainDS;
             passedParams.validationSet = testDS;
             passedParams.learningRate = 0.001;
@@ -61,26 +62,58 @@ namespace AA1_CUP
             passedParams.resilient = false;
             passedParams.resilientUpdateAccelerationRate = 2;
             passedParams.resilientUpdateSlowDownRate = 0.5;
-            
             passedParams.momentum = 0.5;
             passedParams.NumberOfHiddenUnits = 100;
 
-            LastTrain(testDS, passedParams, trainer, "BS50_10epochs_mo0.5_100_final_sgdnestrov_hdn", 1);*/
-            Console.WriteLine("Training Adam");
-            AdamParams adampassedParams = new AdamParams();
-            IOptimizer adamtrainer = new Adam();
+            LastTrain(testDS, passedParams, trainer, "profiling_" , 1);
 
-            adampassedParams.numberOfEpochs = 30000;
-            adampassedParams.batchSize = 50;
-            adampassedParams.trainingSet = trainDS;
-            adampassedParams.validationSet = testDS;
-            adampassedParams.learningRate = 0.001;
-            adampassedParams.regularization = Regularizations.L2;
-            adampassedParams.regularizationRate = 0.001;
-            adampassedParams.NumberOfHiddenUnits = 100;
+            Console.WriteLine();
 
-            LastTrain(testDS, adampassedParams, adamtrainer, "BS50_30kepochs_100_final_adam_hdn", 1);
 
+            /*
+             List<int> seeds = new List<int>() { 1,15,40,4,73,2};
+
+             foreach (var seed in seeds)
+             {
+                 Console.WriteLine("Seed:{0}",seed);
+
+                 /*AdamParams passedParams = new AdamParams();
+                 IOptimizer trainer = new Adam();
+                 Console.WriteLine("training SGD");
+                 GradientDescentParams passedParams = new GradientDescentParams();
+                 Gradientdescent trainer = new Gradientdescent();
+                 passedParams.numberOfEpochs = 20000;
+                 passedParams.batchSize = 10;
+                 passedParams.trainingSet = trainDS;
+                 passedParams.validationSet = testDS;
+                 passedParams.learningRate = 0.001;
+                 passedParams.regularization = Regularizations.L2;
+                 passedParams.regularizationRate = 0.001;
+                 passedParams.nestrov = true;
+                 passedParams.resilient = false;
+                 passedParams.resilientUpdateAccelerationRate = 2;
+                 passedParams.resilientUpdateSlowDownRate = 0.5;
+
+                 passedParams.momentum = 0.5;
+                 passedParams.NumberOfHiddenUnits = 100;
+
+                 LastTrain(testDS, passedParams, trainer, "20kseed_"+seed+"_", seed);
+             }*/
+            /* Console.WriteLine("Training Adam");
+             AdamParams adampassedParams = new AdamParams();
+             IOptimizer adamtrainer = new Adam();
+
+             adampassedParams.numberOfEpochs = 30000;
+             adampassedParams.batchSize = 50;
+             adampassedParams.trainingSet = trainDS;
+             adampassedParams.validationSet = testDS;
+             adampassedParams.learningRate = 0.001;
+             adampassedParams.regularization = Regularizations.L2;
+             adampassedParams.regularizationRate = 0.001;
+             adampassedParams.NumberOfHiddenUnits = 100;
+
+             LastTrain(testDS, adampassedParams, adamtrainer, "BS50_30kepochs_100_final_adam_hdn", 1);
+             */
 
 
             //Loading and parsing cup dataset
@@ -99,6 +132,61 @@ namespace AA1_CUP
 
 
 
+        }
+
+        private static void ReportHowCloseWeightsAcquiredFromDifferentSeedsAre()
+        {
+            string baseAddress = @"C:\\Users\\Ronin\\Desktop\\Release\\";
+
+
+            List<string> modelsNames = new List<string>() { "20kseed_1_100_lr0.001_reg0.001.n", "20kseed_73_100_lr0.001_reg0.001.n", "20kseed_40_100_lr0.001_reg0.001.n", "20kseed_4_100_lr0.001_reg0.001.n", "20kseed_2_100_lr0.001_reg0.001.n", "20kseed_15_100_lr0.001_reg0.001.n" };
+
+            DumpTrainedModelWeights(baseAddress, modelsNames);
+
+            List<string> modelWeigtsFiles = new List<string>() { "20kseed_1_100_lr0.001_reg0.001.w", "20kseed_73_100_lr0.001_reg0.001.w", "20kseed_40_100_lr0.001_reg0.001.w", "20kseed_4_100_lr0.001_reg0.001.w", "20kseed_2_100_lr0.001_reg0.001.w", "20kseed_15_100_lr0.001_reg0.001.w" };
+            List<Vector<double>> weights = new List<Vector<double>>();
+            ReportWeightsDifference(baseAddress, modelWeigtsFiles, weights);
+        }
+
+        private static void DumpTrainedModelWeights(string baseAddress, List<string> modelsNames)
+        {
+            foreach (var modelName in modelsNames)
+            {
+                var n = ModelManager.LoadNetwork(Path.Combine(baseAddress, modelName));
+                StringBuilder sb = new StringBuilder();
+                for (int weightLayerIndex = 0; weightLayerIndex < n.Weights.Count; weightLayerIndex++)
+                {
+                    sb.Append(string.Join(",", n.Weights[weightLayerIndex].ToRowMajorArray())).Append(",");
+
+                }
+                sb.Remove(sb.Length - 1, 1);
+                File.WriteAllText(Path.Combine(baseAddress, modelName.Replace(".n", ".w")), sb.ToString());
+            }
+        }
+
+        private static void ReportWeightsDifference(string baseAddress, List<string> modelWeigtsFiles, List<Vector<double>> weights)
+        {
+            foreach (var mwf in modelWeigtsFiles)
+            {
+                Console.WriteLine(mwf.Replace("100_lr0.001_reg0.001.w", ""));
+                weights.Add(CreateVector.Dense<Double>(File.ReadAllText(Path.Combine(baseAddress, mwf)).Split(',').Select(s => double.Parse(s)).ToArray()));
+                Console.WriteLine("Euclidean Norm: {0} ", Math.Round(weights.Last().L2Norm(), 3));
+            }
+            int c = 0;
+            foreach (var w in weights)
+            {
+
+                Console.WriteLine("weight:{0}", modelWeigtsFiles[c]);
+                int i = 0;
+                foreach (var w2 in weights)
+                {
+                    Console.WriteLine("EuclideanDistance({0},{1})", modelWeigtsFiles[c].Replace("100_lr0.001_reg0.001.w", ""), modelWeigtsFiles[i].Replace("100_lr0.001_reg0.001.w", ""));
+                    Console.WriteLine(Math.Round(Math.Sqrt((w - w2).PointwisePower(2).Sum()), 3));
+                    i++;
+                }
+                c++;
+
+            }
         }
 
         private static void StandardizeData(DataSet trainDS)
@@ -140,6 +228,7 @@ namespace AA1_CUP
             File.WriteAllText(path + ".txt", string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
             File.AppendAllText(path + ".txt", "\nMEE:" + MEE + "MSE:" + MSE);
             File.WriteAllText(path + "predVsActual.txt", string.Join("\n", log.Select(s => string.Join(",", s))));
+
 
 
             ModelManager.SaveNetowrk(n, path + ".n");
