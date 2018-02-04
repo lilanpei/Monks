@@ -7,6 +7,7 @@ using AA1_MLP.CustomExtensionMethods;
 using MathNet.Numerics.LinearAlgebra;
 using AA1_MLP.Enums;
 using AA1_MLP.Entities.TrainersParams;
+using System.Threading;
 
 namespace AA1_MLP.Entities.Trainers
 {
@@ -15,15 +16,17 @@ namespace AA1_MLP.Entities.Trainers
     /// </summary>
     public class Gradientdescent : IOptimizer
     {
+        private static readonly object thisLock = new object();
+
         //Network network, DataSet trainingSet, double learningRate, int numberOfEpochs, bool shuffle = false, int? batchSize = null, bool debug = false, double regularizationRate = 0, Regularizations regularization = Regularizations.None, double momentum = 0, bool resilient = false, double resilientUpdateAccelerationRate = 1, double resilientUpdateSlowDownRate = 1, DataSet validationSet = null, double? trueThreshold = 0.5, bool MEE = false, bool reduceLearningRate = false, double learningRateReduction = 0.5, int learningRateReductionAfterEpochs = 1000, int numberOfReductions = 2, bool nestrov = false
         public override List<double[]> Train(TrainerParams trainParams)
         {
             GradientDescentParams passedParams = (GradientDescentParams)trainParams;
-           /* if (passedParams.resilient)
-            {
-                // passedParams.learningRate = 1;
+            /* if (passedParams.resilient)
+             {
+                 // passedParams.learningRate = 1;
 
-            }*/
+             }*/
             //int valSplitSize = 0;
             List<double[]> learningCurve = new List<double[]>();
             List<int> trainingSetIndices = Enumerable.Range(0, passedParams.trainingSet.Labels.RowCount).ToList();
@@ -84,7 +87,7 @@ namespace AA1_MLP.Entities.Trainers
                 }
                 epochLoss /= batchesIndices.RowCount;
 
-                double validationError = ComputeValidationLoss(passedParams, testSetIndices, test);
+                double validationError = passedParams.parallelize ? Parallel_ComputeValidationLoss(passedParams, testSetIndices, test) : ComputeValidationLoss(passedParams, testSetIndices, test);
                 double trainingAccuracy = 0, validationSetAccuracy = 0;
 
                 if (passedParams.trueThreshold != null)
@@ -136,7 +139,72 @@ namespace AA1_MLP.Entities.Trainers
             return validationError;
         }
 
+        private static double Parallel_ComputeValidationLoss(GradientDescentParams passedParams, List<int> testSetIndices, DataSet test)
+        {
+            // computing the test loss:
+            double validationError = 0;
+            double[] validationErrors = new double[testSetIndices.Count];
+            if (passedParams.validationSet != null)
+            {
+                Parallel.For(0, testSetIndices.Count, threadidx =>
+                {
+                    int i = testSetIndices[threadidx];
+                    var nwOutput = passedParams.network.Predict(test.Inputs.Row(i));
+                    var loss = ((test.Labels.Row(i) - nwOutput).PointwiseMultiply(test.Labels.Row(i) - nwOutput)).Sum();
+                    validationErrors[threadidx] = passedParams.MEE ? Math.Sqrt(loss) : loss;
+
+                });
+                validationError = validationErrors.Sum() / testSetIndices.Count;
+
+
+            }
+
+            return validationError;
+        }
+
         private static void PerformBatchComputations(GradientDescentParams passedParams, Matrix<double> batchesIndices, ref Dictionary<int, Matrix<double>> previousWeightsUpdate, Dictionary<int, Matrix<double>> PreviousUpdateSigns, int epoch, ref double epochLoss, int batchIdx)
+        {
+            if (passedParams.parallelize)
+            {
+                Parallel_PerformBatchComputations(passedParams, batchesIndices, ref previousWeightsUpdate, PreviousUpdateSigns, epoch, ref epochLoss, batchIdx);
+
+            }
+            else
+            {
+
+                Dictionary<int, Matrix<double>> momentumUpdate = new Dictionary<int, Matrix<double>>();
+
+
+                double batchLoss = 0;
+                Dictionary<int, Matrix<double>> weightsUpdates = new Dictionary<int, Matrix<double>>();
+
+                int numberOfBatchExamples = (((int)batchesIndices.Row(batchIdx).At(1) - (int)batchesIndices.Row(batchIdx).At(0)) + 1);//not all batches have batchSize, unfortunately, the last one could be smaller
+                var batchElementsIndices = Enumerable.Range((int)batchesIndices.Row(batchIdx).At(0), (int)batchesIndices.Row(batchIdx).At(1) - (int)batchesIndices.Row(batchIdx).At(0) + 1).ToList();
+                if (passedParams.shuffle)
+                {
+                    batchElementsIndices.Shuffle();
+                }
+                foreach (int k in batchElementsIndices)//for each elemnt in th batch
+                {
+                    batchLoss = PerformExampleComputations(passedParams, batchIdx, momentumUpdate, batchLoss, weightsUpdates, k);
+                }//per example in the batch
+
+
+                if (passedParams.debug)
+                    Console.WriteLine("batch end");
+
+                //EpochBatchesLosses.Add(new double[] { batchLoss / numberOfBatchExamples });
+                // batchLoss /= (((int)batchesIndices.Row(batchIndex).At(1) - (int)batchesIndices.Row(batchIndex).At(0)) + 1);
+
+                UpdateWeights(passedParams, previousWeightsUpdate, PreviousUpdateSigns, epoch, momentumUpdate, weightsUpdates, batchElementsIndices.Count);
+                previousWeightsUpdate = ClonePrevWeightsUpdates(previousWeightsUpdate, weightsUpdates);
+                epochLoss += batchLoss / ((int)batchesIndices.Row(batchIdx).At(1) - (int)batchesIndices.Row(batchIdx).At(0) + 1);
+                if (passedParams.network.Debug)
+                    Console.WriteLine("Batch: {0} Error: {1}", batchIdx, batchLoss);
+            }
+        }
+
+        private static void Parallel_PerformBatchComputations(GradientDescentParams passedParams, Matrix<double> batchesIndices, ref Dictionary<int, Matrix<double>> previousWeightsUpdate, Dictionary<int, Matrix<double>> PreviousUpdateSigns, int epoch, ref double epochLoss, int batchIdx)
         {
             Dictionary<int, Matrix<double>> momentumUpdate = new Dictionary<int, Matrix<double>>();
 
@@ -150,10 +218,57 @@ namespace AA1_MLP.Entities.Trainers
             {
                 batchElementsIndices.Shuffle();
             }
-            foreach (int k in batchElementsIndices)//for each elemnt in th batch
+
+            for (int layerIndex = passedParams.network.Layers.Count - 1; layerIndex >= 1; layerIndex--)
             {
-                batchLoss = PerformExampleComputations(passedParams, batchIdx, momentumUpdate, batchLoss, weightsUpdates, k);
-            }//per example in the batch
+
+                if (!weightsUpdates.ContainsKey(layerIndex - 1))
+                {
+                    weightsUpdates.Add(layerIndex - 1, CreateMatrix.Dense(passedParams.network.Weights[layerIndex - 1].RowCount, passedParams.network.Weights[layerIndex - 1].ColumnCount, 0.0));
+                }
+
+                if (!momentumUpdate.ContainsKey(layerIndex - 1))
+                {
+                    momentumUpdate.Add(layerIndex - 1, CreateMatrix.Dense(passedParams.network.Weights[layerIndex - 1].RowCount, passedParams.network.Weights[layerIndex - 1].ColumnCount, 0.0));
+                }
+
+            }
+
+            double[] examplesLosses = new double[batchElementsIndices.Count];
+
+            //  Parallel_PerformExampleComputations(passedParams, momentumUpdate, weightsUpdates, batchElementsIndices[0], examplesLosses, 0);
+
+            Parallel.For(0, batchElementsIndices.Count,
+                    theadindx =>
+                    {
+
+                        Parallel_PerformExampleComputations(passedParams, weightsUpdates, batchElementsIndices[theadindx], examplesLosses, theadindx);
+
+                    });//per example in the batch
+                       /* List<Thread> threads = new List<Thread>();
+                        for (int batchElementThreadIndx = 0; batchElementThreadIndx < batchElementsIndices.Count-1; batchElementThreadIndx++)
+                        {
+
+                            threads.Add(new Thread(() => Parallel_PerformExampleComputations(passedParams, momentumUpdate, weightsUpdates, batchElementsIndices[batchElementThreadIndx], examplesLosses, batchElementThreadIndx)));
+                            threads.Last().Start();
+
+
+
+
+                        }*/
+                       //foreach (var thread in threads)
+                       //{
+                       //    thread.Join();
+                       //}
+                       /* for (int batchElementThreadIndx = 0; batchElementThreadIndx < batchElementsIndices.Count; batchElementThreadIndx++)
+                        {
+                            examplesLosses[batchElementThreadIndx] = Parallel_PerformExampleComputations(passedParams, momentumUpdate, weightsUpdates, batchElementsIndices[batchElementThreadIndx]);
+
+
+                        }*///per example in the batch
+            batchLoss = examplesLosses.Sum();
+
+
 
 
             if (passedParams.debug)
@@ -198,6 +313,37 @@ namespace AA1_MLP.Entities.Trainers
             if (passedParams.debug)
                 Console.WriteLine("-------- Batch:{0} element:{1} end-----", batchIdx, k);
             return batchLoss;
+        }
+
+        private static void Parallel_PerformExampleComputations(GradientDescentParams passedParams, Dictionary<int, Matrix<double>> weightsUpdates, int k, double[] examplesLosses, int slotInexamplesLosses)
+        {
+            //Console.WriteLine(k);
+            var nwOutput = passedParams.network.Predict(passedParams.trainingSet.Inputs.Row(k));
+            // network.Layers[0].LayerActivationsSumInputs = Dataset.Inputs.Row(k);
+            var label = passedParams.trainingSet.Labels.Row(k);
+            //comute the loss 
+            //batchLoss += ((label - nwOutput.Map(s => s >= 0.5 ? 1.0 : 0.0)).PointwiseMultiply(label - nwOutput.Map(s => s > 0.5 ? 1.0 : 0.0))).Sum();
+
+            //TODO: get the loss computation out as a parameter to the function, so that the user can specify it freely
+            var loss = ((label - nwOutput).PointwiseMultiply(label - nwOutput)).Sum();
+
+
+
+            var residual = label - nwOutput;
+
+            if (passedParams.debug)
+            {
+                Console.WriteLine("Target:{0}", label);
+                Console.WriteLine("Calculated:{0}", nwOutput);
+                Console.WriteLine("Target-calculated (residual):{0}", residual);
+            }
+
+            residual = residual.Map(r => double.IsNaN(r) ? 0 : r);
+
+            Parallel_BackPropForExample(passedParams, weightsUpdates, residual);//weightsupdates will be set here
+
+
+            examplesLosses[slotInexamplesLosses] = passedParams.MEE ? Math.Sqrt(loss) : loss;
         }
 
         private static Dictionary<int, Matrix<double>> ClonePrevWeightsUpdates(Dictionary<int, Matrix<double>> previousWeightsUpdate, Dictionary<int, Matrix<double>> weightsUpdates)
@@ -290,6 +436,86 @@ namespace AA1_MLP.Entities.Trainers
             }//back propagating per layer
         }
 
+        private static void Parallel_BackPropForExample(GradientDescentParams passedParams, Dictionary<int, Matrix<double>> weightsUpdates, Vector<double> residual)
+        {
+            var layers = new Layer[passedParams.network.Layers.Count];
+            for (int lyrIdx = 0; lyrIdx < passedParams.network.Layers.Count; lyrIdx++)
+            {
+                layers[lyrIdx] = passedParams.network.Layers[lyrIdx].GetDeepClone();
+            }
+
+            //backprop
+            for (int layerIndex = layers.Length - 1; layerIndex >= 1; layerIndex--)
+            {
+                if (passedParams.debug)
+                    Console.WriteLine("##### enting backpropagation layer index: {0} ######", layerIndex);
+                Vector<double> derivative = layers[layerIndex].Activation.CalculateDerivative(layers[layerIndex].LayerActivationsSumInputs);
+
+                if (passedParams.debug)
+                {
+                    Console.WriteLine("output sum(the sum inputted to the activation(LayerActivationsSumInputs)): {0}", layers[layerIndex].LayerActivationsSumInputs);
+                    Console.WriteLine("derivative: {0}", derivative);
+                    Console.WriteLine("output sum margin of error(residual): {0}", residual);
+                    Console.WriteLine("Delta output sum of Layer(residual*derivative): {0}", layerIndex);
+                    //    Console.WriteLine(residualTimesDerivative);
+
+                }
+                if (layerIndex == layers.Length - 1)
+                {
+                    layers[layerIndex].Delta = residual.PointwiseMultiply(derivative);
+
+                }
+                else
+                {
+                    Matrix<double> wei = passedParams.network.Weights[layerIndex];
+                    if (wei.RowCount > derivative.Count)//there is a bias
+                    {
+                        wei = wei.SubMatrix(0, wei.RowCount - 1, 0, wei.ColumnCount);
+                    }
+
+                    layers[layerIndex].Delta = (wei * layers[layerIndex + 1].Delta).PointwiseMultiply(derivative);
+                }
+
+            
+              
+
+
+                if (passedParams.network.Debug)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Weights layer:{0} {1}", layerIndex - 1, passedParams.network.Weights[layerIndex - 1]);
+                    Console.ResetColor();
+                }
+                Matrix<double> weightsUpdate = null;
+                var acti = layers[layerIndex - 1].LayerActivations;
+                if (layers[layerIndex - 1].Bias && acti.Count - layers[layerIndex - 1].NumberOfNeurons < 1)//if the user asked a bias should be added, we need to add a dummy neuron of activation =1 as a bias at the end of the layer's activations
+                {
+                    var l = acti.ToList();
+                    l.Add(1);//adding the bias
+
+                    acti = CreateVector.Dense(l.ToArray());
+                }
+                weightsUpdate = acti.OuterProduct(layers[layerIndex].Delta);
+
+                lock (thisLock)
+                { weightsUpdates[layerIndex - 1] = weightsUpdates[layerIndex - 1].Add(weightsUpdate); }
+                //accumulating it for each example in the batch -TODO::should we divide by the number of examples?
+
+                // weightsUpdates[layerIndex - 1] = weightsupdatematrix;
+                if (passedParams.debug)
+                {
+                    Console.WriteLine("weights updates of weightsMatrix(learning rate* outerproduct(Layer{1} delta,layer{2} output from activations) ): {0} ", layerIndex - 1, layerIndex, layerIndex - 1);
+                    Console.WriteLine("learning rate:{0}", passedParams.learningRate);
+                    Console.WriteLine("Layer:{0} delta: {1}", layerIndex, layers[layerIndex].Delta);
+                    Console.WriteLine("layer{0} output from activations:{1}", layerIndex - 1, layers[layerIndex - 1].LayerActivations);
+                    Console.WriteLine(weightsUpdate);
+                    Console.WriteLine("----------- Gradientdescent LayerIndex{0} ------------", layerIndex);
+
+                }
+
+            }//back propagating per layer
+        }
+
         private static void UpdateWeights(GradientDescentParams passedParams, Dictionary<int, Matrix<double>> previousWeightsUpdate, Dictionary<int, Matrix<double>> PreviousUpdateSigns, int epoch, Dictionary<int, Matrix<double>> momentumUpdate, Dictionary<int, Matrix<double>> weightsUpdates, int numberOfBatchExamplesInBatch)
         {
             for (int y = 0; y < weightsUpdates.Keys.Count; y++)
@@ -333,11 +559,11 @@ namespace AA1_MLP.Entities.Trainers
                     }
                 }
 
-             
+
                 if (passedParams.nestrov)
                 {
 
-                    
+
                     finalUpdate = (1 + passedParams.momentum) * momentumUpdate[y] - passedParams.momentum * prev_v;
                     momentumUpdate[y] = finalUpdate.Clone();
                     //for check

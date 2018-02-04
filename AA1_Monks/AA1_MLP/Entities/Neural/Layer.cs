@@ -12,7 +12,7 @@ namespace AA1_MLP.Entities
     /// Rrepresents a fully connected neural network layer
     /// </summary>
     [Serializable]
-   public class Layer
+    public class Layer
     {
         public int NumberOfNeurons { get; set; }
         public IActivation Activation { get; set; }
@@ -33,12 +33,12 @@ namespace AA1_MLP.Entities
             Activation = _activation;
             Bias = _bias;
             NumberOfNeurons = _numberOfNeurons;
-          /*  int addBias = 0;
-            if (Bias)
-            {
-                addBias = 1;
-            }
-            NumberOfNeurons += addBias;*/
+            /*  int addBias = 0;
+              if (Bias)
+              {
+                  addBias = 1;
+              }
+              NumberOfNeurons += addBias;*/
         }
         /// <summary>
         /// Multiplies the input from the previous layer by the weights between this layer and the previous layers and fires the activation function of this layer's neuron on the result.
@@ -63,7 +63,7 @@ namespace AA1_MLP.Entities
                  d.Insert(0, 1);
                  inputOfPrevLayer = CreateVector.Dense(d.ToArray());
              }*/
-        
+
             var activationInput = inputOfPrevLayer * weights;
             if (debug)
             {
@@ -71,16 +71,26 @@ namespace AA1_MLP.Entities
                 Console.WriteLine(activationInput);
             }
             LayerActivationsSumInputs = activationInput;
-             LayerActivations = Activation.CalculateActivation(activationInput);
-           /* if (Bias)
-            {
-                var d = LayerActivations.ToList<double>();
-                d.Add( 1);
-                LayerActivations = CreateVector.Dense(d.ToArray());
-            }*/
+            LayerActivations = Activation.CalculateActivation(activationInput);
+            /* if (Bias)
+             {
+                 var d = LayerActivations.ToList<double>();
+                 d.Add( 1);
+                 LayerActivations = CreateVector.Dense(d.ToArray());
+             }*/
             return LayerActivations;
 
 
+        }
+
+        public Layer GetDeepClone()
+        {
+            var lyr = new Layer(this.Activation, this.Bias, this.NumberOfNeurons);
+            lyr.LayerActivations = this.LayerActivations.Clone();
+            lyr.Delta = this.Delta==null?null: this.Delta.Clone();
+            lyr.LayerActivationsSumInputs = this.LayerActivationsSumInputs==null?null: this.LayerActivationsSumInputs.Clone();
+            
+            return lyr;
         }
     }
 }

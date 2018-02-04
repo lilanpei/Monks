@@ -46,7 +46,20 @@ namespace AA1_CUP
              DataSet trainDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttrain.txt", 10, 2, standardize: true);
              DataSet testDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttest.txt", 10, 2, standardize: true);
 
+            /*  Console.WriteLine("Training Adam");
+              AdamParams adampassedParams = new AdamParams();
+              IOptimizer adamtrainer = new Adam();
 
+              adampassedParams.numberOfEpochs = 100;
+              adampassedParams.batchSize = 10;
+              adampassedParams.trainingSet = trainDS;
+              adampassedParams.validationSet = testDS;
+              adampassedParams.learningRate = 0.001;
+              adampassedParams.regularization = Regularizations.L2;
+              adampassedParams.regularizationRate = 0.001;
+              adampassedParams.NumberOfHiddenUnits = 100;
+              adampassedParams.parallelize = true;
+              LastTrain(testDS, adampassedParams, adamtrainer, "100epoadam_profiling_parlock", 1);*/
 
             Console.WriteLine("training SGD");
             GradientDescentParams passedParams = new GradientDescentParams();
@@ -64,8 +77,8 @@ namespace AA1_CUP
             passedParams.resilientUpdateSlowDownRate = 0.5;
             passedParams.momentum = 0.5;
             passedParams.NumberOfHiddenUnits = 100;
-
-            LastTrain(testDS, passedParams, trainer, "profiling_" , 1);
+            passedParams.parallelize = true;
+            LastTrain(testDS, passedParams, trainer, "5kepochsprofiling_seq", 1);
 
             Console.WriteLine();
 
