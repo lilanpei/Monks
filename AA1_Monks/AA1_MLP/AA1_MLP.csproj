@@ -58,6 +58,7 @@
     <Compile Include="DataManagers\IDataManager.cs" />
     <Compile Include="Entities\IModel.cs" />
     <Compile Include="Entities\Linear\LinearModel.cs" />
+    <Compile Include="Entities\NeuralTrainers\Adamax.cs" />
     <Compile Include="Entities\RegressionTrainers\LLSGradientDescent.cs" />
     <Compile Include="Entities\RegressionTrainers\LLSNormal.cs" />
     <Compile Include="Entities\RegressionTrainers\LLSSVD.cs" />

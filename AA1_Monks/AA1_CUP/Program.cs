@@ -1,5 +1,6 @@
 ﻿using AA1_MLP.Activations;
 using AA1_MLP.Entities;
+using AA1_MLP.Entities.NeuralTrainers;
 using AA1_MLP.Entities.Trainers;
 using AA1_MLP.Entities.TrainersParams;
 using AA1_MLP.Enums;
@@ -42,45 +43,80 @@ namespace AA1_CUP
             //ReportHowCloseWeightsAcquiredFromDifferentSeedsAre();
 
 
-             AA1_MLP.DataManagers.CupDataManager dm = new AA1_MLP.DataManagers.CupDataManager();
-             DataSet trainDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttrain.txt", 10, 2, standardize: true);
-             DataSet testDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttest.txt", 10, 2, standardize: true);
+            AA1_MLP.DataManagers.CupDataManager dm = new AA1_MLP.DataManagers.CupDataManager();
+            DataSet trainDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttrain.txt", 10, 2, standardize: true);
+            DataSet testDS = dm.LoadData(@"C:\Users\Ronin\Documents\monks\Monks\UsedFiles\TrainValSplits\60percenttest.txt", 10, 2, standardize: true);
 
-            /*  Console.WriteLine("Training Adam");
-              AdamParams adampassedParams = new AdamParams();
-              IOptimizer adamtrainer = new Adam();
+            Console.WriteLine("Training Adamax");
+            AdamParams adampassedParams = new AdamParams();
+            IOptimizer adamtrainer = new Adam();
 
-              adampassedParams.numberOfEpochs = 100;
-              adampassedParams.batchSize = 10;
-              adampassedParams.trainingSet = trainDS;
-              adampassedParams.validationSet = testDS;
-              adampassedParams.learningRate = 0.001;
-              adampassedParams.regularization = Regularizations.L2;
-              adampassedParams.regularizationRate = 0.001;
-              adampassedParams.NumberOfHiddenUnits = 100;
-              adampassedParams.parallelize = true;
-              LastTrain(testDS, adampassedParams, adamtrainer, "100epoadam_profiling_parlock", 1);*/
+            adampassedParams.numberOfEpochs = 10000;
+            adampassedParams.batchSize = 10;
+            adampassedParams.trainingSet = trainDS;
+            adampassedParams.validationSet = testDS;
+            adampassedParams.learningRate = 0.001;
+            adampassedParams.regularization = Regularizations.L2;
+            adampassedParams.regularizationRate = 0.001;
+            adampassedParams.NumberOfHiddenUnits = 100;
+            
+            
+            adampassedParams.parallelize = false;
+            LastTrain(testDS, adampassedParams, adamtrainer, "10kt100adam", 1);
 
-            Console.WriteLine("training SGD");
-            GradientDescentParams passedParams = new GradientDescentParams();
-            Gradientdescent trainer = new Gradientdescent();
-            passedParams.numberOfEpochs = 100;
-            passedParams.batchSize = 10;
-            passedParams.trainingSet = trainDS;
-            passedParams.validationSet = testDS;
-            passedParams.learningRate = 0.001;
-            passedParams.regularization = Regularizations.L2;
-            passedParams.regularizationRate = 0.001;
-            passedParams.nestrov = true;
-            passedParams.resilient = false;
-            passedParams.resilientUpdateAccelerationRate = 2;
-            passedParams.resilientUpdateSlowDownRate = 0.5;
-            passedParams.momentum = 0.5;
-            passedParams.NumberOfHiddenUnits = 100;
-            passedParams.parallelize = true;
-            LastTrain(testDS, passedParams, trainer, "5kepochsprofiling_seq", 1);
+             adamtrainer = new Adamax();
 
-            Console.WriteLine();
+            adampassedParams.numberOfEpochs = 10000;
+            adampassedParams.batchSize = 10;
+            adampassedParams.trainingSet = trainDS;
+            adampassedParams.validationSet = testDS;
+            adampassedParams.learningRate = 0.001;
+            adampassedParams.regularization = Regularizations.L2;
+            adampassedParams.regularizationRate = 0.001;
+            adampassedParams.NumberOfHiddenUnits = 100;
+            
+            
+            adampassedParams.parallelize = false;
+            LastTrain(testDS, adampassedParams, adamtrainer, "adamax", 1);
+
+            
+
+            /*Console.WriteLine("Training Adam");
+            AdamParams adampassedParams = new AdamParams();
+            IOptimizer adamtrainer = new Adamax();
+
+            adampassedParams.numberOfEpochs = 100;
+            adampassedParams.batchSize = 10;
+            adampassedParams.trainingSet = trainDS;
+            adampassedParams.validationSet = testDS;
+            adampassedParams.learningRate = 0.001;
+            adampassedParams.regularization = Regularizations.L2;
+            adampassedParams.regularizationRate = 0.001;
+            adampassedParams.NumberOfHiddenUnits = 100;
+            adampassedParams.t = 1000000000;
+            
+            adampassedParams.parallelize = false;
+            LastTrain(testDS, adampassedParams, adamtrainer, "100adam", 1);*/
+            /* Console.WriteLine("training SGD");
+             GradientDescentParams passedParams = new GradientDescentParams();
+             Gradientdescent trainer = new Gradientdescent();
+             passedParams.numberOfEpochs = 100;
+             passedParams.batchSize = 10;
+             passedParams.trainingSet = trainDS;
+             passedParams.validationSet = testDS;
+             passedParams.learningRate = 0.001;
+             passedParams.regularization = Regularizations.L2;
+             passedParams.regularizationRate = 0.001;
+             passedParams.nestrov = true;
+             passedParams.resilient = false;
+             passedParams.resilientUpdateAccelerationRate = 2;
+             passedParams.resilientUpdateSlowDownRate = 0.5;
+             passedParams.momentum = 0.5;
+             passedParams.NumberOfHiddenUnits = 100;
+             passedParams.parallelize = true;
+             LastTrain(testDS, passedParams, trainer, "5kepochsprofiling_seq", 1);
+
+             Console.WriteLine();*/
 
 
             /*
@@ -236,7 +272,7 @@ namespace AA1_CUP
             double MEE = 0;
             double MSE = 0;
 
-            var log = ModelManager.TesterCUPRegression(testDS, n, out MEE, out  MSE);
+            var log = ModelManager.TesterCUPRegression(testDS, n, out MEE, out MSE);
 
             File.WriteAllText(path + ".txt", string.Join("\n", learningCurve.Select(s => string.Join(",", s))));
             File.AppendAllText(path + ".txt", "\nMEE:" + MEE + "MSE:" + MSE);

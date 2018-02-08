@@ -12,6 +12,6 @@ namespace AA1_MLP.Entities.TrainersParams
         public double beta1 = 0.9;
         public double beta2 = 0.999;
         public double epsilon = 1e-08;
-
+        
     }
 }
