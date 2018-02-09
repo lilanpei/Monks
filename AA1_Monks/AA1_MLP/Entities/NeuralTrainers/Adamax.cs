@@ -214,7 +214,7 @@ namespace AA1_MLP.Entities.NeuralTrainers
                     }
                     //mhat[y] = firstMoment[y] / (1 - Math.Pow(passedParams.beta1, adamUpdateStep));
                     //vhat[y] = ut[y] / (1 - Math.Pow(passedParams.beta2, adamUpdateStep));
-                    var finalUpdates = ((passedParams.learningRate * firstMoment[y]).PointwiseDivide(1 - Math.Pow(passedParams.beta1, adamUpdateStep) * ut[y]));//.PointwiseDivide((vhat[y].PointwiseSqrt() + passedParams.epsilon));
+                    var finalUpdates = ((passedParams.learningRate * firstMoment[y]).PointwiseDivide((1 - Math.Pow(passedParams.beta1, adamUpdateStep)) * ut[y]));//.PointwiseDivide((vhat[y].PointwiseSqrt() + passedParams.epsilon));
                     passedParams.network.Weights[y] -= finalUpdates;
 
                     /*  for check
@@ -336,7 +336,8 @@ namespace AA1_MLP.Entities.NeuralTrainers
                     }
                     //mhat[y] = firstMoment[y] / (1 - Math.Pow(passedParams.beta1, adamUpdateStep));
                     //vhat[y] = ut[y] / (1 - Math.Pow(passedParams.beta2, adamUpdateStep));
-                    var finalUpdates = ((passedParams.learningRate * firstMoment[y]).PointwiseDivide (1 - Math.Pow(passedParams.beta1, adamUpdateStep) *ut[y]));//.PointwiseDivide((vhat[y].PointwiseSqrt() + passedParams.epsilon));
+                    var finalUpdates = ((passedParams.learningRate * firstMoment[y]).PointwiseDivide((1 - Math.Pow(passedParams.beta1, adamUpdateStep)) * ut[y]));//.PointwiseDivide((vhat[y].PointwiseSqrt() + passedParams.epsilon));
+
                     passedParams.network.Weights[y] -= finalUpdates;
 
                     /*  for check

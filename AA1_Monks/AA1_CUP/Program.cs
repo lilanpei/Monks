@@ -51,7 +51,22 @@ namespace AA1_CUP
             AdamParams adampassedParams = new AdamParams();
             IOptimizer adamtrainer = new Adam();
 
-            adampassedParams.numberOfEpochs = 10000;
+            //adampassedParams.numberOfEpochs = 10000;
+            //adampassedParams.batchSize = 10;
+            //adampassedParams.trainingSet = trainDS;
+            //adampassedParams.validationSet = testDS;
+            //adampassedParams.learningRate = 0.001;
+            //adampassedParams.regularization = Regularizations.L2;
+            //adampassedParams.regularizationRate = 0.001;
+            //adampassedParams.NumberOfHiddenUnits = 100;
+
+
+            //adampassedParams.parallelize = false;
+            //LastTrain(testDS, adampassedParams, adamtrainer, "10kt100adam", 1);
+
+            adamtrainer = new Adamax();
+
+            adampassedParams.numberOfEpochs = 100000;
             adampassedParams.batchSize = 10;
             adampassedParams.trainingSet = trainDS;
             adampassedParams.validationSet = testDS;
@@ -59,27 +74,12 @@ namespace AA1_CUP
             adampassedParams.regularization = Regularizations.L2;
             adampassedParams.regularizationRate = 0.001;
             adampassedParams.NumberOfHiddenUnits = 100;
-            
-            
+
+            //adampassedParams.PrintLoss = true;
             adampassedParams.parallelize = false;
-            LastTrain(testDS, adampassedParams, adamtrainer, "10kt100adam", 1);
+            LastTrain(testDS, adampassedParams, adamtrainer, "100kadamax", 1);
 
-             adamtrainer = new Adamax();
 
-            adampassedParams.numberOfEpochs = 10000;
-            adampassedParams.batchSize = 10;
-            adampassedParams.trainingSet = trainDS;
-            adampassedParams.validationSet = testDS;
-            adampassedParams.learningRate = 0.001;
-            adampassedParams.regularization = Regularizations.L2;
-            adampassedParams.regularizationRate = 0.001;
-            adampassedParams.NumberOfHiddenUnits = 100;
-            
-            
-            adampassedParams.parallelize = false;
-            LastTrain(testDS, adampassedParams, adamtrainer, "adamax", 1);
-
-            
 
             /*Console.WriteLine("Training Adam");
             AdamParams adampassedParams = new AdamParams();
